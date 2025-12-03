@@ -67,11 +67,12 @@ vec4 sampleTextureSafe(sampler2D tex, vec2 uv) {
 
 void main(void) {
     vec2 initialUV = vTexCoord;
-    vec4 col = vec4(0.0);
+    vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
 
     col = texture2D(u_tex, initialUV);
 
-    col.rgb += texture2D(u_uiTex, initialUV).rgb;
+    vec4 uiCol = texture2D(u_uiTex, initialUV);
+    col = mix(col, uiCol, uiCol.a);
 
     gl_FragColor = col;
 }

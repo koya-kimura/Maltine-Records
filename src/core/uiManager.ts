@@ -2,7 +2,7 @@ import p5 from "p5";
 import { DateText } from "../utils/dateText";
 import { Easing } from "../utils/easing";
 
-type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: number, bpm: number) => void;
+type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: number) => void;
 
 /**
  * UI描画関数その2（インデックス1）。
@@ -16,14 +16,28 @@ type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: number, bpm
  *
  * @param context 描画に必要なコンテキスト情報。
  */
-const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: number, bpm: number): void => {
+const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: number): void => {
     tex.push();
     tex.textFont(font);
 
     tex.textAlign(p.CENTER, p.CENTER);
-    tex.textSize(tex.width * 0.1);
+    tex.textSize(tex.width * 0.04);
+    tex.noStroke();
     tex.fill(255);
-    tex.text("Maltine Records", tex.width * 0.5, tex.height * 0.5);
+    tex.text("Maltine Records", tex.width * 0.5, tex.height * 0.1);
+
+    const dateTimeString = DateText.getYYYYMMDD_HHMMSS_format();
+
+    tex.textSize(tex.width * 0.015);
+    tex.textAlign(p.RIGHT, p.BOTTOM);
+    tex.noStroke();
+    tex.fill(255);
+    tex.text(dateTimeString, tex.width * 0.95, tex.height * 0.95);
+
+    tex.stroke(255);
+    tex.strokeWeight(2);
+    tex.line(tex.width * 0.05, tex.height * 0.1, tex.width * 0.3, tex.height * 0.1);
+    tex.line(tex.width * 0.7, tex.height * 0.1, tex.width * 0.95, tex.height * 0.1);
 
     tex.pop();
 }
@@ -108,9 +122,7 @@ export class UIManager {
      * @param _p p5.jsのインスタンス（現在未使用）。
      * @param params UI制御用のパラメータ配列。
      */
-    update(_p: p5, params: number[]): void {
-        const index = this.normalizePatternIndex(params?.[0]);
-        this.activePatternIndex = index;
+    update(_p: p5): void {
     }
 
     /**
@@ -124,7 +136,7 @@ export class UIManager {
      * @param font UI描画に使用するフォント。
      * @param resources その他の描画に必要なリソース群（BPM、ビート、カラーパレットなど）。
      */
-    draw(p: p5, font: p5.Font, beat: number, bpm: number): void {
+    draw(p: p5, font: p5.Font): void {
         const texture = this.renderTexture;
         if (!texture) {
             throw new Error("Texture not initialized");
@@ -133,7 +145,7 @@ export class UIManager {
         texture.push();
         texture.clear();
         const drawer = UIDRAWERS[this.activePatternIndex] ?? UIDRAWERS[0];
-        drawer(p, texture, font, beat, bpm);
+        drawer(p, texture, font, p.millis() / 500);
 
         texture.pop();
     }

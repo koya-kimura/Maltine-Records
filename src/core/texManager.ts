@@ -1,21 +1,13 @@
 import p5 from "p5";
 
-import { BPMManager } from "../rhythm/BPMManager";
-import { APCMiniMK2Manager } from "../midi/apcmini_mk2/APCMiniMK2Manager";
-import { ColorPalette } from "../utils/colorPalette";
-import { Pattern } from "../scenes/pattern/patern";
-import { ImageAnimation } from "../scenes/image/ImageAnimation";
-import { ImageGallery } from "../scenes/image/ImageGallery";
+import { Pattern } from "../scenes/overlay/patern";
 import { ImageLayer } from "../scenes/image/ImageLayer";
-import { SceneComposition } from "../scenes/image/SceneComposition";
 
 // TexManager は描画用の p5.Graphics とシーン、MIDI デバッグ描画のハブを担当する。
 export class TexManager {
     private renderTexture: p5.Graphics | null;
-    private bpmManager: BPMManager;
-    private midiManager: APCMiniMK2Manager | null;
-    private pattern: Pattern;
-    private sceneComposition: SceneComposition; // シーン構成管理
+    private backgroundPattern: Pattern;
+    private imageLayer: ImageLayer;
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -28,12 +20,8 @@ export class TexManager {
      */
     constructor() {
         this.renderTexture = null;
-        this.bpmManager = new BPMManager();
-        this.midiManager = null;
-        this.pattern = new Pattern(512, 512, 0, 0); // 背景パターン: 縞模様、マスクなし
-
-        // SceneCompositionは初期化後に作成
-        this.sceneComposition = null as any; // 一時的にnull
+        this.backgroundPattern = new Pattern();
+        this.imageLayer = new ImageLayer();
     }
 
     /**
@@ -47,46 +35,13 @@ export class TexManager {
      * @param p p5.jsのインスタンス。createGraphicsなどの描画機能を使用するために必要です。
      * @param midiManager MIDIマネージャーインスタンス
      */
-    async init(p: p5, midiManager: APCMiniMK2Manager): Promise<void> {
+    async load(p: p5): Promise<void> {
         this.renderTexture = p.createGraphics(p.width, p.height);
-        this.midiManager = midiManager;
-
-        this.midiManager.setMaxOptionsForScene(0, [2, 3, 2, 0, 0, 0, 4, 4]);
-        this.midiManager.setMaxOptionsForScene(1, [2, 4, 3, 3, 3, 6, 0, 0]);
-        this.midiManager.setMaxOptionsForScene(2, [2, 2, 2, 2, 2, 2, 2, 2]);
-        this.midiManager.setMaxOptionsForScene(3, [0, 0, 0, 0, 0, 0, 0, 0]);
-        this.midiManager.setMaxOptionsForScene(4, [0, 0, 0, 0, 0, 0, 0, 0]);
-        this.midiManager.setMaxOptionsForScene(5, [0, 0, 0, 0, 0, 0, 0, 0]);
-        this.midiManager.setMaxOptionsForScene(6, [0, 0, 0, 0, 0, 0, 0, 0]);
-        this.midiManager.setMaxOptionsForScene(7, [3, 3, 0, 0, 0, 0, 0, 0]);
 
         // Patternシェーダーの読み込み
-        await this.pattern.load(p, "/shader/main.vert", "/shader/pattern.frag");
-
-        // SceneComposition用のコンポーネントを初期化
-        const imageAnimation = new ImageAnimation(30);
-        const imageGallery = new ImageGallery();
-        const imageLayer = new ImageLayer(1024, 1024);
-        const overlayPattern = new Pattern(512, 512, 2, 1); // オーバーレイ用パターン
-
-        // 各コンポーネントを読み込み
-        await imageLayer.load(p);
-        await imageAnimation.load(p, "/image/hand", 5, 40);
-        await imageGallery.load(p, "/image", [
-            { name: "animal", count: 3 },
-            { name: "human", count: 5 },
-            { name: "life", count: 4 },
-            { name: "noface", count: 4 }
-        ]);
-        await overlayPattern.load(p, "/shader/main.vert", "/shader/pattern.frag");
-
-        // SceneCompositionを作成
-        this.sceneComposition = new SceneComposition(
-            imageAnimation,
-            imageGallery,
-            imageLayer,
-            overlayPattern
-        );
+        // TODO:キモいのでパス直す
+        await this.backgroundPattern.load(p, "/shader/main.vert", "/shader/pattern.frag");
+        await this.imageLayer.load(p);
     }
 
     /**
@@ -124,6 +79,8 @@ export class TexManager {
             throw new Error("Texture not initialized");
         }
         texture.resizeCanvas(p.width, p.height);
+        this.backgroundPattern.resize(p);
+        this.imageLayer.resize(p);
     }
 
     /**
@@ -137,12 +94,7 @@ export class TexManager {
      * @param _p p5.jsのインスタンス（現在は未使用ですが、将来的な拡張のために引数として保持）。
      */
     update(p: p5): void {
-        this.bpmManager.update();
-
-        // SceneCompositionの更新
-        if (this.sceneComposition) {
-            this.sceneComposition.update(p);
-        }
+        this.backgroundPattern.update(p, 0);
     }
 
     /**
@@ -156,7 +108,7 @@ export class TexManager {
      *
      * @param p p5.jsのインスタンス。
      */
-    draw(p: p5): void {
+    draw(p: p5, beat: number): void {
         const texture = this.renderTexture;
         if (!texture) {
             throw new Error("Texture not initialized");
@@ -165,188 +117,9 @@ export class TexManager {
         texture.push();
         texture.clear();
 
-        const beat = this.bpmManager.getBeat();
-        const bandParams = this.midiManager?.getParamValues(0) || [];
-        const numberParams = this.midiManager?.getParamValues(1) || [];
-        const palette = this.getColorPalette();
-
-        // パターンの更新と描画（背景レイヤー）
-        this.pattern.update(p, beat);
-        texture.push();
-        texture.imageMode(p.CORNER);
-        this.pattern.drawPattern(texture, 0, 0, p.width, p.height);
-        texture.pop();
-
-        // SceneComposition の描画（画像 + オーバーレイ）
-        if (this.sceneComposition) {
-            texture.push();
-            texture.imageMode(p.CENTER);
-            this.sceneComposition.draw(texture, p.width / 2, p.height / 2, p.width, p.height);
-            texture.pop();
-        }
+        this.backgroundPattern.draw(texture, beat);
+        this.imageLayer.draw(texture, beat);
 
         texture.pop();
-
-        // this.sceneMatrix.drawDebug(p, texture, 24, 24);
     }
-
-    /**
-     * 現在設定されているカラーパレットを16進数カラーコードの配列として取得します。
-     * MIDIコントローラーの特定の行（インデックス2）の設定値を読み取り、
-     * それをブール値の配列に変換します（0ならtrue、それ以外ならfalseなど）。
-     * このブール値配列をColorPaletteクラスの静的メソッドに渡すことで、
-     * 現在有効な色の組み合わせ（パレット）を取得します。
-     * これにより、ビジュアル全体の色調を動的に変更することができます。
-     *
-     * @returns カラーコード（例: "#FF0000"）の文字配列。
-     */
-    getColorPalette(): string[] {
-        const colorPaletteBooleanArray = this.midiManager?.getParamValues(2).map((value: number) => value == 1) || [];
-        return ColorPalette.getColorArray(colorPaletteBooleanArray);
-    }
-
-    /**
-     * 現在設定されているカラーパレットをRGB値のフラットな配列として取得します。
-     * getColorPaletteと同様にMIDIコントローラーの設定値に基づきますが、
-     * こちらはシェーダーに渡すために適した形式（[R, G, B, R, G, B, ...]）で返します。
-     * 各色成分は0〜1の範囲に正規化されていることが一般的です（ColorPaletteの実装依存）。
-     * シェーダーのUniform変数としてカラーパレット情報を渡す際に使用されます。
-     *
-     * @returns RGB値が順に並んだ数値配列。
-     */
-    getColorPaletteRGB(): number[] {
-        const colorPaletteBooleanArray = this.midiManager?.getParamValues(2).map((value: number) => value == 1) || [];
-        return ColorPalette.getColorRGBArray(colorPaletteBooleanArray)
-    }
-
-    /**
-     * キーボード入力イベントを処理します。
-     * 特定のキー（現在はEnterキー、keyCode 13）が押された場合に、
-     * BPMManagerのタップテンポ機能を呼び出します。
-     * これにより、ユーザーがキーボードを叩くリズムに合わせてBPM（テンポ）を設定・調整することができます。
-     * ライブパフォーマンス時などに、手動で楽曲のテンポに同期させるために便利です。
-     *
-     * @param keyCode 押されたキーのコード。
-     */
-    keyPressed(keyCode: number): void {
-        if (keyCode == 13) {
-            this.bpmManager.tapTempo();
-        }
-    }
-
-    /**
-     * MIDIコントローラーの特定の行（シーン）におけるパラメータ値の配列を取得します。
-     * デフォルトでは7行目のパラメータを取得しますが、引数で任意の行を指定可能です。
-     * これらの値は、エフェクトの強度、シーンの切り替え、その他のビジュアル制御に使用されます。
-     * 各値は通常0〜127のMIDI値、または正規化された値、あるいはインデックス値など、
-     * マネージャーの設定に依存した形式で返されます。
-     *
-     * @param row 取得したいパラメータの行インデックス（デフォルトは7）。
-     * @returns 指定された行のパラメータ値の配列。
-     */
-    getParamsRow(row: number = 7): number[] {
-        return this.midiManager?.getParamValues(row) || [];
-    }
-
-    /**
-     * 現在のBPM（Beats Per Minute）を取得します。
-     * BPMManagerが管理している現在のテンポ設定を返します。
-     * この値は、アニメーションの速度制御や、時間依存のエフェクト計算などに使用されます。
-     * 外部のコンポーネントが現在のテンポを知るためのアクセサです。
-     *
-     * @returns 現在のBPM値。
-     */
-    getBPM(): number {
-        return this.bpmManager.getBPM();
-    }
-
-    /**
-     * 現在の累積ビート数を取得します。
-     * BPMManagerによって計算された、曲の開始（またはリセット）からの総拍数です。
-     * 小数点以下の値も含まれており、滑らかなアニメーション同期に使用できます。
-     * 例えば、sin(beat)のように使用して、ビートに同期した周期的な動きを作ることができます。
-     *
-     * @returns 現在の累積ビート数。
-     */
-    getBeat(): number {
-        return this.bpmManager.getBeat();
-    }
-
-    // ========== 仮実装: モード切り替え機能（後で削除予定） ==========
-
-    /**
-     * SceneCompositionのモードを次に切り替えます。
-     * 【仮実装】キーボード操作用の一時的な機能です。
-     */
-    nextMode(): void {
-        if (!this.sceneComposition) return;
-
-        const modes = this.sceneComposition.getModeNames();
-        const currentMode = this.sceneComposition.getCurrentMode();
-        const currentIndex = modes.indexOf(currentMode.name);
-        const nextIndex = (currentIndex + 1) % modes.length;
-
-        this.sceneComposition.setMode(modes[nextIndex]);
-        console.log(`Mode changed to: ${modes[nextIndex]}`);
-    }
-
-    /**
-     * SceneCompositionのモードを前に切り替えます。
-     * 【仮実装】キーボード操作用の一時的な機能です。
-     */
-    previousMode(): void {
-        if (!this.sceneComposition) return;
-
-        const modes = this.sceneComposition.getModeNames();
-        const currentMode = this.sceneComposition.getCurrentMode();
-        const currentIndex = modes.indexOf(currentMode.name);
-        const prevIndex = (currentIndex - 1 + modes.length) % modes.length;
-
-        this.sceneComposition.setMode(modes[prevIndex]);
-        console.log(`Mode changed to: ${modes[prevIndex]}`);
-    }
-
-    // ========== 仮実装終了 ==========
-
-    // ========== 仮実装: 背景パターン切り替え（後で削除予定） ==========
-
-    private currentPatternPreset: number = 0;
-
-    // 背景パターンプリセット定義（背景は常に全画面表示、マスクなし）
-    private patternPresets: number[] = [
-        9,  // 0キー: パターン10（まだ未定義）
-        0,  // 1キー: パターン1 - 斜め斜線
-        1,  // 2キー: パターン2 - 垂直線（太さ1.5倍）
-        2,  // 3キー: パターン3 - 横線（太さ0.3倍）
-        3,  // 4キー: パターン4 - 波打つ垂直線（太さ0.7倍）
-        4,  // 5キー: パターン5（まだ未定義）
-        5,  // 6キー: パターン6（まだ未定義）
-        6,  // 7キー: パターン7（まだ未定義）
-        7,  // 8キー: パターン8（まだ未定義）
-        8,  // 9キー: パターン9（まだ未定義）
-    ];
-
-    /**
-     * 背景パターンプリセットを設定します。
-     * 【仮実装】0-9キーで背景パターンを切り替えるための機能です。
-     * 背景は常に全画面表示（マスクなし）です。
-     * 
-     * @param presetIndex プリセット番号（0-9）
-     */
-    setPatternPreset(presetIndex: number): void {
-        if (presetIndex < 0 || presetIndex >= this.patternPresets.length) return;
-
-        this.currentPatternPreset = presetIndex;
-        const patternType = this.patternPresets[presetIndex];
-
-        // 背景パターンは常にマスクなし（全画面表示）
-        this.pattern.setPatternType(patternType);
-        this.pattern.setMaskType(0);  // 常にマスクなし
-
-        const patternNames = ['縞模様', '水玉', '円', 'グリッド'];
-
-        console.log(`Background pattern preset ${presetIndex}: ${patternNames[patternType]}`);
-    }
-
-    // ========== 仮実装終了 ==========
 }

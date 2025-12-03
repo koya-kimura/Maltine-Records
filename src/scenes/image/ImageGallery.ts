@@ -87,6 +87,31 @@ export class ImageGallery {
     }
 
     /**
+     * 指定したカテゴリの現在の画像を取得します。
+     * 
+     * @param category カテゴリ名
+     * @param index 画像インデックス（省略時は現在のインデックス）
+     * @returns p5.Imageオブジェクト、またはnull
+     */
+    getImage(category: string, index?: number): p5.Image | null {
+        if (!this.isLoaded) {
+            return null;
+        }
+
+        const categoryImages = this.images.get(category);
+        if (!categoryImages || categoryImages.length === 0) {
+            return null;
+        }
+
+        const imageIndex = index !== undefined ? index : this.currentImageIndex;
+        if (imageIndex < 0 || imageIndex >= categoryImages.length) {
+            return null;
+        }
+
+        return categoryImages[imageIndex] || null;
+    }
+
+    /**
      * 現在の画像を指定した座標に描画します。
      * 
      * @param p p5.jsのインスタンス、またはp5.Graphicsオブジェクト。

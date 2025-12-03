@@ -1,6 +1,7 @@
 // main.ts は p5 スケッチのエントリーポイントとして描画ループを構成する。
 import p5 from "p5";
 
+import { BPMManager } from "./rhythm/BPMManager";
 import { TexManager } from "./core/texManager";
 import { UIManager } from "./core/uiManager";
 import { EffectManager } from "./core/effectManager";
@@ -8,6 +9,7 @@ import { APCMiniMK2Manager } from "./midi/apcmini_mk2/APCMiniMK2Manager";
 
 // グローバルMIDIマネージャー
 const midiManager = new APCMiniMK2Manager();
+const bpmManager = new BPMManager();
 
 const texManager = new TexManager();
 const uiManager = new UIManager();
@@ -31,7 +33,7 @@ const sketch = (p: p5) => {
     p.pixelDensity(1); // 高解像度ディスプレイ対応
 
     // 各マネージャーの初期化
-    await texManager.init(p, midiManager);
+    await texManager.load(p);
     uiManager.init(p);
 
     // カメラキャプチャ用のバッファと要素の作成
@@ -57,6 +59,8 @@ const sketch = (p: p5) => {
     // p.background(0);
     p.clear();
 
+    //=============
+
     // カメラ映像のアスペクト比維持とセンタリング
     const scl = Math.max(p.width / capture.width, p.height / capture.height);
     captureTexture.clear();
@@ -67,17 +71,21 @@ const sketch = (p: p5) => {
     captureTexture.image(capture, 0, 0);
     captureTexture.pop();
 
+    //=============
+
+    bpmManager.update();
+    midiManager.update(Math.floor(bpmManager.getBeat()));
+
     // シーンの更新と描画
-    midiManager.update(Math.floor(texManager.getBeat()));
     texManager.update(p);
-    texManager.draw(p);
+    texManager.draw(p, bpmManager.getBeat());
 
     // UIの更新と描画
-    uiManager.update(p, texManager.getParamsRow(6));
-    uiManager.draw(p, font, texManager.getBeat(), texManager.getBPM());
+    uiManager.update(p);
+    uiManager.draw(p, font);
 
     // ポストエフェクトの適用と画面への描画
-    effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture, midiManager.faderValues, texManager.getParamsRow(7), texManager.getBeat(), texManager.getColorPaletteRGB());
+    effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture);
   };
 
   // windowResized はブラウザのリサイズに追従してバッファを更新する。
@@ -93,32 +101,14 @@ const sketch = (p: p5) => {
   // スペースキーでフルスクリーンモードの切り替えを行い、
   // その他のキー入力はテクスチャマネージャー（シーン切り替えなど）に伝播させます。
   p.keyPressed = () => {
+    if(p.keyCode === 13){
+      bpmManager.tapTempo();
+    }
+
     if (p.keyCode === 32) {
       p.fullscreen(true);
     }
-
-    // ========== 仮実装: モード切り替え（後で削除予定） ==========
-    // 左キー: 前のモードへ
-    if (p.keyCode === 37) {
-      texManager.previousMode();
-    }
-    // 右キー: 次のモードへ
-    if (p.keyCode === 39) {
-      texManager.nextMode();
-    }
-    // ========== 仮実装終了 ==========
-
-    // ========== 仮実装: 背景パターン切り替え（後で削除予定） ==========
-    // 0-9キー: 背景パターンプリセット切り替え
-    if (p.key >= '0' && p.key <= '9') {
-      const presetIndex = parseInt(p.key);
-      texManager.setPatternPreset(presetIndex);
-    }
-    // ========== 仮実装終了 ==========
-
-    texManager.keyPressed(p.keyCode);
   };
-
 };
 
 // p5.js スケッチを起動する。
