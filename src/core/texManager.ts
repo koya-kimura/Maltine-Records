@@ -7,17 +7,15 @@ import { Pattern } from "../scenes/pattern/patern";
 import { ImageAnimation } from "../scenes/image/ImageAnimation";
 import { ImageGallery } from "../scenes/image/ImageGallery";
 import { ImageLayer } from "../scenes/image/ImageLayer";
+import { SceneComposition } from "../scenes/image/SceneComposition";
 
 // TexManager は描画用の p5.Graphics とシーン、MIDI デバッグ描画のハブを担当する。
 export class TexManager {
     private renderTexture: p5.Graphics | null;
     private bpmManager: BPMManager;
-    public sceneMatrix: APCMiniMK2Manager;
+    private midiManager: APCMiniMK2Manager | null;
     private pattern: Pattern;
-    private pattern2: Pattern; // 2つ目のパターン（中心の小さい模様用）
-    private imageAnimation: ImageAnimation;
-    private imageGallery: ImageGallery; // 静止画ギャラリー
-    private imageLayer: ImageLayer; // 画像レイヤー（共通エフェクト処理）
+    private sceneComposition: SceneComposition; // シーン構成管理
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -31,12 +29,11 @@ export class TexManager {
     constructor() {
         this.renderTexture = null;
         this.bpmManager = new BPMManager();
-        this.sceneMatrix = new APCMiniMK2Manager();
+        this.midiManager = null;
         this.pattern = new Pattern(512, 512, 0, 0); // 背景パターン: 縞模様、マスクなし
-        this.pattern2 = new Pattern(512, 512, 2, 1); // 中心パターン: 円模様、四角形マスク
-        this.imageAnimation = new ImageAnimation(30); // 30fps
-        this.imageGallery = new ImageGallery(); // 静止画ギャラリー
-        this.imageLayer = new ImageLayer(1024, 1024); // 共通画像レイヤー
+
+        // SceneCompositionは初期化後に作成
+        this.sceneComposition = null as any; // 一時的にnull
     }
 
     /**
@@ -48,36 +45,48 @@ export class TexManager {
      * 特定のシーンインデックスに対して、配列形式で最大値を指定しています。
      *
      * @param p p5.jsのインスタンス。createGraphicsなどの描画機能を使用するために必要です。
+     * @param midiManager MIDIマネージャーインスタンス
      */
-    async init(p: p5): Promise<void> {
+    async init(p: p5, midiManager: APCMiniMK2Manager): Promise<void> {
         this.renderTexture = p.createGraphics(p.width, p.height);
+        this.midiManager = midiManager;
 
-        this.sceneMatrix.setMaxOptionsForScene(0, [2, 3, 2, 0, 0, 0, 4, 4]);
-        this.sceneMatrix.setMaxOptionsForScene(1, [2, 4, 3, 3, 3, 6, 0, 0]);
-        this.sceneMatrix.setMaxOptionsForScene(2, [2, 2, 2, 2, 2, 2, 2, 2]);
-        this.sceneMatrix.setMaxOptionsForScene(3, [0, 0, 0, 0, 0, 0, 0, 0]);
-        this.sceneMatrix.setMaxOptionsForScene(4, [0, 0, 0, 0, 0, 0, 0, 0]);
-        this.sceneMatrix.setMaxOptionsForScene(5, [0, 0, 0, 0, 0, 0, 0, 0]);
-        this.sceneMatrix.setMaxOptionsForScene(6, [0, 0, 0, 0, 0, 0, 0, 0]);
-        this.sceneMatrix.setMaxOptionsForScene(7, [3, 3, 0, 0, 0, 0, 0, 0]);
+        this.midiManager.setMaxOptionsForScene(0, [2, 3, 2, 0, 0, 0, 4, 4]);
+        this.midiManager.setMaxOptionsForScene(1, [2, 4, 3, 3, 3, 6, 0, 0]);
+        this.midiManager.setMaxOptionsForScene(2, [2, 2, 2, 2, 2, 2, 2, 2]);
+        this.midiManager.setMaxOptionsForScene(3, [0, 0, 0, 0, 0, 0, 0, 0]);
+        this.midiManager.setMaxOptionsForScene(4, [0, 0, 0, 0, 0, 0, 0, 0]);
+        this.midiManager.setMaxOptionsForScene(5, [0, 0, 0, 0, 0, 0, 0, 0]);
+        this.midiManager.setMaxOptionsForScene(6, [0, 0, 0, 0, 0, 0, 0, 0]);
+        this.midiManager.setMaxOptionsForScene(7, [3, 3, 0, 0, 0, 0, 0, 0]);
 
         // Patternシェーダーの読み込み
         await this.pattern.load(p, "/shader/main.vert", "/shader/pattern.frag");
-        await this.pattern2.load(p, "/shader/main.vert", "/shader/pattern.frag");
 
-        // ImageLayerの初期化
-        await this.imageLayer.load(p);
+        // SceneComposition用のコンポーネントを初期化
+        const imageAnimation = new ImageAnimation(30);
+        const imageGallery = new ImageGallery();
+        const imageLayer = new ImageLayer(1024, 1024);
+        const overlayPattern = new Pattern(512, 512, 2, 1); // オーバーレイ用パターン
 
-        // ImageAnimationの画像を読み込み
-        await this.imageAnimation.load(p, "/image/hand", 5, 40);
-
-        // ImageGalleryの画像を読み込み
-        await this.imageGallery.load(p, "/image", [
+        // 各コンポーネントを読み込み
+        await imageLayer.load(p);
+        await imageAnimation.load(p, "/image/hand", 5, 40);
+        await imageGallery.load(p, "/image", [
             { name: "animal", count: 3 },
             { name: "human", count: 5 },
             { name: "life", count: 4 },
             { name: "noface", count: 4 }
         ]);
+        await overlayPattern.load(p, "/shader/main.vert", "/shader/pattern.frag");
+
+        // SceneCompositionを作成
+        this.sceneComposition = new SceneComposition(
+            imageAnimation,
+            imageGallery,
+            imageLayer,
+            overlayPattern
+        );
     }
 
     /**
@@ -128,9 +137,12 @@ export class TexManager {
      * @param _p p5.jsのインスタンス（現在は未使用ですが、将来的な拡張のために引数として保持）。
      */
     update(p: p5): void {
-        this.bpmManager.update()
-        this.sceneMatrix.update(Math.floor(this.bpmManager.getBeat()))
-        this.imageAnimation.update(p);
+        this.bpmManager.update();
+
+        // SceneCompositionの更新
+        if (this.sceneComposition) {
+            this.sceneComposition.update(p);
+        }
     }
 
     /**
@@ -152,42 +164,26 @@ export class TexManager {
 
         texture.push();
         texture.clear();
-        // texture.background(0);
 
         const beat = this.bpmManager.getBeat();
-        const bandParams = this.sceneMatrix.getParamValues(0);
-        const numberParams = this.sceneMatrix.getParamValues(1);
+        const bandParams = this.midiManager?.getParamValues(0) || [];
+        const numberParams = this.midiManager?.getParamValues(1) || [];
         const palette = this.getColorPalette();
 
         // パターンの更新と描画（背景レイヤー）
         this.pattern.update(p, beat);
+        texture.push();
         texture.imageMode(p.CORNER);
         this.pattern.drawPattern(texture, 0, 0, p.width, p.height);
-
-        // ImageGalleryの描画（パターンの上、handアニメーションの下のレイヤー）
-        const galleryImage = this.imageGallery.getCurrentImage();
-        this.imageLayer.updateWithImage(p, galleryImage);
-        texture.push();
-        texture.imageMode(p.CENTER);
-        texture.translate(p.width / 2, p.height / 2);
-        this.imageLayer.draw(texture, 0, 0, p.width * 0.6, p.height * 0.6);
         texture.pop();
 
-        // ImageAnimationの描画（ImageGalleryの上のレイヤー）
-        texture.push();
-        texture.imageMode(p.CENTER);
-        texture.translate(p.width / 2, p.height / 2);
-        this.imageAnimation.draw(texture, 0, 0, p.width * 0.8, p.height * 0.8);
-        texture.pop();
-
-        // 2つ目のパターンの描画（中心の小さい模様）
-        this.pattern2.update(p, beat);
-        texture.push();
-        texture.imageMode(p.CENTER);
-        texture.translate(p.width / 2, p.height / 2);
-        // 通常合成で完全不透明に重ねる
-        this.pattern2.drawPattern(texture, 0, 0, p.width * 0.4, p.height * 0.4);
-        texture.pop();
+        // SceneComposition の描画（画像 + オーバーレイ）
+        if (this.sceneComposition) {
+            texture.push();
+            texture.imageMode(p.CENTER);
+            this.sceneComposition.draw(texture, p.width / 2, p.height / 2, p.width, p.height);
+            texture.pop();
+        }
 
         texture.pop();
 
@@ -205,7 +201,7 @@ export class TexManager {
      * @returns カラーコード（例: "#FF0000"）の文字配列。
      */
     getColorPalette(): string[] {
-        const colorPaletteBooleanArray = this.sceneMatrix.getParamValues(2).map(value => value == 1);
+        const colorPaletteBooleanArray = this.midiManager?.getParamValues(2).map((value: number) => value == 1) || [];
         return ColorPalette.getColorArray(colorPaletteBooleanArray);
     }
 
@@ -219,7 +215,7 @@ export class TexManager {
      * @returns RGB値が順に並んだ数値配列。
      */
     getColorPaletteRGB(): number[] {
-        const colorPaletteBooleanArray = this.sceneMatrix.getParamValues(2).map(value => value == 1);
+        const colorPaletteBooleanArray = this.midiManager?.getParamValues(2).map((value: number) => value == 1) || [];
         return ColorPalette.getColorRGBArray(colorPaletteBooleanArray)
     }
 
@@ -249,7 +245,7 @@ export class TexManager {
      * @returns 指定された行のパラメータ値の配列。
      */
     getParamsRow(row: number = 7): number[] {
-        return this.sceneMatrix.getParamValues(row);
+        return this.midiManager?.getParamValues(row) || [];
     }
 
     /**

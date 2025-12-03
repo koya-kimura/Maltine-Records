@@ -4,6 +4,10 @@ import p5 from "p5";
 import { TexManager } from "./core/texManager";
 import { UIManager } from "./core/uiManager";
 import { EffectManager } from "./core/effectManager";
+import { APCMiniMK2Manager } from "./midi/apcmini_mk2/APCMiniMK2Manager";
+
+// グローバルMIDIマネージャー
+const midiManager = new APCMiniMK2Manager();
 
 const texManager = new TexManager();
 const uiManager = new UIManager();
@@ -27,7 +31,7 @@ const sketch = (p: p5) => {
     p.pixelDensity(1); // 高解像度ディスプレイ対応
 
     // 各マネージャーの初期化
-    await texManager.init(p);
+    await texManager.init(p, midiManager);
     uiManager.init(p);
 
     // カメラキャプチャ用のバッファと要素の作成
@@ -64,6 +68,7 @@ const sketch = (p: p5) => {
     captureTexture.pop();
 
     // シーンの更新と描画
+    midiManager.update(Math.floor(texManager.getBeat()));
     texManager.update(p);
     texManager.draw(p);
 
@@ -72,7 +77,7 @@ const sketch = (p: p5) => {
     uiManager.draw(p, font, texManager.getBeat(), texManager.getBPM());
 
     // ポストエフェクトの適用と画面への描画
-    effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture, texManager.sceneMatrix.faderValues, texManager.getParamsRow(7), texManager.getBeat(), texManager.getColorPaletteRGB());
+    effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture, midiManager.faderValues, texManager.getParamsRow(7), texManager.getBeat(), texManager.getColorPaletteRGB());
   };
 
   // windowResized はブラウザのリサイズに追従してバッファを更新する。

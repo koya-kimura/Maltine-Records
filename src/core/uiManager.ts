@@ -20,58 +20,10 @@ const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: 
     tex.push();
     tex.textFont(font);
 
-    tex.push();
-    tex.noStroke();
-    tex.textSize(tex.width * 0.015);
+    tex.textAlign(p.CENTER, p.CENTER);
+    tex.textSize(tex.width * 0.1);
     tex.fill(255);
-    tex.textAlign(p.LEFT, p.TOP)
-    tex.text("DJ：TAKASHIMA", tex.width * 0.03, tex.height * 0.1);
-
-    tex.textAlign(p.RIGHT, p.TOP)
-    tex.text("KIMURA：VJ", tex.width * 0.97, tex.height * 0.1);
-    tex.pop();
-
-    const n = 50;
-    for (let j of [-1, 1]) {
-        for (let i = 0; i < n; i++) {
-            const speed = 10;                   // 流れる速さはお好みで
-            const span = tex.width * 1.2;       // ループさせたい幅
-            const base = p.map(i, 0, n, -0.1, 1.1) * tex.width;
-
-            const x = ((base - beat * speed) % span + span) % span - tex.width * 0.1;
-            const y = tex.height * (0.5 + 0.45 * j);
-            const str = [..."OVER!FLOW"][i % 9];
-
-            tex.push();
-            tex.fill(255);
-            tex.noStroke();
-            tex.textSize(tex.width / n * 0.95);
-            tex.textAlign(p.CENTER, p.CENTER);
-            tex.text(str, x, y);
-            tex.pop();
-        }
-    }
-
-    tex.push();
-    tex.textAlign(p.RIGHT, p.BOTTOM);
-    tex.fill(255);
-    tex.noStroke();
-    tex.textSize(tex.width * 0.015);
-    const dateText = DateText.getYYYYMMDD_HHMMSS_format();
-    tex.text(`BPM: ${bpm.toFixed(1)}`, tex.width * 0.97, tex.height * 0.86);
-    tex.text(`DATE: ${dateText}`, tex.width * 0.97, tex.height * 0.9);
-    tex.pop();
-
-    tex.push();
-    tex.noFill();
-    tex.stroke(255);
-    tex.rect(tex.width * 0.03, tex.height * 0.9, tex.width * 0.1, -tex.height * 0.04);
-
-    const x = p.map(Easing.zigzag(beat / 2), 0, 1, 0, tex.width * 0.1 - tex.width * 0.01);
-    tex.noStroke();
-    tex.fill(255);
-    tex.rect(tex.width * 0.03 + x, tex.height * 0.9, tex.width * 0.01, -tex.height * 0.04);
-    tex.pop();
+    tex.text("Maltine Records", tex.width * 0.5, tex.height * 0.5);
 
     tex.pop();
 }

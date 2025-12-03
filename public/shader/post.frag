@@ -71,6 +71,7 @@ void main(void) {
 
     col = texture2D(u_tex, initialUV);
 
+    col.rgb += texture2D(u_uiTex, initialUV).rgb;
 
     gl_FragColor = col;
 }
