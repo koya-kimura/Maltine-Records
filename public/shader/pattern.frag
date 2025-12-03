@@ -5,8 +5,10 @@ varying vec2 vTexCoord;
 uniform float u_beat;
 uniform float u_time;
 uniform vec2 u_resolution;
-uniform int u_patternType; // 0: 縞模様, 1: 水玉, 2: 円, 3: グリッド
+uniform int u_patternType; // 0-9: 10種類のパターン
 uniform int u_maskType;    // 0: なし（全体）, 1: 四角形, 2: 円
+uniform vec3 u_mainColor;  // メインカラー
+uniform vec3 u_subColor;   // サブカラー
 
 float PI = 3.14159265358979;
 
@@ -46,82 +48,67 @@ float zigzag(float x) {
     return abs(mod(x, 2.) - 1.0);
 }
 
-// 縞模様を生成
+// パターン1: 斜め斜線（1キー）
 vec3 stripePattern(vec2 uv, float beat, float time) {
-    float stripeCount = 20.0 + sin(beat * 0.5) * 5.0;
-    float pattern = zigzag(floor(uv.y * stripeCount) + 1.0);
+    // 45度回転したUV座標
+    vec2 rotatedUV = uv * rot(PI / 4.0);
     
-    // 色を変化させる
-    vec3 color1 = vec3(
-        0.5 + 0.5 * sin(time * 1.5),
-        0.5 + 0.5 * sin(time * 1.5 + PI * 2.0 / 3.0),
-        0.5 + 0.5 * sin(time * 1.5 + PI * 4.0 / 3.0)
-    );
-    vec3 color2 = vec3(0.1);
+    // 線の数（約10本）
+    float lineCount = 10.0;
     
-    return mix(color2, color1, pattern);
+    // beatに基づいて線を移動（よりゆっくり）
+    float movement = beat * 0.05;
+    
+    // 斜線パターン（Y座標ベース）
+    float pattern = mod(floor((rotatedUV.y + movement) * lineCount), 2.0);
+    
+    // mainColorとsubColorを交互に
+    return mix(u_subColor, u_mainColor, pattern);
 }
 
-// 水玉模様を生成
+// パターン2: 垂直線（2キー）- 太さ1.5倍
 vec3 dotPattern(vec2 uv, vec2 resolution, float beat, float time) {
-    float gridSize = 8.0 + sin(beat * 0.5) * 2.0;
+    // 線の数（太さ1.5倍 = 数を減らす: 10 / 1.5 ≈ 6.67）
+    float lineCount = 6.67;
     
-    vec2 mosaicUV = mosaic(uv, resolution, gridSize);
-    vec2 gridUV = fract(mosaicUV * gridSize);
+    // beatに基づいて線を移動
+    float movement = beat * 0.05;
     
-    vec2 gridCenter = gridUV - 0.5;
-    float dist = length(gridCenter);
+    // 垂直線パターン（X座標ベース）
+    float pattern = mod(floor((uv.x + movement) * lineCount), 2.0);
     
-    float radius = 0.3 + sin(beat * PI * 2.0) * 0.1;
-    
-    vec3 dotColor = vec3(
-        0.5 + 0.5 * sin(time * 2.0),
-        0.5 + 0.5 * sin(time * 2.0 + PI * 2.0 / 3.0),
-        0.5 + 0.5 * sin(time * 2.0 + PI * 4.0 / 3.0)
-    );
-    
-    vec3 bgColor = vec3(0.1);
-    
-    float smoothEdge = 0.02;
-    float circle = smoothstep(radius + smoothEdge, radius - smoothEdge, dist);
-    
-    return mix(bgColor, dotColor, circle);
+    return mix(u_subColor, u_mainColor, pattern);
 }
 
-// 円模様を生成（中心からの同心円）
+// パターン3: 横線（3キー）- 太さ0.3倍
 vec3 circlePattern(vec2 uv, float beat, float time) {
-    vec2 centeredUV = uv - 0.5;
-    float dist = length(centeredUV);
+    // 線の数（太さ0.3倍 = 数を増やす: 10 / 0.3 ≈ 33.33）
+    float lineCount = 33.33;
     
-    float circleCount = 10.0 + sin(beat * 0.3) * 3.0;
-    float pattern = zigzag(floor(dist * circleCount * 2.0) + 1.0);
+    // beatに基づいて線を移動
+    float movement = beat * 0.05;
     
-    vec3 color1 = vec3(
-        0.5 + 0.5 * sin(time * 1.2),
-        0.5 + 0.5 * sin(time * 1.2 + PI * 2.0 / 3.0),
-        0.5 + 0.5 * sin(time * 1.2 + PI * 4.0 / 3.0)
-    );
-    vec3 color2 = vec3(0.1);
+    // 横線パターン（Y座標ベース）
+    float pattern = mod(floor((uv.y + movement) * lineCount), 2.0);
     
-    return mix(color2, color1, pattern);
+    return mix(u_subColor, u_mainColor, pattern);
 }
 
-// グリッド模様を生成
+// パターン4: 波打つ垂直線（4キー）- 太さ0.7倍
 vec3 gridPattern(vec2 uv, float beat, float time) {
-    float gridSize = 15.0 + sin(beat * 0.4) * 5.0;
+    // 線の数（太さ0.7倍 = 数を増やす: 10 / 0.7 ≈ 14.29）
+    float lineCount = 14.29;
     
-    float gridX = zigzag(floor(uv.x * gridSize) + 1.0);
-    float gridY = zigzag(floor(uv.y * gridSize) + 1.0);
-    float pattern = max(gridX, gridY);
+    // beatに基づいて線を移動
+    float movement = beat * 0.05;
     
-    vec3 color1 = vec3(
-        0.5 + 0.5 * sin(time * 1.8),
-        0.5 + 0.5 * sin(time * 1.8 + PI * 2.0 / 3.0),
-        0.5 + 0.5 * sin(time * 1.8 + PI * 4.0 / 3.0)
-    );
-    vec3 color2 = vec3(0.1);
+    // 横方向に大きく波打つ（sinで変形）
+    float wave = sin(uv.y * PI * 4.0 + time * 2.0) * 0.3; // 大きな波
     
-    return mix(color2, color1, pattern);
+    // 波打つ垂直線パターン
+    float pattern = mod(floor((uv.x + wave + movement) * lineCount), 2.0);
+    
+    return mix(u_subColor, u_mainColor, pattern);
 }
 
 // マスクを計算（0.0 = 透明, 1.0 = 不透明）

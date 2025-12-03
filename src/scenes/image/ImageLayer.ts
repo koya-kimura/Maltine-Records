@@ -30,7 +30,7 @@ export class ImageLayer {
      */
     async load(p: p5): Promise<void> {
         // エフェクト用のシェーダーを読み込み
-        const shaderOrPromise = p.loadShader("/shader/main.vert", "/shader/imageEffect.frag");
+        const shaderOrPromise = p.loadShader("/shader/main.vert", "/shader/imageMono.frag");
         if (shaderOrPromise instanceof Promise) {
             this.shader = await shaderOrPromise;
         } else {
@@ -38,12 +38,13 @@ export class ImageLayer {
         }
 
         // エフェクト用のテクスチャを作成（WebGLモード）
-        this.sourceTexture = p.createGraphics(this.textureWidth, this.textureHeight, p.WEBGL);
+        this.sourceTexture = p.createGraphics(this.textureWidth, this.textureHeight);
         this.effectTexture = p.createGraphics(this.textureWidth, this.textureHeight, p.WEBGL);
     }
 
     /**
      * 画像をテクスチャに描画し、エフェクトを適用します。
+     * アスペクト比を保持したまま描画します。
      * 
      * @param p p5.jsのインスタンス
      * @param image 描画する画像
@@ -57,11 +58,29 @@ export class ImageLayer {
             return;
         }
 
-        // 1. 画像をsourceTextureに描画
+        // 1. 画像をsourceTextureに描画（アスペクト比を保持）
         this.sourceTexture.push();
         this.sourceTexture.clear();
         this.sourceTexture.imageMode(p.CENTER);
-        this.sourceTexture.image(image, 0, 0);
+
+        // アスペクト比を計算
+        const imageAspect = image.width / image.height;
+        const textureAspect = this.textureWidth / this.textureHeight;
+
+        let drawWidth: number;
+        let drawHeight: number;
+
+        if (imageAspect > textureAspect) {
+            // 画像の方が横長 → 幅を基準に
+            drawWidth = this.textureWidth;
+            drawHeight = this.textureWidth / imageAspect;
+        } else {
+            // 画像の方が縦長（or同じ） → 高さを基準に
+            drawHeight = this.textureHeight;
+            drawWidth = this.textureHeight * imageAspect;
+        }
+
+        this.sourceTexture.image(image, this.textureWidth / 2, this.textureHeight / 2, drawWidth, drawHeight);
         this.sourceTexture.pop();
 
         // 2. シェーダーを適用してeffectTextureに描画

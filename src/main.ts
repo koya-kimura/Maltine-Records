@@ -44,7 +44,7 @@ const sketch = (p: p5) => {
     await effectManager.load(
       p,
       "/shader/main.vert",
-      "/shader/post.frag",
+      "/shader/postProcess.frag",
     );
   };
 
@@ -96,8 +96,29 @@ const sketch = (p: p5) => {
     if (p.keyCode === 32) {
       p.fullscreen(true);
     }
+
+    // ========== 仮実装: モード切り替え（後で削除予定） ==========
+    // 左キー: 前のモードへ
+    if (p.keyCode === 37) {
+      texManager.previousMode();
+    }
+    // 右キー: 次のモードへ
+    if (p.keyCode === 39) {
+      texManager.nextMode();
+    }
+    // ========== 仮実装終了 ==========
+
+    // ========== 仮実装: 背景パターン切り替え（後で削除予定） ==========
+    // 0-9キー: 背景パターンプリセット切り替え
+    if (p.key >= '0' && p.key <= '9') {
+      const presetIndex = parseInt(p.key);
+      texManager.setPatternPreset(presetIndex);
+    }
+    // ========== 仮実装終了 ==========
+
     texManager.keyPressed(p.keyCode);
   };
+
 };
 
 // p5.js スケッチを起動する。

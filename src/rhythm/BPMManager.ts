@@ -172,8 +172,8 @@ export class BPMManager {
      * ユーザー入力（キー押下やボタンクリックなど）があったタイミングで呼び出されます。
      * 現在時刻を記録し、過去のタップ履歴に追加します。
      * 一定時間（TAP_TIMEOUT）以上間隔が空いた場合は、新しいセッションとして履歴をリセットします。
-     * 履歴が2回以上蓄積されると、calculateBPMFromTapsを呼び出してBPMを再計算します。
-     * これにより、直感的な操作で楽曲のテンポに合わせることができます。
+     * 履歴が4回以上蓄積されると、calculateBPMFromTapsを呼び出してBPMを再計算します。
+     * これにより、より正確で安定したテンポ検出が可能になります。
      */
     public tapTempo(): void {
         const currentTime = performance.now();
@@ -191,9 +191,11 @@ export class BPMManager {
             this.tapTimes.shift();
         }
 
-        // 2回以上のタップがあればBPMを計算
-        if (this.tapTimes.length >= 2) {
+        // 4回以上のタップが溜まってからBPMを計算
+        if (this.tapTimes.length >= 4) {
             this.calculateBPMFromTaps();
+        } else {
+            console.log(`Tap count: ${this.tapTimes.length}/4 - waiting for more taps...`);
         }
     }
 

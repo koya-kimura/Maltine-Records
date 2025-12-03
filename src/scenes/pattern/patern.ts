@@ -77,6 +77,10 @@ export class Pattern {
         this.shader.setUniform("u_patternType", this.patternType);
         this.shader.setUniform("u_maskType", this.maskType);
 
+        // カラーのuniformを設定（一旦黒と緑）
+        this.shader.setUniform("u_mainColor", [0.0, 1.0, 0.0]); // 緑
+        this.shader.setUniform("u_subColor", [0.0, 0.0, 0.0]);  // 黒
+
         // テクスチャ全体にシェーダーを適用
         this.patternTexture.rect(0, 0, this.patternWidth, this.patternHeight);
         this.patternTexture.pop();

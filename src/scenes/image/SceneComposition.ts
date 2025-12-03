@@ -104,9 +104,7 @@ export class SceneComposition {
             name: "hand_with_circle",
             imageSource: ImageSourceType.ANIMATION,
             animationIndex: 0,
-            overlayType: OverlayType.SHADER_PATTERN,
-            patternType: 2,  // 円模様
-            maskType: 1,      // 四角形マスク
+            overlayType: OverlayType.P5_OBJECT,
             overlaySize: 0.4,
             imageSize: 0.8
         });
@@ -117,9 +115,7 @@ export class SceneComposition {
             imageSource: ImageSourceType.STATIC_IMAGE,
             imageCategory: "animal",
             imageIndex: 0,
-            overlayType: OverlayType.SHADER_PATTERN,
-            patternType: 3,  // グリッド
-            maskType: 2,      // 円マスク
+            overlayType: OverlayType.P5_OBJECT,
             overlaySize: 0.5,
             imageSize: 0.6
         });
@@ -130,7 +126,7 @@ export class SceneComposition {
             imageSource: ImageSourceType.STATIC_IMAGE,
             imageCategory: "human",
             imageIndex: 0,
-            overlayType: OverlayType.NONE,
+            overlayType: OverlayType.P5_OBJECT,
             imageSize: 0.7
         });
 
@@ -234,15 +230,15 @@ export class SceneComposition {
         const overlaySize = this.currentMode.overlaySize || 0.4;
 
         // 画像レイヤーの描画（親でimageModeがCENTERに設定されている前提）
-        (p as any).push();
+        p.push();
         this.imageLayer.draw(p, centerX, centerY, baseWidth * imageSize, baseHeight * imageSize);
-        (p as any).pop();
+        p.pop();
 
         // オーバーレイの描画
         if (this.currentMode.overlayType === OverlayType.SHADER_PATTERN) {
-            (p as any).push();
+            p.push();
             this.overlayPattern.drawPattern(p, centerX, centerY, baseWidth * overlaySize, baseHeight * overlaySize);
-            (p as any).pop();
+            p.pop();
         } else if (this.currentMode.overlayType === OverlayType.P5_OBJECT) {
             // p5オブジェクト描画（例：円を描画）
             this.drawP5Overlay(p, centerX, centerY, baseWidth * overlaySize, baseHeight * overlaySize);
@@ -253,13 +249,13 @@ export class SceneComposition {
      * p5オブジェクトによるオーバーレイ描画
      */
     private drawP5Overlay(p: p5 | p5.Graphics, x: number, y: number, w: number, h: number): void {
-        (p as any).push();
-        (p as any).translate(x, y);
-        (p as any).noFill();
-        (p as any).stroke(255);
-        (p as any).strokeWeight(3);
-        (p as any).circle(0, 0, Math.min(w, h) * 0.8);
-        (p as any).pop();
+        p.push();
+        p.translate(x, y);
+        p.noFill();
+        p.stroke(255);
+        p.strokeWeight(3);
+        p.circle(0, 0, Math.min(w, h) * 0.8);
+        p.pop();
     }
 
     /**

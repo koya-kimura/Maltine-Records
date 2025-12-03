@@ -85,7 +85,7 @@ export class ImageAnimation {
         await Promise.all(loadPromises);
 
         // エフェクト用のシェーダーを読み込み
-        const shaderOrPromise = p.loadShader("/shader/main.vert", "/shader/imageEffect.frag");
+        const shaderOrPromise = p.loadShader("/shader/main.vert", "/shader/imageMono.frag");
         if (shaderOrPromise instanceof Promise) {
             this.shader = await shaderOrPromise;
         } else {

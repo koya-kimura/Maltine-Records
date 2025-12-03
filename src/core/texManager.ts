@@ -271,4 +271,82 @@ export class TexManager {
     getBeat(): number {
         return this.bpmManager.getBeat();
     }
+
+    // ========== 仮実装: モード切り替え機能（後で削除予定） ==========
+
+    /**
+     * SceneCompositionのモードを次に切り替えます。
+     * 【仮実装】キーボード操作用の一時的な機能です。
+     */
+    nextMode(): void {
+        if (!this.sceneComposition) return;
+
+        const modes = this.sceneComposition.getModeNames();
+        const currentMode = this.sceneComposition.getCurrentMode();
+        const currentIndex = modes.indexOf(currentMode.name);
+        const nextIndex = (currentIndex + 1) % modes.length;
+
+        this.sceneComposition.setMode(modes[nextIndex]);
+        console.log(`Mode changed to: ${modes[nextIndex]}`);
+    }
+
+    /**
+     * SceneCompositionのモードを前に切り替えます。
+     * 【仮実装】キーボード操作用の一時的な機能です。
+     */
+    previousMode(): void {
+        if (!this.sceneComposition) return;
+
+        const modes = this.sceneComposition.getModeNames();
+        const currentMode = this.sceneComposition.getCurrentMode();
+        const currentIndex = modes.indexOf(currentMode.name);
+        const prevIndex = (currentIndex - 1 + modes.length) % modes.length;
+
+        this.sceneComposition.setMode(modes[prevIndex]);
+        console.log(`Mode changed to: ${modes[prevIndex]}`);
+    }
+
+    // ========== 仮実装終了 ==========
+
+    // ========== 仮実装: 背景パターン切り替え（後で削除予定） ==========
+
+    private currentPatternPreset: number = 0;
+
+    // 背景パターンプリセット定義（背景は常に全画面表示、マスクなし）
+    private patternPresets: number[] = [
+        9,  // 0キー: パターン10（まだ未定義）
+        0,  // 1キー: パターン1 - 斜め斜線
+        1,  // 2キー: パターン2 - 垂直線（太さ1.5倍）
+        2,  // 3キー: パターン3 - 横線（太さ0.3倍）
+        3,  // 4キー: パターン4 - 波打つ垂直線（太さ0.7倍）
+        4,  // 5キー: パターン5（まだ未定義）
+        5,  // 6キー: パターン6（まだ未定義）
+        6,  // 7キー: パターン7（まだ未定義）
+        7,  // 8キー: パターン8（まだ未定義）
+        8,  // 9キー: パターン9（まだ未定義）
+    ];
+
+    /**
+     * 背景パターンプリセットを設定します。
+     * 【仮実装】0-9キーで背景パターンを切り替えるための機能です。
+     * 背景は常に全画面表示（マスクなし）です。
+     * 
+     * @param presetIndex プリセット番号（0-9）
+     */
+    setPatternPreset(presetIndex: number): void {
+        if (presetIndex < 0 || presetIndex >= this.patternPresets.length) return;
+
+        this.currentPatternPreset = presetIndex;
+        const patternType = this.patternPresets[presetIndex];
+
+        // 背景パターンは常にマスクなし（全画面表示）
+        this.pattern.setPatternType(patternType);
+        this.pattern.setMaskType(0);  // 常にマスクなし
+
+        const patternNames = ['縞模様', '水玉', '円', 'グリッド'];
+
+        console.log(`Background pattern preset ${presetIndex}: ${patternNames[patternType]}`);
+    }
+
+    // ========== 仮実装終了 ==========
 }
