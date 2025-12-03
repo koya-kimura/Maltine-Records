@@ -43,7 +43,10 @@ export class ImageLayer {
         } else {
             this.shader = shaderOrPromise;
         }
-        await this.imageAnimation.load(p, "/image/hand", 5, 40);
+        await this.imageAnimation.load(p, "/animation", [
+            { name: "hand", animationCount: 5, framesPerAnimation: 40 },
+            { name: "walk", animationCount: 4, framesPerAnimation: 40 }
+        ]);
         await this.imageGallery.load(p, "/image", [{ name: "animal", count: 3 }, { name: "human", count: 5 }, { name: "life", count: 4 }, { name: "noface", count: 4 }]);
 
         // エフェクト用のテクスチャを作成（WebGLモード）

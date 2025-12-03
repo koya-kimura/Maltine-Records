@@ -145,6 +145,43 @@ export class P5Overlay {
         else if (sceneIndex === 8) {
             tex.push();
             tex.clear();
+        
+            tex.fill(255, 255, 0);
+            tex.noStroke();
+            tex.beginShape();
+            const n = 10;
+            for(let i = 0; i < n * 2; i++){
+                const k = i - n < 0 ? -1 : 1;
+                const j = Math.abs(i - n);
+                const x = map(j, 0, n, 0.03, 0.25) * tex.width;
+                const y = (0.35 + (j % 2 == 0 ? 0.02 : -0.02) + k * map(Math.abs(j-n/2),  n/2, 0, 0, 0.03)) * tex.height;
+                tex.vertex(x, y);
+            }
+            tex.endShape(p.CLOSE);
+
+            tex.pop();
+        }
+        else if (sceneIndex === 9) {
+            tex.push();
+            tex.clear();
+            // TODO: 思いついてない
+
+            tex.pop();
+        }
+         else if (sceneIndex === 10) {
+            tex.push();
+            tex.clear();
+            for(let i = 0; i < 20; i++){
+                const t = fract(beat * 0.4 + i*0.15);
+                const x = map(t, 0, 1, tex.width * 0.6, tex.width * map(UniformRandom.rand(i * 7821), 0, 1, 0.4, 0.8)) + Math.sin(beat + i) * tex.width * 0.01;
+                const y = map(t, 0, 1, tex.height * 0.5, -tex.height * 0.1);
+                const s = map(Easing.easeOutQuad(t), 0, 1, 0.02, 0.25) * Math.min(tex.width, tex.height) * map(Easing.easeOutQuint(Easing.zigzag(beat)), 0, 1, 0.5, 1.0);
+                const c = p.color(255, Math.floor(UniformRandom.rand(i * 7821)*5)/ 5 * 255, 20, 50);
+                
+                tex.fill(c);
+                tex.noStroke();
+                tex.circle(x, y, s);
+            }
             tex.pop();
         }
     }

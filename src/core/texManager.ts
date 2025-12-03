@@ -10,7 +10,7 @@ export class TexManager {
     private backgroundPattern: Pattern;
     private imageLayer: ImageLayer;
     private overLayer: OverLayer;
-    private sceneIndex: number = 8;
+    private sceneIndex: number = 10;
 
     /**
      * TexManagerクラスのコンストラクタです。

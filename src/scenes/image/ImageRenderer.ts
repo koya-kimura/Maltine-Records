@@ -5,6 +5,7 @@ import { ImageAnimation } from "./ImageAnimation";
 import { ImageGallery } from "./ImageGallery";
 import { Easing } from "../../utils/easing";
 import { fract } from "../../utils/mathUtils";
+import { UniformRandom } from "../../utils/uniformRandom";
 
 /**
  * ImageRendererクラス
@@ -91,7 +92,7 @@ export class ImageRenderer {
             tex.image(img, 0, 0);
             tex.pop();
 
-            const hand = imageAnimation.getImage(2, Easing.zigzag(beat * 0.3));
+            const hand = imageAnimation.getImage("hand", 2, Easing.zigzag(beat * 0.3));
 
             tex.push();
             tex.imageMode(p.CENTER);
@@ -128,6 +129,31 @@ export class ImageRenderer {
             tex.imageMode(p.CENTER);
             tex.translate(tex.width * 0.5, tex.height * 0.7);
             tex.scale(1.5);
+            tex.image(img, 0, 0);
+            tex.pop();
+        }
+        else if (sceneIndex === 9) {
+            tex.push();
+
+            for(let i = 0; i < 3; i++){
+                const walk = imageAnimation.getImage("walk", Math.floor(UniformRandom.rand(Math.floor(beat*2), i*45782)*4), Easing.zigzag(beat * 0.1));
+                const x = tex.width * 0.15 + i * tex.width * 0.35;
+                tex.push();
+                tex.imageMode(p.CENTER);
+                tex.translate(x, tex.height * 0.7);
+                tex.scale(1.3);
+                tex.image(walk, 0, 0);
+                tex.pop();
+            }
+            tex.pop();
+        }
+        else if (sceneIndex === 10) {
+            const img = imageGallery.getImage("human", 4);  // animalは0,1,2の3枚
+
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(tex.width * 0.5, tex.height * 0.7);
+            tex.scale(1.2);
             tex.image(img, 0, 0);
             tex.pop();
         }
