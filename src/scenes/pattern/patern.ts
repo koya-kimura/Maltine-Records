@@ -6,6 +6,8 @@ export class Pattern {
     private patternTexture: p5.Graphics | null;
     private patternWidth: number;
     private patternHeight: number;
+    private patternType: number; // 0: 縞模様, 1: 水玉, 2: 円, 3: グリッド
+    private maskType: number;    // 0: なし, 1: 四角形, 2: 円
 
     /**
      * Patternクラスのコンストラクタです。
@@ -15,12 +17,16 @@ export class Pattern {
      * 
      * @param width パターンテクスチャの幅（デフォルト: 512）
      * @param height パターンテクスチャの高さ（デフォルト: 512）
+     * @param patternType 模様の種類（デフォルト: 0 = 縞模様）
+     * @param maskType マスクの種類（デフォルト: 0 = なし）
      */
-    constructor(width: number = 512, height: number = 512) {
+    constructor(width: number = 512, height: number = 512, patternType: number = 0, maskType: number = 0) {
         this.shader = null;
         this.patternTexture = null;
         this.patternWidth = width;
         this.patternHeight = height;
+        this.patternType = patternType;
+        this.maskType = maskType;
     }
 
     /**
@@ -68,6 +74,8 @@ export class Pattern {
         this.shader.setUniform("u_beat", beat);
         this.shader.setUniform("u_resolution", [this.patternWidth, this.patternHeight]);
         this.shader.setUniform("u_time", p.millis() / 1000.0);
+        this.shader.setUniform("u_patternType", this.patternType);
+        this.shader.setUniform("u_maskType", this.maskType);
 
         // テクスチャ全体にシェーダーを適用
         this.patternTexture.rect(0, 0, this.patternWidth, this.patternHeight);
@@ -109,6 +117,42 @@ export class Pattern {
         } else {
             p.image(this.patternTexture, x, y);
         }
+    }
+
+    /**
+     * 模様の種類を設定します。
+     * 
+     * @param type 0: 縞模様, 1: 水玉, 2: 円, 3: グリッド
+     */
+    setPatternType(type: number): void {
+        this.patternType = type;
+    }
+
+    /**
+     * マスクの種類を設定します。
+     * 
+     * @param type 0: なし（全体）, 1: 四角形, 2: 円
+     */
+    setMaskType(type: number): void {
+        this.maskType = type;
+    }
+
+    /**
+     * 現在の模様の種類を取得します。
+     * 
+     * @returns 模様の種類
+     */
+    getPatternType(): number {
+        return this.patternType;
+    }
+
+    /**
+     * 現在のマスクの種類を取得します。
+     * 
+     * @returns マスクの種類
+     */
+    getMaskType(): number {
+        return this.maskType;
     }
 
     /**

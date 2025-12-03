@@ -5,6 +5,8 @@ varying vec2 vTexCoord;
 uniform float u_beat;
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform int u_patternType; // 0: 縞模様, 1: 水玉, 2: 円, 3: グリッド
+uniform int u_maskType;    // 0: なし（全体）, 1: 四角形, 2: 円
 
 float PI = 3.14159265358979;
 
@@ -44,47 +46,141 @@ float zigzag(float x) {
     return abs(mod(x, 2.) - 1.0);
 }
 
-void main(void) {
-    vec2 uv = vTexCoord;
+// 縞模様を生成
+vec3 stripePattern(vec2 uv, float beat, float time) {
+    float stripeCount = 20.0 + sin(beat * 0.5) * 5.0;
+    float pattern = zigzag(floor(uv.y * stripeCount) + 1.0);
     
-    // UV座標を中心基準に変換（-0.5 ~ 0.5の範囲）
-    vec2 centeredUV = uv - 0.5;
+    // 色を変化させる
+    vec3 color1 = vec3(
+        0.5 + 0.5 * sin(time * 1.5),
+        0.5 + 0.5 * sin(time * 1.5 + PI * 2.0 / 3.0),
+        0.5 + 0.5 * sin(time * 1.5 + PI * 4.0 / 3.0)
+    );
+    vec3 color2 = vec3(0.1);
     
-    // アスペクト比を考慮した座標
-    vec2 aspectUV = centeredUV * vec2(u_resolution.x / u_resolution.y, 1.0);
+    return mix(color2, color1, pattern);
+}
+
+// 水玉模様を生成
+vec3 dotPattern(vec2 uv, vec2 resolution, float beat, float time) {
+    float gridSize = 8.0 + sin(beat * 0.5) * 2.0;
     
-    // 水玉模様のグリッド数（ビートに応じて変化）
-    float gridSize = 8.0 + sin(u_beat * 0.5) * 2.0;
-    
-    // モザイク状のUV座標を計算
-    vec2 mosaicUV = mosaic(uv, u_resolution, gridSize);
+    vec2 mosaicUV = mosaic(uv, resolution, gridSize);
     vec2 gridUV = fract(mosaicUV * gridSize);
     
-    // グリッドの中心からの距離を計算
     vec2 gridCenter = gridUV - 0.5;
     float dist = length(gridCenter);
     
-    // 水玉の半径（ビートに応じて脈動）
-    float radius = 0.3 + sin(u_beat * PI * 2.0) * 0.1;
+    float radius = 0.3 + sin(beat * PI * 2.0) * 0.1;
     
-    // 水玉の色（時間に応じて変化）
     vec3 dotColor = vec3(
-        0.5 + 0.5 * sin(u_time * 2.0),
-        0.5 + 0.5 * sin(u_time * 2.0 + PI * 2.0 / 3.0),
-        0.5 + 0.5 * sin(u_time * 2.0 + PI * 4.0 / 3.0)
+        0.5 + 0.5 * sin(time * 2.0),
+        0.5 + 0.5 * sin(time * 2.0 + PI * 2.0 / 3.0),
+        0.5 + 0.5 * sin(time * 2.0 + PI * 4.0 / 3.0)
     );
     
-    // 背景色
     vec3 bgColor = vec3(0.1);
     
-    // 水玉をスムーズに描画（アンチエイリアシング）
     float smoothEdge = 0.02;
     float circle = smoothstep(radius + smoothEdge, radius - smoothEdge, dist);
     
-    // 最終的な色を計算
-    vec3 finalColor = mix(bgColor, dotColor, circle);
+    return mix(bgColor, dotColor, circle);
+}
 
-    finalColor = vec3(zigzag(floor(vTexCoord.y*31.0)+1.0));
+// 円模様を生成（中心からの同心円）
+vec3 circlePattern(vec2 uv, float beat, float time) {
+    vec2 centeredUV = uv - 0.5;
+    float dist = length(centeredUV);
     
-    gl_FragColor = vec4(finalColor, 1.0);
+    float circleCount = 10.0 + sin(beat * 0.3) * 3.0;
+    float pattern = zigzag(floor(dist * circleCount * 2.0) + 1.0);
+    
+    vec3 color1 = vec3(
+        0.5 + 0.5 * sin(time * 1.2),
+        0.5 + 0.5 * sin(time * 1.2 + PI * 2.0 / 3.0),
+        0.5 + 0.5 * sin(time * 1.2 + PI * 4.0 / 3.0)
+    );
+    vec3 color2 = vec3(0.1);
+    
+    return mix(color2, color1, pattern);
+}
+
+// グリッド模様を生成
+vec3 gridPattern(vec2 uv, float beat, float time) {
+    float gridSize = 15.0 + sin(beat * 0.4) * 5.0;
+    
+    float gridX = zigzag(floor(uv.x * gridSize) + 1.0);
+    float gridY = zigzag(floor(uv.y * gridSize) + 1.0);
+    float pattern = max(gridX, gridY);
+    
+    vec3 color1 = vec3(
+        0.5 + 0.5 * sin(time * 1.8),
+        0.5 + 0.5 * sin(time * 1.8 + PI * 2.0 / 3.0),
+        0.5 + 0.5 * sin(time * 1.8 + PI * 4.0 / 3.0)
+    );
+    vec3 color2 = vec3(0.1);
+    
+    return mix(color2, color1, pattern);
+}
+
+// マスクを計算（0.0 = 透明, 1.0 = 不透明）
+float calculateMask(vec2 uv, int maskType) {
+    vec2 centeredUV = uv - 0.5;
+    
+    if (maskType == 0) {
+        // マスクなし（全体）
+        return 1.0;
+    } else if (maskType == 1) {
+        // 四角形マスク
+        float size = 0.3; // 四角形のサイズ
+        float smoothEdge = 0.02;
+        
+        float maskX = smoothstep(size + smoothEdge, size - smoothEdge, abs(centeredUV.x));
+        float maskY = smoothstep(size + smoothEdge, size - smoothEdge, abs(centeredUV.y));
+        
+        return maskX * maskY;
+    } else if (maskType == 2) {
+        // 円形マスク
+        float dist = length(centeredUV);
+        float radius = 0.3;
+        float smoothEdge = 0.02;
+        
+        return smoothstep(radius + smoothEdge, radius - smoothEdge, dist);
+    }
+    
+    return 1.0;
+}
+
+void main(void) {
+    vec2 uv = vTexCoord;
+    
+    // 模様を選択
+    vec3 patternColor;
+    
+    if (u_patternType == 0) {
+        patternColor = stripePattern(uv, u_beat, u_time);
+    } else if (u_patternType == 1) {
+        patternColor = dotPattern(uv, u_resolution, u_beat, u_time);
+    } else if (u_patternType == 2) {
+        patternColor = circlePattern(uv, u_beat, u_time);
+    } else if (u_patternType == 3) {
+        patternColor = gridPattern(uv, u_beat, u_time);
+    } else {
+        patternColor = stripePattern(uv, u_beat, u_time);
+    }
+    
+    // マスクを適用
+    float mask = calculateMask(uv, u_maskType);
+    
+    // 背景色（マスク外の部分）
+    vec3 bgColor = vec3(0.0);
+    
+    // マスクで合成
+    vec3 finalColor = mix(bgColor, patternColor, mask);
+    
+    // アルファ値は常に1.0（完全不透明）
+    float alpha = 1.0;
+    
+    gl_FragColor = vec4(finalColor, alpha);
 }

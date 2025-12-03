@@ -12,6 +12,7 @@ export class TexManager {
     private bpmManager: BPMManager;
     public sceneMatrix: APCMiniMK2Manager;
     private pattern: Pattern;
+    private pattern2: Pattern; // 2つ目のパターン（中心の小さい模様用）
     private imageAnimation: ImageAnimation;
 
     /**
@@ -27,7 +28,8 @@ export class TexManager {
         this.renderTexture = null;
         this.bpmManager = new BPMManager();
         this.sceneMatrix = new APCMiniMK2Manager();
-        this.pattern = new Pattern(512, 512);
+        this.pattern = new Pattern(512, 512, 0, 0); // 背景パターン: 縞模様、マスクなし
+        this.pattern2 = new Pattern(512, 512, 2, 1); // 中心パターン: 円模様、四角形マスク
         this.imageAnimation = new ImageAnimation(30); // 30fps
     }
 
@@ -55,6 +57,7 @@ export class TexManager {
 
         // Patternシェーダーの読み込み
         await this.pattern.load(p, "/shader/main.vert", "/shader/pattern.frag");
+        await this.pattern2.load(p, "/shader/main.vert", "/shader/pattern.frag");
 
         // ImageAnimationの画像を読み込み
         await this.imageAnimation.load(p, "/image/hand", 5, 40);
@@ -149,6 +152,15 @@ export class TexManager {
         texture.imageMode(p.CENTER);
         texture.translate(p.width / 2, p.height / 2);
         this.imageAnimation.draw(texture, 0, 0, p.width * 0.8, p.height * 0.8);
+        texture.pop();
+
+        // 2つ目のパターンの描画（中心の小さい模様）
+        this.pattern2.update(p, beat);
+        texture.push();
+        texture.imageMode(p.CENTER);
+        texture.translate(p.width / 2, p.height / 2);
+        // 通常合成で完全不透明に重ねる
+        this.pattern2.drawPattern(texture, 0, 0, p.width * 0.4, p.height * 0.4);
         texture.pop();
 
         texture.pop();
