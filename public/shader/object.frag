@@ -3,11 +3,12 @@ precision mediump float;
 varying vec2 vTexCoord;
 
 uniform float u_beat;
+uniform sampler2D u_tex;
 uniform float u_time;
 uniform vec2 u_resolution;
-uniform sampler2D u_tex;
-uniform sampler2D u_uiTex;
-uniform sampler2D u_captureTex;
+uniform int u_patternIndex;
+uniform vec3 u_mainColor;  // メインカラー
+uniform vec3 u_subColor;   // サブカラー
 
 float PI = 3.14159265358979;
 
@@ -39,17 +40,6 @@ float gray(vec3 col) {
     return dot(col, vec3(0.299, 0.587, 0.114));
 }
 
-vec3 hsv2rgb(in float h) {
-    float s = 1.;
-    float v = 1.;
-
-    vec4 K = vec4(1., 2. / 3., 1. / 3., 3.);
-    vec3 p = abs(fract(vec3(h) + K.xyz) * 6. - K.w);
-    vec3 rgb = v * mix(vec3(K.x), clamp(p - K.x, 0., 1.), s);
-
-    return rgb;
-}
-
 float map(float value, float min1, float max1, float min2, float max2) {
     return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
@@ -58,21 +48,11 @@ float zigzag(float x) {
     return abs(mod(x, 2.) - 1.0);
 }
 
-vec4 sampleTextureSafe(sampler2D tex, vec2 uv) {
-    if(uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
-        return vec4(0.0);
-    }
-    return texture2D(tex, uv);
-}
-
 void main(void) {
-    vec2 initialUV = vTexCoord;
     vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
+    vec2 uv = vTexCoord;
 
-    col = texture2D(u_tex, initialUV);
-
-    vec4 uiCol = texture2D(u_uiTex, initialUV);
-    col.rgb += uiCol.rgb;
-
+    col = texture2D(u_tex, uv);
+    
     gl_FragColor = col;
 }

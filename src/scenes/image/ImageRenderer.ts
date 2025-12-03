@@ -19,9 +19,9 @@ export class ImageRenderer {
         p: p5 | p5.Graphics,
         imageAnimation: ImageAnimation,
         beat: number,
-        modeName: string,
+        sceneIndex: number,
     ): void {
-        const img = imageAnimation.getImage(0, Math.floor(Math.abs(((beat * 5.0) % 80 - 40))));
+        const img = imageAnimation.getImage(0, (beat * 0.1) % 1);
         if (!img) {
             return;
         }

@@ -30,7 +30,7 @@ const sketch = (p: p5) => {
   p.setup = async () => {
     p.createCanvas(p.windowWidth, p.windowHeight, p.WEBGL);
     p.noCursor(); // カーソルを非表示にする
-    p.pixelDensity(1); // 高解像度ディスプレイ対応
+    // p.pixelDensity(3); // 高解像度ディスプレイ対応
 
     // 各マネージャーの初期化
     await texManager.load(p);

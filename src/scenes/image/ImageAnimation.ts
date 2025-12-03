@@ -60,9 +60,11 @@ export class ImageAnimation {
      * @param frameIndex フレーム番号（0始まり）
      * @returns p5.Imageオブジェクト、またはnull
      */
-    getImage(animationIndex: number, frameIndex: number): p5.Image | null {
+    getImage(animationIndex: number, frameProgress: number): p5.Image | null {
         const animation = this.images[animationIndex];
         if (!animation) return null;
+
+        const frameIndex = Math.max(Math.min(Math.floor(frameProgress * animation.length), animation.length-1), 0)
         return animation[frameIndex] || null;
     }
 

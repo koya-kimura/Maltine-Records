@@ -1,13 +1,16 @@
 import p5 from "p5";
 
-import { Pattern } from "../scenes/overlay/patern";
+import { Pattern } from "../scenes/background/patern";
 import { ImageLayer } from "../scenes/image/ImageLayer";
+import { OverLayer } from "../scenes/overlay/OverLayer";
 
 // TexManager は描画用の p5.Graphics とシーン、MIDI デバッグ描画のハブを担当する。
 export class TexManager {
     private renderTexture: p5.Graphics | null;
     private backgroundPattern: Pattern;
     private imageLayer: ImageLayer;
+    private overLayer: OverLayer;
+    private sceneIndex: number = 0;
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -22,6 +25,7 @@ export class TexManager {
         this.renderTexture = null;
         this.backgroundPattern = new Pattern();
         this.imageLayer = new ImageLayer();
+        this.overLayer = new OverLayer();
     }
 
     /**
@@ -42,6 +46,7 @@ export class TexManager {
         // TODO:キモいのでパス直す
         await this.backgroundPattern.load(p, "/shader/main.vert", "/shader/pattern.frag");
         await this.imageLayer.load(p);
+        this.overLayer.load(p);
     }
 
     /**
@@ -81,6 +86,7 @@ export class TexManager {
         texture.resizeCanvas(p.width, p.height);
         this.backgroundPattern.resize(p);
         this.imageLayer.resize(p);
+        this.overLayer.resize(p);
     }
 
     /**
@@ -118,7 +124,8 @@ export class TexManager {
         texture.clear();
 
         this.backgroundPattern.draw(texture, beat);
-        this.imageLayer.draw(texture, beat);
+        this.imageLayer.draw(texture, this.sceneIndex, beat);
+        this.overLayer.draw(texture, this.sceneIndex, beat);
 
         texture.pop();
     }

@@ -61,7 +61,7 @@ export class ImageLayer {
      * 
      * @param p p5.jsのインスタンス、またはp5.Graphicsオブジェクト。
      */
-    draw(p: p5 | p5.Graphics, beat: number): void {
+    draw(p: p5 | p5.Graphics, sceneIndex: number, beat: number): void {
         if (!this.effectTexture || !this.shader || !this.sourceTexture) {
             return;
         }
@@ -71,7 +71,7 @@ export class ImageLayer {
         this.sourceTexture.clear();
 
         // モードが引数になる予定
-        this.imageRenderer.draw(this.sourceTexture, this.imageAnimation, beat, "hand_1");
+        this.imageRenderer.draw(this.sourceTexture, this.imageAnimation, beat, sceneIndex);
 
         this.sourceTexture.pop();
 
