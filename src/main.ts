@@ -27,7 +27,7 @@ const sketch = (p: p5) => {
     p.pixelDensity(1); // 高解像度ディスプレイ対応
 
     // 各マネージャーの初期化
-    texManager.init(p);
+    await texManager.init(p);
     uiManager.init(p);
 
     // カメラキャプチャ用のバッファと要素の作成

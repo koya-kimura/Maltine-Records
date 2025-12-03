@@ -83,6 +83,8 @@ void main(void) {
     
     // 最終的な色を計算
     vec3 finalColor = mix(bgColor, dotColor, circle);
+
+    finalColor = vec3(zigzag(floor(vTexCoord.y*31.0)+1.0));
     
     gl_FragColor = vec4(finalColor, 1.0);
 }

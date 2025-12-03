@@ -3,12 +3,14 @@ import p5 from "p5";
 import { BPMManager } from "../rhythm/BPMManager";
 import { APCMiniMK2Manager } from "../midi/apcmini_mk2/APCMiniMK2Manager";
 import { ColorPalette } from "../utils/colorPalette";
+import { Pattern } from "../scenes/pattern/patern";
 
 // TexManager は描画用の p5.Graphics とシーン、MIDI デバッグ描画のハブを担当する。
 export class TexManager {
     private renderTexture: p5.Graphics | null;
     private bpmManager: BPMManager;
-    public sceneMatrix: APCMiniMK2Manager
+    public sceneMatrix: APCMiniMK2Manager;
+    private pattern: Pattern;
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -23,6 +25,7 @@ export class TexManager {
         this.renderTexture = null;
         this.bpmManager = new BPMManager();
         this.sceneMatrix = new APCMiniMK2Manager();
+        this.pattern = new Pattern(512, 512);
     }
 
     /**
@@ -35,7 +38,7 @@ export class TexManager {
      *
      * @param p p5.jsのインスタンス。createGraphicsなどの描画機能を使用するために必要です。
      */
-    init(p: p5): void {
+    async init(p: p5): Promise<void> {
         this.renderTexture = p.createGraphics(p.width, p.height);
 
         this.sceneMatrix.setMaxOptionsForScene(0, [2, 3, 2, 0, 0, 0, 4, 4]);
@@ -46,6 +49,9 @@ export class TexManager {
         this.sceneMatrix.setMaxOptionsForScene(5, [0, 0, 0, 0, 0, 0, 0, 0]);
         this.sceneMatrix.setMaxOptionsForScene(6, [0, 0, 0, 0, 0, 0, 0, 0]);
         this.sceneMatrix.setMaxOptionsForScene(7, [3, 3, 0, 0, 0, 0, 0, 0]);
+
+        // Patternシェーダーの読み込み
+        await this.pattern.load(p, "/shader/post.vert", "/shader/pattern.frag");
     }
 
     /**
@@ -126,8 +132,10 @@ export class TexManager {
         const numberParams = this.sceneMatrix.getParamValues(1);
         const palette = this.getColorPalette();
 
-        texture.background(255, 0, 0);
-
+        // パターンの更新と描画
+        this.pattern.update(p, beat);
+        texture.imageMode(p.CORNER);
+        this.pattern.drawPattern(texture, 0, 0, p.width, p.height);
 
         texture.pop();
 
