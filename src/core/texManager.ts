@@ -5,6 +5,8 @@ import { APCMiniMK2Manager } from "../midi/apcmini_mk2/APCMiniMK2Manager";
 import { ColorPalette } from "../utils/colorPalette";
 import { Pattern } from "../scenes/pattern/patern";
 import { ImageAnimation } from "../scenes/image/ImageAnimation";
+import { ImageGallery } from "../scenes/image/ImageGallery";
+import { ImageLayer } from "../scenes/image/ImageLayer";
 
 // TexManager は描画用の p5.Graphics とシーン、MIDI デバッグ描画のハブを担当する。
 export class TexManager {
@@ -14,6 +16,8 @@ export class TexManager {
     private pattern: Pattern;
     private pattern2: Pattern; // 2つ目のパターン（中心の小さい模様用）
     private imageAnimation: ImageAnimation;
+    private imageGallery: ImageGallery; // 静止画ギャラリー
+    private imageLayer: ImageLayer; // 画像レイヤー（共通エフェクト処理）
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -31,6 +35,8 @@ export class TexManager {
         this.pattern = new Pattern(512, 512, 0, 0); // 背景パターン: 縞模様、マスクなし
         this.pattern2 = new Pattern(512, 512, 2, 1); // 中心パターン: 円模様、四角形マスク
         this.imageAnimation = new ImageAnimation(30); // 30fps
+        this.imageGallery = new ImageGallery(); // 静止画ギャラリー
+        this.imageLayer = new ImageLayer(1024, 1024); // 共通画像レイヤー
     }
 
     /**
@@ -59,8 +65,19 @@ export class TexManager {
         await this.pattern.load(p, "/shader/main.vert", "/shader/pattern.frag");
         await this.pattern2.load(p, "/shader/main.vert", "/shader/pattern.frag");
 
+        // ImageLayerの初期化
+        await this.imageLayer.load(p);
+
         // ImageAnimationの画像を読み込み
         await this.imageAnimation.load(p, "/image/hand", 5, 40);
+
+        // ImageGalleryの画像を読み込み
+        await this.imageGallery.load(p, "/image", [
+            { name: "animal", count: 3 },
+            { name: "human", count: 5 },
+            { name: "life", count: 4 },
+            { name: "noface", count: 4 }
+        ]);
     }
 
     /**
@@ -147,7 +164,16 @@ export class TexManager {
         texture.imageMode(p.CORNER);
         this.pattern.drawPattern(texture, 0, 0, p.width, p.height);
 
-        // ImageAnimationの描画（パターンの上のレイヤー）
+        // ImageGalleryの描画（パターンの上、handアニメーションの下のレイヤー）
+        const galleryImage = this.imageGallery.getCurrentImage();
+        this.imageLayer.updateWithImage(p, galleryImage);
+        texture.push();
+        texture.imageMode(p.CENTER);
+        texture.translate(p.width / 2, p.height / 2);
+        this.imageLayer.draw(texture, 0, 0, p.width * 0.6, p.height * 0.6);
+        texture.pop();
+
+        // ImageAnimationの描画（ImageGalleryの上のレイヤー）
         texture.push();
         texture.imageMode(p.CENTER);
         texture.translate(p.width / 2, p.height / 2);
