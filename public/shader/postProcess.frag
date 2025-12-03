@@ -8,6 +8,9 @@ uniform vec2 u_resolution;
 uniform sampler2D u_tex;
 uniform sampler2D u_uiTex;
 uniform sampler2D u_captureTex;
+uniform vec3 u_mainColor;
+uniform vec3 u_subColor;
+uniform int u_patternIndex;
 
 float PI = 3.14159265358979;
 
@@ -29,6 +32,12 @@ vec2 xy2pol(vec2 xy) {
 
 vec2 pol2xy(vec2 pol) {
     return pol.y * vec2(cos(pol.x), sin(pol.x));
+}
+
+vec2 scale(vec2 uv, float scaleFactor) {
+    vec2 centeredUV = uv - 0.5;
+    centeredUV /= scaleFactor;
+    return centeredUV + 0.5;
 }
 
 vec2 mosaic(vec2 uv, vec2 res, float n) {
@@ -65,11 +74,303 @@ vec4 sampleTextureSafe(sampler2D tex, vec2 uv) {
     return texture2D(tex, uv);
 }
 
+// パターン0: 紙テクスチャ（0キー）- 紙のような柔らかいノイズテクスチャ
+vec3 noiseTexturePattern(vec2 uv, float beat, float time) {
+    // 複数スケールのノイズを重ねて紙のような質感を作る
+    float noise = 0.0;
+
+    // 大きなムラ
+    noise += random(floor(uv * 8.0)) * 0.3;
+
+    // 中くらいのムラ
+    noise += random(floor(uv * 20.0)) * 0.25;
+
+    // 細かいムラ
+    noise += random(floor(uv * 50.0)) * 0.2;
+
+    // さらに細かいムラ
+    noise += random(floor(uv * 100.0)) * 0.15;
+
+    // 微細なムラ
+    noise += random(floor(uv * 200.0)) * 0.1;
+
+    // ノイズを0.0〜1.0の範囲に正規化
+    noise = noise / 1.0;
+
+    // 柔らかいグラデーションで2色をブレンド
+    // 紙のような自然なムラ感を出すためにsmoothstepを使用
+    float blend = smoothstep(0.3, 0.7, noise);
+
+    return mix(u_subColor, u_mainColor, blend);
+}
+
+// パターン1: 斜め斜線（1キー）
+vec3 stripePattern(vec2 uv, float beat, float time) {
+    // 45度回転したUV座標
+    vec2 rotatedUV = uv * rot(PI / 4.0);
+
+    // 線の数（約10本）
+    float lineCount = 10.0;
+
+    // beatに基づいて線を移動（よりゆっくり）
+    float movement = beat * 0.05;
+
+    // 斜線パターン（Y座標ベース）
+    float pattern = mod(floor((rotatedUV.y + movement) * lineCount), 2.0);
+
+    // mainColorとsubColorを交互に
+    return mix(u_subColor, u_mainColor, pattern);
+}
+
+// パターン2: 垂直線（2キー）- 太さ1.5倍
+vec3 dotPattern(vec2 uv, vec2 resolution, float beat, float time) {
+    // 線の数（太さ1.5倍 = 数を減らす: 10 / 1.5 ≈ 6.67）
+    float lineCount = 6.67;
+
+    // beatに基づいて線を移動
+    float movement = beat * 0.05;
+
+    // 垂直線パターン（X座標ベース）
+    float pattern = mod(floor((uv.x + movement) * lineCount), 2.0);
+
+    return mix(u_subColor, u_mainColor, pattern);
+}
+
+// パターン3: 横線（3キー）- 太さ0.3倍
+vec3 circlePattern(vec2 uv, float beat, float time) {
+    // 線の数（太さ0.3倍 = 数を増やす: 10 / 0.3 ≈ 33.33）
+    float lineCount = 33.33;
+
+    // beatに基づいて線を移動
+    float movement = beat * 0.05;
+
+    // 横線パターン（Y座標ベース）
+    float pattern = mod(floor((uv.y + movement) * lineCount), 2.0);
+
+    return mix(u_subColor, u_mainColor, pattern);
+}
+
+// パターン4: 波打つ垂直線（4キー）- その場で波打つ
+vec3 gridPattern(vec2 uv, float beat, float time) {
+    // 線の数（太さ0.7倍 = 数を増やす: 10 / 0.7 ≈ 14.29）
+    float lineCount = 14.29;
+
+    // 横方向に大きく波打つ（sinで変形）- 移動なし、その場で波打つ
+    float wave = sin(uv.y * PI * 4.0 + time * 2.0) * 0.3;
+
+    // 波打つ垂直線パターン（移動なし）
+    float pattern = mod(floor((uv.x + wave) * lineCount), 2.0);
+
+    return mix(u_subColor, u_mainColor, pattern);
+}
+
+// パターン5: チェッカーボード（5キー）- beatで色が切り替わる
+vec3 checkerboardPattern(vec2 uv, float beat, float time) {
+    // グリッドの数（8x8のチェッカーボード）
+    float gridCountX = 8.0;
+    float gridCountY = 5.0;
+
+    // UV座標をグリッドに分割（移動なし）
+    float cellX = floor(uv.x * gridCountX);
+    float cellY = floor(uv.y * gridCountY);
+
+    // チェッカーボードパターン（XとYの合計が偶数か奇数かで色を決定）
+    float basePattern = mod(cellX + cellY, 2.0);
+
+    // beatが偶数か奇数かで色を反転
+    float beatSwap = mod(floor(beat), 2.0);
+
+    // beatに応じてパターンを反転
+    float pattern = mod(basePattern + beatSwap, 2.0);
+
+    return mix(u_subColor, u_mainColor, pattern);
+}
+
+// パターン6: 水玉模様（6キー）- サブカラー背景にメインカラーの円（行ごとに半分ずらし）
+vec3 polkaDotPattern(vec2 uv, float beat, float time) {
+    // グリッドの数（8x8のチェッカーボード）
+    float gridCountX = 8.0;
+    float gridCountY = 5.0;
+
+    // 水玉模様パターン（円の中心からの距離で決定）
+    vec2 localUV = fract(uv * vec2(gridCountX, gridCountY));
+    float dist = length(localUV - vec2(0.5, 0.5));
+
+    // 円の半径
+    float radius = 0.3;
+
+    // 円の内側ならメインカラー、外側ならサブカラー
+    float pattern = step(dist, radius);
+
+    return mix(u_subColor, u_mainColor, pattern);
+}
+
+// パターン7: サンバースト（7キー）- 中心から放射状に広がる太い線
+vec3 sunburstPattern(vec2 uv, float beat, float time) {
+    // 中心からの座標
+    vec2 centeredUV = uv - 0.5;
+
+    // 極座標に変換
+    float angle = atan(centeredUV.y, centeredUV.x);
+
+    // 放射線の数（太めにするために少なく）
+    float rayCount = 12.0;
+
+    // beatに基づいて回転
+    float rotation = beat * 0.1;
+
+    // 放射状パターン
+    float pattern = mod(floor((angle + rotation) / PI * rayCount), 2.0);
+
+    return mix(u_subColor, u_mainColor, pattern);
+}
+
+// パターン8: グリッド線（8キー）- 縦横の線が交差するグリッド
+vec3 gridLinePattern(vec2 uv, float beat, float time) {
+    // グリッドの数
+    float gridCountX = 16.0;
+    float gridCountY = 9.0;
+
+    // 線の太さ
+    float lineWidth = 0.02;
+
+    // UV座標をグリッドに分割
+    vec2 gridUV = vec2(fract(uv.x * gridCountX), fract(uv.y * gridCountY));
+
+    // 縦線と横線を描画
+    float verticalLine = smoothstep(lineWidth, lineWidth - 0.02, abs(gridUV.x - 0.5));
+    float horizontalLine = smoothstep(lineWidth, lineWidth - 0.02, abs(gridUV.y - 0.5));
+
+    // 縦線または横線があればメインカラー
+    float pattern = max(verticalLine, horizontalLine);
+
+    return mix(u_subColor, u_mainColor, pattern);
+}
+
+// パターン9: サイケデリック波紋（9キー）- うねうねした同心円が広がるパターン
+vec3 psychedelicSpiralPattern(vec2 uv, float beat, float time) {
+    // 中心からの座標
+    vec2 centeredUV = uv - 0.5;
+
+    // アスペクト比補正（正円にする）
+    vec2 aspect_correction = vec2(1.0);
+    if(u_resolution.x > u_resolution.y) {
+        aspect_correction.x = u_resolution.x / u_resolution.y;
+    } else {
+        aspect_correction.y = u_resolution.y / u_resolution.x;
+    }
+    centeredUV *= aspect_correction;
+
+    // 極座標に変換
+    float angle = atan(centeredUV.y, centeredUV.x);
+    float radius = length(centeredUV);
+
+    // 角度に応じて半径を波打たせる（うねうね効果）- 回転なし
+    float waveFreq = 8.0;  // 波の数
+    float waveAmp = 0.08;  // 波の振幅
+    float wave = sin(angle * waveFreq) * waveAmp;
+
+    // 波打った半径で同心円パターンを作成
+    float ringCount = 12.0;  // 輪の数
+    float distortedRadius = radius + wave;
+
+    // 時間で円が外側に広がっていくアニメーション
+    float expansion = time * 0.5;
+
+    // 同心円パターン（2色交互）- 広がりアニメーション付き
+    float pattern = mod(floor((distortedRadius - expansion) * ringCount), 2.0);
+
+    return mix(u_subColor, u_mainColor, pattern);
+}
+
+vec4 safeTexture2D(sampler2D tex, vec2 uv) {
+    if(uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+        return vec4(0.0);
+    }
+    return texture2D(tex, uv);
+}
+
 void main(void) {
     vec2 initialUV = vTexCoord;
+    vec2 uv = vTexCoord;
     vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
 
-    col = texture2D(u_tex, initialUV);
+        // 模様を選択
+    vec3 patternColor;
+
+    if(u_patternIndex == 0) {
+        patternColor = noiseTexturePattern(uv, u_beat, u_time);
+    } else if(u_patternIndex == 1) {
+        patternColor = stripePattern(uv, u_beat, u_time);
+    } else if(u_patternIndex == 2) {
+        patternColor = dotPattern(uv, u_resolution, u_beat, u_time);
+    } else if(u_patternIndex == 3) {
+        patternColor = circlePattern(uv, u_beat, u_time);
+    } else if(u_patternIndex == 4) {
+        patternColor = gridPattern(uv, u_beat, u_time);
+    } else if(u_patternIndex == 5) {
+        patternColor = checkerboardPattern(uv, u_beat, u_time);
+    } else if(u_patternIndex == 6) {
+        patternColor = polkaDotPattern(uv, u_beat, u_time);
+    } else if(u_patternIndex == 7) {
+        patternColor = sunburstPattern(uv, u_beat, u_time);
+    } else if(u_patternIndex == 8) {
+        patternColor = gridLinePattern(uv, u_beat, u_time);
+    } else if(u_patternIndex == 9) {
+        patternColor = psychedelicSpiralPattern(uv, u_beat, u_time);
+    } else {
+        patternColor = noiseTexturePattern(uv, u_beat, u_time);
+    }
+    col.rgb = patternColor;
+
+    // ============
+
+    vec2 mainUV = initialUV;
+    vec4 mainCol = vec4(0.0, 0.0, 0.0, 1.0);
+
+    // mainUV.x = fract(mainUV.x + u_time * 0.08);
+    // mainUV = mosaic(mainUV, u_resolution, 100.0);
+
+    // float n = 3.0;
+    // mainUV.x = fract(mainUV.x * n);
+    // mainUV.x = map(mainUV.x, 0.0, 1.0, floor(n * 0.5) / n, (floor(n * 0.5) + 1.0) / n);
+
+    // ゴリラ
+    // for(float i = 0.0; i < 3.0; i++) {
+    //     vec2 uvOffset = uv - vec2(0.5 - i*0.3, 0.0);
+    //     vec4 offsetCol = safeTexture2D(u_tex, uvOffset);
+
+    //     if(offsetCol.a > 0.0){
+    //         mainCol.rgb = offsetCol.rgb;
+    //     }
+    // }
+
+    // メガホン
+    // for(float i = 0.0; i < 2.0; i++) {
+    //     vec2 uvOffset = floor(i) == 0.0 ? uv : vec2(1.0-uv.x, uv.y);
+    //     if(floor(i) == 1.0) {
+    //         uvOffset *= rot(0.1);
+    //         uvOffset.x += 0.2;
+    //         uvOffset = scale(uvOffset, 1.3);
+    //     }
+
+    //     vec4 offsetCol = safeTexture2D(u_tex, uvOffset);
+
+    //     if(offsetCol.a > 0.0){
+    //         mainCol.rgb = offsetCol.rgb;
+    //     }
+    // }
+
+    mainCol = texture2D(u_tex, mainUV);
+
+    // TODO:この辺のポスト処理でコラージュ感出したい
+    // if(abs(initialUV.y - 0.35) < 0.3 && mainCol.a > 0.0){
+    //     mainCol.rgb = gray(mainCol.rgb) < 0.5 ? vec3(1.0, 1.0, 0.0) : vec3(0.0, 1.0, 0.0);
+    // }   
+
+    if(mainCol.a > 0.0) {
+        col.rgb = mainCol.rgb;
+    }
 
     vec4 uiCol = texture2D(u_uiTex, initialUV);
     col.rgb += uiCol.rgb;

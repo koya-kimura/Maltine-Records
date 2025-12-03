@@ -4,6 +4,7 @@ import p5 from "p5";
 import { ImageRenderer } from "./ImageRenderer";
 
 import { ImageAnimation } from "./ImageAnimation";
+import { ImageGallery } from "./ImageGallery";
 
 export class ImageLayer {
     private shader: p5.Shader | null;
@@ -11,6 +12,7 @@ export class ImageLayer {
     private effectTexture: p5.Graphics | null;  // エフェクト適用後のテクスチャ
     private imageRenderer: ImageRenderer;
     private imageAnimation: ImageAnimation;
+    private imageGallery: ImageGallery;
 
     /**
      * ImageLayerクラスのコンストラクタです。
@@ -25,6 +27,7 @@ export class ImageLayer {
         this.effectTexture = null;
         this.imageRenderer = new ImageRenderer();
         this.imageAnimation = new ImageAnimation();
+        this.imageGallery = new ImageGallery();
     }
 
     /**
@@ -41,6 +44,7 @@ export class ImageLayer {
             this.shader = shaderOrPromise;
         }
         await this.imageAnimation.load(p, "/image/hand", 5, 40);
+        await this.imageGallery.load(p, "/image", [{ name: "animal", count: 3 }, { name: "human", count: 5 }, { name: "life", count: 4 }, { name: "noface", count: 4 }]);
 
         // エフェクト用のテクスチャを作成（WebGLモード）
         this.sourceTexture = p.createGraphics(p.width, p.height);
@@ -61,7 +65,7 @@ export class ImageLayer {
      * 
      * @param p p5.jsのインスタンス、またはp5.Graphicsオブジェクト。
      */
-    draw(p: p5 | p5.Graphics, sceneIndex: number, beat: number): void {
+    draw(p: p5, tex: p5.Graphics, sceneIndex: number, beat: number): void {
         if (!this.effectTexture || !this.shader || !this.sourceTexture) {
             return;
         }
@@ -71,7 +75,7 @@ export class ImageLayer {
         this.sourceTexture.clear();
 
         // モードが引数になる予定
-        this.imageRenderer.draw(this.sourceTexture, this.imageAnimation, beat, sceneIndex);
+        this.imageRenderer.draw(p, this.sourceTexture, this.imageAnimation, this.imageGallery, beat, sceneIndex);
 
         this.sourceTexture.pop();
 
@@ -83,14 +87,15 @@ export class ImageLayer {
         // シェーダーにUniform変数を設定
         this.shader.setUniform("u_tex", this.sourceTexture);
         this.shader.setUniform("u_resolution", [this.sourceTexture.width, this.sourceTexture.height]);
+        this.shader.setUniform("u_isLife", 0);
 
         // WEBGLモードは中心原点なので、中心から描画
         this.effectTexture.rect(0, 0, this.effectTexture.width, this.effectTexture.height);
         this.effectTexture.pop();
 
-        p.push();
-        p.image(this.effectTexture, 0, 0);
-        p.pop();
+        tex.push();
+        tex.image(this.effectTexture, 0, 0);
+        tex.pop();
     }
 
     resize(p: p5): void {

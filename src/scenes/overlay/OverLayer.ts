@@ -49,13 +49,13 @@ export class OverLayer {
         * 
         * @param p p5.jsのインスタンス、またはp5.Graphicsオブジェクト。
         */
-    draw(p: p5 | p5.Graphics, sceneIndex: number, beat: number): void {
+    draw(p: p5, tex: p5.Graphics, sceneIndex: number, beat: number): void {
         if (!this.destTexture || !this.shader || !this.sourceTexture) {
             return;
         }
 
         // 1. 画像をsourceTextureに描画（アスペクト比を保持）
-        this.p5Overlay.draw(this.sourceTexture, sceneIndex, beat);
+        this.p5Overlay.draw(p, this.sourceTexture, sceneIndex, beat);
 
         // 
         this.destTexture.push();
@@ -68,9 +68,9 @@ export class OverLayer {
         this.destTexture.rect(0, 0, this.destTexture.width, this.destTexture.height);
         this.destTexture.pop();
 
-        p.push();
-        p.image(this.destTexture, 0, 0);
-        p.pop();
+        tex.push();
+        tex.image(this.destTexture, 0, 0);
+        tex.pop();
     }
 
     resize(p:p5){

@@ -57,15 +57,22 @@ export class ImageAnimation {
      * 指定したアニメーションインデックスとフレーム番号の画像を取得
      * 
      * @param animationIndex アニメーションインデックス（0始まり）
-     * @param frameIndex フレーム番号（0始まり）
-     * @returns p5.Imageオブジェクト、またはnull
+     * @param frameProgress フレームの進捗（0.0～1.0）
+     * @returns p5.Imageオブジェクト
+     * @throws Error アニメーションまたはフレームが存在しない場合
      */
-    getImage(animationIndex: number, frameProgress: number): p5.Image | null {
+    getImage(animationIndex: number, frameProgress: number): p5.Image {
         const animation = this.images[animationIndex];
-        if (!animation) return null;
+        if (!animation || animation.length === 0) {
+            throw new Error(`ImageAnimation: animationIndex ${animationIndex} not found (max: ${this.images.length - 1})`);
+        }
 
-        const frameIndex = Math.max(Math.min(Math.floor(frameProgress * animation.length), animation.length-1), 0)
-        return animation[frameIndex] || null;
+        const frameIndex = Math.max(Math.min(Math.floor(frameProgress * animation.length), animation.length - 1), 0);
+        const img = animation[frameIndex];
+        if (!img) {
+            throw new Error(`ImageAnimation: frame ${frameIndex} not found in animation ${animationIndex}`);
+        }
+        return img;
     }
 
     /**

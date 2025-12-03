@@ -1,27 +1,18 @@
-// ImageGallery は複数のディレクトリから静止画を読み込んで表示するクラス。
+// ImageGallery は複数のカテゴリから静止画を管理するクラス。
+// カテゴリ名とインデックスを指定すると画像を返す。
 import p5 from "p5";
 
 export class ImageGallery {
-    private images: Map<string, p5.Image[]>; // ディレクトリ名 -> 画像配列
-    private currentCategory: string;
-    private currentImageIndex: number;
-    private isLoaded: boolean;
+    private images: Map<string, p5.Image[]>;
 
-    /**
-     * ImageGalleryクラスのコンストラクタです。
-     * 複数のディレクトリから画像を読み込み、静止画として表示する機能を提供します。
-     */
     constructor() {
         this.images = new Map();
-        this.currentCategory = "";
-        this.currentImageIndex = 0;
-        this.isLoaded = false;
     }
 
     /**
      * 指定されたディレクトリ構造から画像を非同期で読み込みます。
      * 
-     * @param p p5.jsのインスタンス。画像のロード機能を提供します。
+     * @param p p5.jsのインスタンス
      * @param basePath 画像ディレクトリのベースパス（例: "/image"）
      * @param categories カテゴリ情報の配列 [{name: "animal", count: 3}, ...]
      */
@@ -58,138 +49,40 @@ export class ImageGallery {
         }
 
         await Promise.all(loadPromises);
-
-        // 最初のカテゴリを選択
-        if (categories.length > 0) {
-            this.currentCategory = categories[0].name;
-        }
-
-        this.isLoaded = true;
         console.log(`Loaded ${categories.length} image categories`);
     }
 
     /**
-     * 現在選択されている画像を取得します。
-     * 
-     * @returns 現在の画像のp5.Imageオブジェクト、または未ロード時はnull
-     */
-    getCurrentImage(): p5.Image | null {
-        if (!this.isLoaded || !this.currentCategory) {
-            return null;
-        }
-
-        const categoryImages = this.images.get(this.currentCategory);
-        if (!categoryImages || categoryImages.length === 0) {
-            return null;
-        }
-
-        return categoryImages[this.currentImageIndex] || null;
-    }
-
-    /**
-     * 指定したカテゴリの現在の画像を取得します。
+     * 指定したカテゴリとインデックスの画像を取得
      * 
      * @param category カテゴリ名
-     * @param index 画像インデックス（省略時は現在のインデックス）
-     * @returns p5.Imageオブジェクト、またはnull
+     * @param index 画像インデックス（0始まり）
+     * @returns p5.Imageオブジェクト
+     * @throws Error カテゴリまたはインデックスが存在しない場合
      */
-    getImage(category: string, index?: number): p5.Image | null {
-        if (!this.isLoaded) {
-            return null;
-        }
-
+    getImage(category: string, index: number): p5.Image {
         const categoryImages = this.images.get(category);
-        if (!categoryImages || categoryImages.length === 0) {
-            return null;
+        if (!categoryImages) {
+            throw new Error(`ImageGallery: category "${category}" not found`);
         }
-
-        const imageIndex = index !== undefined ? index : this.currentImageIndex;
-        if (imageIndex < 0 || imageIndex >= categoryImages.length) {
-            return null;
+        const img = categoryImages[index];
+        if (!img) {
+            throw new Error(`ImageGallery: index ${index} not found in category "${category}" (max: ${categoryImages.length - 1})`);
         }
-
-        return categoryImages[imageIndex] || null;
+        return img;
     }
 
     /**
-     * 現在の画像を指定した座標に描画します。
-     * 
-     * @param p p5.jsのインスタンス、またはp5.Graphicsオブジェクト。
-     * @param x 描画位置のX座標。
-     * @param y 描画位置のY座標。
-     * @param w 描画する幅（省略可能）。
-     * @param h 描画する高さ（省略可能）。
+     * 指定したカテゴリの画像数を取得
      */
-    draw(p: p5 | p5.Graphics, x: number, y: number, w?: number, h?: number): void {
-        const currentImage = this.getCurrentImage();
-        if (!currentImage) {
-            return;
-        }
-
-        if (w !== undefined && h !== undefined) {
-            p.image(currentImage, x, y, w, h);
-        } else {
-            p.image(currentImage, x, y);
-        }
+    getImageCount(category: string): number {
+        return this.images.get(category)?.length || 0;
     }
 
     /**
-     * カテゴリを切り替えます。
-     * 
-     * @param categoryName カテゴリ名
-     */
-    setCategory(categoryName: string): void {
-        if (this.images.has(categoryName)) {
-            this.currentCategory = categoryName;
-            this.currentImageIndex = 0; // 画像インデックスをリセット
-        }
-    }
-
-    /**
-     * 現在のカテゴリ内の画像インデックスを設定します。
-     * 
-     * @param index 画像インデックス
-     */
-    setImageIndex(index: number): void {
-        const categoryImages = this.images.get(this.currentCategory);
-        if (categoryImages && index >= 0 && index < categoryImages.length) {
-            this.currentImageIndex = index;
-        }
-    }
-
-    /**
-     * 現在のカテゴリ名を取得します。
-     * 
-     * @returns カテゴリ名
-     */
-    getCurrentCategory(): string {
-        return this.currentCategory;
-    }
-
-    /**
-     * 現在の画像インデックスを取得します。
-     * 
-     * @returns 画像インデックス
-     */
-    getCurrentImageIndex(): number {
-        return this.currentImageIndex;
-    }
-
-    /**
-     * 全カテゴリ名のリストを取得します。
-     * 
-     * @returns カテゴリ名の配列
+     * 全カテゴリ名を取得
      */
     getCategories(): string[] {
         return Array.from(this.images.keys());
-    }
-
-    /**
-     * 画像が読み込み完了しているかを確認します。
-     * 
-     * @returns 読み込み完了している場合はtrue
-     */
-    isReady(): boolean {
-        return this.isLoaded;
     }
 }

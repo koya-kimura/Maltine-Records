@@ -3,6 +3,8 @@
 import p5 from "p5";
 import { ImageAnimation } from "./ImageAnimation";
 import { ImageGallery } from "./ImageGallery";
+import { Easing } from "../../utils/easing";
+import { fract } from "../../utils/mathUtils";
 
 /**
  * ImageRendererクラス
@@ -16,21 +18,118 @@ export class ImageRenderer {
      * @param modeName モード名
      */
     draw(
-        p: p5 | p5.Graphics,
+        p: p5,
+        tex: p5.Graphics,
         imageAnimation: ImageAnimation,
+        imageGallery: ImageGallery,
         beat: number,
         sceneIndex: number,
     ): void {
-        const img = imageAnimation.getImage(0, (beat * 0.1) % 1);
-        if (!img) {
-            return;
+
+        if (sceneIndex === 0) {
+            tex.push();
+            tex.clear();
+            tex.pop();
         }
-        img.resize(p.width, 0);
+        else if (sceneIndex === 1) {
+            const img = imageGallery.getImage("noface", Math.floor((beat * 0.2) % 4))!;
 
-        p.push();
-        p.imageMode(p.CENTER);
-        p.image(img, 0, 0);
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(tex.width / 2, tex.height * 0.6);
+            tex.scale(0.85);
+            tex.image(img, 0, 0);
+            tex.pop();
+        }
+        else if (sceneIndex === 2) {
+            const img = imageGallery.getImage("animal", 0)!;
 
-        p.pop();
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(tex.width * 0.25, tex.height * 0.65);
+            tex.scale(0.6);
+            tex.image(img, 0, 0);
+            tex.pop();
+        }
+        else if (sceneIndex === 3) {
+            const img = imageGallery.getImage("animal", 1)!;
+
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(tex.width * 0.25, tex.height * 0.55);
+            tex.scale(1.5);
+            tex.image(img, 0, 0);
+            tex.pop();
+        }
+        else if (sceneIndex === 4) {
+            const img = imageGallery.getImage("animal", 2)!;
+
+            tex.push();
+            tex.imageMode(p.CENTER);
+
+            tex.push();
+            tex.translate(tex.width * 0.05, tex.height * 0.5);
+            tex.scale(1.2);
+            tex.image(img, 0, 0);
+            tex.pop();
+
+            tex.push();
+            tex.translate(tex.width * 0.95, tex.height * 0.5);
+            tex.scale(-1, 1);
+            tex.scale(1.2);
+            tex.image(img, 0, 0);
+            tex.pop();
+            tex.pop();
+        }
+        else if (sceneIndex === 5) {
+            const img = imageGallery.getImage("human", 0);  // animalは0,1,2の3枚
+
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(tex.width * 0.5, tex.height * 0.5);
+            tex.scale(1.2);
+            tex.image(img, 0, 0);
+            tex.pop();
+
+            const hand = imageAnimation.getImage(2, Easing.zigzag(beat * 0.3));
+
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(tex.width * 0.55, tex.height * 0.5);
+            tex.scale(1.2);
+            tex.image(hand, 0, 0);
+            tex.pop();
+        }
+        else if (sceneIndex === 6) {
+            const img = imageGallery.getImage("human", 1);  // animalは0,1,2の3枚
+
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(tex.width * 0.5, tex.height * 0.9);
+            tex.scale(2.5);
+            tex.image(img, 0, 0);
+            tex.pop();
+        }
+        else if (sceneIndex === 7) {
+            const img = imageGallery.getImage("human", 2);  // animalは0,1,2の3枚
+
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(tex.width * 0.8, tex.height * 0.7);
+            tex.rotate(Math.PI * 0.1)
+            tex.scale(0.7);
+            tex.image(img, 0, 0);
+            tex.pop();
+        }
+        else if (sceneIndex === 8) {
+            const img = imageGallery.getImage("human", 3);  // animalは0,1,2の3枚
+
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(tex.width * 0.5, tex.height * 0.7);
+            tex.scale(1.5);
+            tex.image(img, 0, 0);
+            tex.pop();
+        }
     }
 }

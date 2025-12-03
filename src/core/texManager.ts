@@ -10,7 +10,7 @@ export class TexManager {
     private backgroundPattern: Pattern;
     private imageLayer: ImageLayer;
     private overLayer: OverLayer;
-    private sceneIndex: number = 0;
+    private sceneIndex: number = 8;
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -123,9 +123,9 @@ export class TexManager {
         texture.push();
         texture.clear();
 
-        this.backgroundPattern.draw(texture, beat);
-        this.imageLayer.draw(texture, this.sceneIndex, beat);
-        this.overLayer.draw(texture, this.sceneIndex, beat);
+        // this.backgroundPattern.draw(texture, beat);
+        this.imageLayer.draw(p, texture, this.sceneIndex, beat);
+        this.overLayer.draw(p, texture, this.sceneIndex, beat);
 
         texture.pop();
     }

@@ -26,41 +26,9 @@ const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: 
     tex.textSize(titleSize);
     tex.textAlign(p.CENTER, p.CENTER);
 
-    // 各文字の幅を計算してトータル幅を求める
-    const charWidths: number[] = [];
-    const letterSpacing = titleSize * 0.2; // 文字間スペース
-    let totalWidth = 0;
-    for (const char of titleText) {
-        const w = tex.textWidth(char);
-        charWidths.push(w);
-        totalWidth += w;
-    }
-    totalWidth += letterSpacing * (titleText.length - 1); // 文字間を追加
-
-    // 開始X座標（中央揃えのため）
-    let currentX = tex.width * 0.5 - totalWidth / 2;
-    const titleY = tex.height * 0.1;
-    const padding = titleSize * 0.15;
-
-    // 各文字を描画
-    for (let i = 0; i < titleText.length; i++) {
-        const char = titleText[i];
-        const charWidth = charWidths[i];
-        const charCenterX = currentX + charWidth / 2;
-
-        // 黒い四角形（文字の後ろ）
-        tex.noStroke();
-        tex.fill(0);
-        tex.rectMode(p.CENTER);
-        tex.rect(charCenterX, titleY, charWidth + padding, titleSize + padding);
-
-        // 白い文字
-        tex.fill(255);
-        tex.noStroke();
-        tex.text(char, charCenterX, titleY);
-
-        currentX += charWidth + letterSpacing;
-    }
+    tex.fill(255);
+    tex.noStroke();
+    tex.text(titleText, tex.width / 2, tex.height * 0.1);
 
     const dateTimeString = DateText.getYYYYMMDD_HHMMSS_format();
 
