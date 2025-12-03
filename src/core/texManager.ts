@@ -4,6 +4,7 @@ import { BPMManager } from "../rhythm/BPMManager";
 import { APCMiniMK2Manager } from "../midi/apcmini_mk2/APCMiniMK2Manager";
 import { ColorPalette } from "../utils/colorPalette";
 import { Pattern } from "../scenes/pattern/patern";
+import { ImageAnimation } from "../scenes/image/ImageAnimation";
 
 // TexManager は描画用の p5.Graphics とシーン、MIDI デバッグ描画のハブを担当する。
 export class TexManager {
@@ -11,6 +12,7 @@ export class TexManager {
     private bpmManager: BPMManager;
     public sceneMatrix: APCMiniMK2Manager;
     private pattern: Pattern;
+    private imageAnimation: ImageAnimation;
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -26,6 +28,7 @@ export class TexManager {
         this.bpmManager = new BPMManager();
         this.sceneMatrix = new APCMiniMK2Manager();
         this.pattern = new Pattern(512, 512);
+        this.imageAnimation = new ImageAnimation(30); // 30fps
     }
 
     /**
@@ -51,7 +54,10 @@ export class TexManager {
         this.sceneMatrix.setMaxOptionsForScene(7, [3, 3, 0, 0, 0, 0, 0, 0]);
 
         // Patternシェーダーの読み込み
-        await this.pattern.load(p, "/shader/post.vert", "/shader/pattern.frag");
+        await this.pattern.load(p, "/shader/main.vert", "/shader/pattern.frag");
+
+        // ImageAnimationの画像を読み込み
+        await this.imageAnimation.load(p, "/image/hand", 5, 40);
     }
 
     /**
@@ -101,9 +107,10 @@ export class TexManager {
      *
      * @param _p p5.jsのインスタンス（現在は未使用ですが、将来的な拡張のために引数として保持）。
      */
-    update(_p: p5): void {
+    update(p: p5): void {
         this.bpmManager.update()
         this.sceneMatrix.update(Math.floor(this.bpmManager.getBeat()))
+        this.imageAnimation.update(p);
     }
 
     /**
@@ -132,10 +139,17 @@ export class TexManager {
         const numberParams = this.sceneMatrix.getParamValues(1);
         const palette = this.getColorPalette();
 
-        // パターンの更新と描画
+        // パターンの更新と描画（背景レイヤー）
         this.pattern.update(p, beat);
         texture.imageMode(p.CORNER);
         this.pattern.drawPattern(texture, 0, 0, p.width, p.height);
+
+        // ImageAnimationの描画（パターンの上のレイヤー）
+        texture.push();
+        texture.imageMode(p.CENTER);
+        texture.translate(p.width / 2, p.height / 2);
+        this.imageAnimation.draw(texture, 0, 0, p.width * 0.8, p.height * 0.8);
+        texture.pop();
 
         texture.pop();
 

@@ -39,7 +39,7 @@ const sketch = (p: p5) => {
     font = await p.loadFont("/font/Jost-Regular.ttf");
     await effectManager.load(
       p,
-      "/shader/post.vert",
+      "/shader/main.vert",
       "/shader/post.frag",
     );
   };
