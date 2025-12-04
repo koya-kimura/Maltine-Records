@@ -10,7 +10,7 @@ import { LED_PALETTE, PAGE_LED_PALETTE } from "./ledPalette";
 type FaderButtonMode = "mute" | "random";
 
 /** ボタンの入力タイプ */
-export type InputType = "radio" | "toggle" | "oneshot" | "momentary";
+export type InputType = "radio" | "toggle" | "oneshot" | "momentary" | "random";
 
 /** セルの位置指定 */
 export interface CellPosition {
@@ -27,6 +27,10 @@ export interface ButtonConfig {
     activeColor?: number;     // アクティブ時のLED色
     inactiveColor?: number;   // 非アクティブ時のLED色
     defaultValue?: number | boolean;
+
+    // randomタイプ専用オプション
+    randomTarget?: string;    // ランダム対象のradioボタンのkey
+    excludeCurrent?: boolean; // 現在値を除外するか（デフォルト: true）
 }
 
 /** 内部管理用: 登録されたセル情報 */
@@ -165,6 +169,10 @@ export class APCMiniMK2Manager extends MIDIManager {
                 case "momentary":
                     this.inputValues.set(key, false);
                     this.momentaryState.set(key, false);
+                    break;
+                case "random":
+                    // randomタイプ自体は値を持たない（トリガーとして機能）
+                    this.inputValues.set(key, false);
                     break;
             }
         }
@@ -348,6 +356,9 @@ export class APCMiniMK2Manager extends MIDIManager {
                     this.inputValues.set(key, true);
                     this.momentaryState.set(key, true);
                     break;
+                case "random":
+                    this.triggerRandom(key);
+                    break;
             }
         } else if ((isNoteOff || (isNoteOn && velocity === 0)) && type === "momentary") {
             // ボタン離した（momentaryのみ）
@@ -448,6 +459,9 @@ export class APCMiniMK2Manager extends MIDIManager {
                 return currentValue === true ? activeColor : inactiveColor;
             case "momentary":
                 return this.momentaryState.get(key) === true ? activeColor : inactiveColor;
+            case "random":
+                // randomボタンは常にactiveColor（押すとトリガー）
+                return activeColor;
             default:
                 return LED_PALETTE.OFF;
         }
@@ -456,6 +470,59 @@ export class APCMiniMK2Manager extends MIDIManager {
     // ========================================
     // ヘルパー
     // ========================================
+
+    /**
+     * randomタイプのボタンが押されたときの処理
+     * 対象のradioボタンをランダムに切り替える
+     */
+    private triggerRandom(randomKey: string): void {
+        const config = this.buttonConfigs.get(randomKey);
+        if (!config || config.type !== "random") {
+            return;
+        }
+
+        const targetKey = config.randomTarget;
+        if (!targetKey) {
+            console.warn(`randomボタン "${randomKey}" にrandomTargetが設定されていません`);
+            return;
+        }
+
+        const targetConfig = this.buttonConfigs.get(targetKey);
+        if (!targetConfig) {
+            console.warn(`randomTarget "${targetKey}" が見つかりません`);
+            return;
+        }
+
+        if (targetConfig.type !== "radio") {
+            console.warn(`randomTarget "${targetKey}" はradioタイプではありません（type: ${targetConfig.type}）`);
+            return;
+        }
+
+        const cellCount = targetConfig.cells.length;
+        if (cellCount <= 1) {
+            return; // 選択肢が1つ以下なら何もしない
+        }
+
+        const currentValue = this.inputValues.get(targetKey) as number;
+        const excludeCurrent = config.excludeCurrent !== false; // デフォルトtrue
+
+        let newValue: number;
+        if (excludeCurrent) {
+            // 現在値を除外してランダム選択
+            const candidates = [];
+            for (let i = 0; i < cellCount; i++) {
+                if (i !== currentValue) {
+                    candidates.push(i);
+                }
+            }
+            newValue = candidates[Math.floor(Math.random() * candidates.length)];
+        } else {
+            // 全ての選択肢からランダム選択
+            newValue = Math.floor(Math.random() * cellCount);
+        }
+
+        this.inputValues.set(targetKey, newValue);
+    }
 
     /**
      * セルのキーを生成

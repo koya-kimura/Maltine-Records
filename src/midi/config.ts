@@ -65,6 +65,19 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
     //     activeColor: LED_PALETTE.CYAN,
     //     inactiveColor: LED_PALETTE.DIM,
     // },
+
+    // ========================================
+    // サンプル: ランダム選択（randomタイプ）
+    // ========================================
+    // sceneSelectをランダムに切り替えるボタン
+    {
+        key: "sceneRandom",
+        type: "random",
+        cells: [{ page: 0, row: 0, col: 7 }],
+        randomTarget: "sceneSelect",  // 対象のradioボタンのkey
+        excludeCurrent: true,         // 現在値を除外（デフォルト: true）
+        activeColor: LED_PALETTE.PURPLE,
+    },
 ];
 
 // ========================================
