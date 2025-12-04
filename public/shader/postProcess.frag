@@ -324,32 +324,38 @@ void main(void) {
     vec2 uv = vTexCoord;
     vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
 
-        // 模様を選択
+    // 模様を選択
+    vec2 patternUV = uv;
     vec3 patternColor;
 
+    // patternUV = mosaic(patternUV, u_resolution, 160.0);
+
     if(u_patternIndex == 0) {
-        patternColor = noiseTexturePattern(uv, u_beat, u_time);
+        patternColor = noiseTexturePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 1) {
-        patternColor = stripePattern(uv, u_beat, u_time);
+        patternColor = stripePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 2) {
-        patternColor = dotPattern(uv, u_resolution, u_beat, u_time);
+        patternColor = dotPattern(patternUV, u_resolution, u_beat, u_time);
     } else if(u_patternIndex == 3) {
-        patternColor = circlePattern(uv, u_beat, u_time);
+        patternColor = circlePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 4) {
-        patternColor = gridPattern(uv, u_beat, u_time);
+        patternColor = gridPattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 5) {
-        patternColor = checkerboardPattern(uv, u_beat, u_time);
+        patternColor = checkerboardPattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 6) {
-        patternColor = polkaDotPattern(uv, u_beat, u_time);
+        patternColor = polkaDotPattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 7) {
-        patternColor = sunburstPattern(uv, u_beat, u_time);
+        patternColor = sunburstPattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 8) {
-        patternColor = gridLinePattern(uv, u_beat, u_time);
+        patternColor = gridLinePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 9) {
-        patternColor = psychedelicSpiralPattern(uv, u_beat, u_time);
+        patternColor = psychedelicSpiralPattern(patternUV, u_beat, u_time);
     } else {
-        patternColor = noiseTexturePattern(uv, u_beat, u_time);
+        patternColor = noiseTexturePattern(patternUV, u_beat, u_time);
     }
+
+    // patternColor.rgb = floor(patternColor.rgb * 8.0 + 0.5) / 8.0; // 8階調に量子化
+
     col.rgb = patternColor;
 
     // ============

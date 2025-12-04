@@ -4,12 +4,17 @@ varying vec2 vTexCoord;
 uniform int u_isLife;
 uniform sampler2D u_tex;
 uniform vec2 u_resolution;
+uniform float u_beat;
 
 float PI = 3.14159265358979;
 
 // グレースケール変換
 float gray(vec3 col) {
     return dot(col, vec3(0.299, 0.587, 0.114));
+}
+
+vec2 mosaic(vec2 uv, vec2 res, float n) {
+    return vec2((floor(uv.x * n) + 0.5) / n, (floor(uv.y * n * res.y / res.x) + 0.5) / (n * res.y / res.x));
 }
 
 // コントラスト調整
@@ -35,6 +40,8 @@ float map(float value, float min1, float max1, float min2, float max2) {
 void main(void) {
     vec2 uv = vTexCoord;
     
+    // uv = mosaic(uv, u_resolution, 160.0);
+
     // テクスチャから色を取得
     vec4 texColor = texture2D(u_tex, uv);
     
@@ -51,11 +58,13 @@ void main(void) {
     float contrastValue = 1.8;
     grayValue = adjustContrast(grayValue, contrastValue);
 
+    // grayValue = floor(grayValue * 8.0 + 0.5) / 8.0; // 4階調に量子化
+
     // 最終的な色（ドットは黒、背景は白）
     vec3 finalColor = vec3(grayValue);
 
     if(maxRGB(texColor.rgb).g > 0.0 && u_isLife == 1) {
-finalColor = vec3(mod(floor(uv.x * 128.0) + floor(uv.y * 72.0), 2.0) == 0.0 ? 1.0 : 0.0); // Blue dots
+        finalColor = vec3(mod(floor(uv.x * 128.0) + floor(uv.y * 72.0) + floor(u_beat), 2.0) == 0.0 ? 1.0 : 0.0); // Blue dots
     }
     
     // 元のアルファ値を保持

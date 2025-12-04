@@ -177,9 +177,9 @@ const overlayScenes: OverlayDrawFn[] = [
     },
 
     // scene 11:
-     (p, tex, beat) => {
+    (p, tex, beat) => {
         tex.clear();
-     },
+    },
 
     // scene 12:
     (p, tex, beat) => {
@@ -187,6 +187,91 @@ const overlayScenes: OverlayDrawFn[] = [
     },
 
     // scene 13:
+    (p, tex, beat) => {
+        tex.clear();
+    },
+
+    // scene 14:
+    (p, tex, beat) => {
+        tex.clear();
+        tex.push();
+        const n = 20
+        for (let i = 0; i < n; i++) {
+            const angle = (i / n) * Math.PI * 2 + beat * 0.5;
+            const radius = Math.min(tex.width, tex.height) * 0.43;
+            const x = Math.cos(angle) * radius * 1.15 + tex.width * 0.4;
+            const y = Math.sin(angle) * radius + tex.height / 2;
+            const s = Math.min(tex.width, tex.height) * 0.06 * map(Easing.zigzag(beat * 0.5 + i % 2), 0, 1, 0.5, 1.5);
+
+            tex.noStroke();
+            tex.fill(200, 200, 0);
+            tex.circle(x, y, s);
+        }
+        tex.pop();
+    },
+
+    // scene 15:
+    (p, tex, beat) => {
+        tex.clear();
+    },
+
+    // scene 16:
+    (p, tex, beat) => {
+        tex.clear();
+    },
+
+    // scene 17:
+    (p, tex, beat) => {
+        tex.clear();
+        tex.push();
+        const n = 30;
+        for (let i = 0; i < n; i++) {
+            const t = fract(beat * 0.3 + i * 0.1);
+            const sx = UniformRandom.rand(i * 9182) * tex.width;
+            const ex = tex.width * 0.5;
+            const x = map(t, 0, 1, sx, ex);
+
+            const sy = map(UniformRandom.rand(i * 9182 + 1), 0, 1, tex.height * 0.45, tex.height * 0.5);
+            const ey = map(UniformRandom.rand(i * 9182 + 2), 0, 1, tex.height * 0.05, tex.height * 0.2);
+            const y = map(Math.sin(t * Math.PI), 0, 1, sy, ey);
+
+            const s = (map(Math.abs(t - 0.5), 0.5, 0, 0.1, 0.15) * map(Easing.zigzag(beat + i % 2), 0, 1, 0.5, 1.0)) * Math.min(tex.width, tex.height);
+            const a = map(Math.abs(t - 0.5), 0.5, 0, 0, 255);
+
+            tex.fill(255, 255, 0, a);
+            tex.noStroke();
+            tex.circle(x, y, s);
+        }
+        tex.pop();
+    },
+
+    // scene 18:
+    (p, tex, beat) => {
+        tex.clear();
+
+        const n = 8;
+        const angle = GVM.leapNoise(beat + 0.5, 8, 2, Easing.easeOutExpo) * Math.PI * 2;
+
+        tex.push();
+        tex.translate(tex.width * 0.5, tex.height * 0.5);
+        tex.rotate(angle);
+        for (let i = 0; i < n; i++) {
+            const x = map(i, 0, n - 1, -tex.width * 0.2, tex.width * 0.2);
+            const isShow = UniformRandom.rand(i * 1234, Math.floor(beat * 2) * 5678) < 0.5;
+            
+            if(isShow){
+            tex.push();
+                tex.fill(255, 200, 0);
+                tex.rectMode(p.CENTER);
+                tex.noStroke();
+                tex.rect(x, 0, tex.width * 0.03, tex.height * 0.15);
+                tex.pop();
+            }
+        }
+        tex.pop();
+    },
+
+    // scene 19:
     (p, tex, beat) => {
         tex.clear();
     },

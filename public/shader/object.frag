@@ -53,6 +53,8 @@ void main(void) {
     vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
     vec2 uv = vTexCoord;
 
+    // uv = mosaic(uv, u_resolution, 160.0);
+
     col = texture2D(u_tex, uv);
 
     if(u_sceneIndex == 12) {
@@ -67,6 +69,8 @@ void main(void) {
         vec3 pattern = mod(floor(uv.x * 160.0) + floor(uv.y * 90.0), 2.0) == 0.0 ? vec3(1.0) : vec3(0.0);
         col = mix(col, vec4(pattern, 1.0), mask);
     }
+
+    // col.rgb = floor(col.rgb * 8.0 + 0.5) / 8.0; // 8階調に量子化
     
     gl_FragColor = col;
 }

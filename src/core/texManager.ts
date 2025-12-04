@@ -12,7 +12,7 @@ export class TexManager {
     private imageLayer: ImageLayer;
     private overLayer: OverLayer;
     private imageOverlay: ImageOverlay;
-    private sceneIndex: number = 13;
+    private sceneIndex: number = 1;
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -122,8 +122,6 @@ export class TexManager {
         if (!texture) {
             throw new Error("Texture not initialized");
         }
-
-        this.sceneIndex = Math.floor(p.millis() / 1000.0) % 13;
 
         texture.push();
         texture.clear();

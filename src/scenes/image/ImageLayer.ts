@@ -97,7 +97,8 @@ export class ImageLayer {
         // シェーダーにUniform変数を設定
         this.shader.setUniform("u_tex", this.sourceTexture);
         this.shader.setUniform("u_resolution", [this.sourceTexture.width, this.sourceTexture.height]);
-        this.shader.setUniform("u_isLife", 0);
+        this.shader.setUniform("u_isLife", [14, 15].includes(sceneIndex) ? 1 : 0);
+        this.shader.setUniform("u_beat", beat);
 
         // WEBGLモードは中心原点なので、中心から描画
         this.effectTexture.rect(0, 0, this.effectTexture.width, this.effectTexture.height);
