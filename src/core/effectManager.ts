@@ -61,7 +61,7 @@ export class EffectManager {
         this.shader.setUniform("u_time", p.millis() / 1000.0);
         this.shader.setUniform("u_mainColor", [1.0, 0.0, 0.0]); // 例: 赤色
         this.shader.setUniform("u_subColor", [0.0, 0.0, 1.0]); // 例: 青色
-        this.shader.setUniform("u_patternIndex", 5); // 例: パターンインデックス1
+        this.shader.setUniform("u_patternIndex", Math.floor(p.millis() / 1000.0) % 10); // 例: パターンインデックス1
 
         p.rect(0, 0, p.width, p.height);
     }

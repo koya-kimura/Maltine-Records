@@ -64,12 +64,14 @@ export class OverLayer {
 
         this.shader.setUniform("u_tex", this.sourceTexture);
         this.shader.setUniform("u_resolution", [this.sourceTexture.width, this.sourceTexture.height]);
+        this.shader.setUniform("u_sceneIndex", sceneIndex);
 
         this.destTexture.rect(0, 0, this.destTexture.width, this.destTexture.height);
         this.destTexture.pop();
 
         tex.push();
         tex.image(this.destTexture, 0, 0);
+
         tex.pop();
     }
 

@@ -44,6 +44,10 @@ vec2 mosaic(vec2 uv, vec2 res, float n) {
     return vec2((floor(uv.x * n) + 0.5) / n, (floor(uv.y * n * res.y / res.x) + 0.5) / (n * res.y / res.x));
 }
 
+vec2 tile(vec2 uv, float n) {
+    return fract(uv * n);
+}
+
 float gray(vec3 col) {
     return dot(col, vec3(0.299, 0.587, 0.114));
 }
@@ -328,6 +332,8 @@ void main(void) {
     vec2 mainUV = initialUV;
     vec4 mainCol = vec4(0.0, 0.0, 0.0, 1.0);
 
+    // mainUV = tile(mainUV, 3.0);
+
     // mainUV.x = fract(mainUV.x + u_time * 0.08);
     // mainUV = mosaic(mainUV, u_resolution, 100.0);
 
@@ -360,6 +366,8 @@ void main(void) {
     //         mainCol.rgb = offsetCol.rgb;
     //     }
     // }
+
+
 
     mainCol = texture2D(u_tex, mainUV);
 

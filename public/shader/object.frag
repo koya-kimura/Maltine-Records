@@ -9,6 +9,7 @@ uniform vec2 u_resolution;
 uniform int u_patternIndex;
 uniform vec3 u_mainColor;  // メインカラー
 uniform vec3 u_subColor;   // サブカラー
+uniform int u_sceneIndex;
 
 float PI = 3.14159265358979;
 
@@ -53,6 +54,19 @@ void main(void) {
     vec2 uv = vTexCoord;
 
     col = texture2D(u_tex, uv);
+
+    if(u_sceneIndex == 12) {
+        vec2 centerUV = vec2(0.5, 0.4);
+        vec2 normUV = vec2(uv.x * u_resolution.x / u_resolution.y, uv.y);
+        float d = distance(normUV, vec2(u_resolution.x / u_resolution.y * centerUV.x, centerUV.y));
+        
+        float radius = 0.35;
+        float edge = 0.03; // エッジのぼかし幅
+        float mask = 1.0 - smoothstep(radius - edge, radius, d);
+        
+        vec3 pattern = mod(floor(uv.x * 160.0) + floor(uv.y * 90.0), 2.0) == 0.0 ? vec3(1.0) : vec3(0.0);
+        col = mix(col, vec4(pattern, 1.0), mask);
+    }
     
     gl_FragColor = col;
 }

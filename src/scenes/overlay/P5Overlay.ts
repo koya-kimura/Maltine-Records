@@ -175,6 +175,21 @@ const overlayScenes: OverlayDrawFn[] = [
             tex.circle(x, y, s);
         }
     },
+
+    // scene 11:
+     (p, tex, beat) => {
+        tex.clear();
+     },
+
+    // scene 12:
+    (p, tex, beat) => {
+        tex.clear();
+    },
+
+    // scene 13:
+    (p, tex, beat) => {
+        tex.clear();
+    },
 ];
 
 export class P5Overlay {

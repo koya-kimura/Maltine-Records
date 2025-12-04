@@ -45,9 +45,16 @@ export class ImageLayer {
         }
         await this.imageAnimation.load(p, "/animation", [
             { name: "hand", animationCount: 5, framesPerAnimation: 40 },
-            { name: "walk", animationCount: 4, framesPerAnimation: 40 }
+            { name: "walk", animationCount: 4, framesPerAnimation: 40 },
+            { name: "dance", animationCount: 4, framesPerAnimation: 40 },
+            { name: "dothand", animationCount: 3, framesPerAnimation: 24 }
         ]);
-        await this.imageGallery.load(p, "/image", [{ name: "animal", count: 3 }, { name: "human", count: 5 }, { name: "life", count: 4 }, { name: "noface", count: 4 }]);
+        await this.imageGallery.load(p, "/image", [
+            { name: "animal", count: 3 }, 
+            { name: "human", count: 5 }, 
+            { name: "life", count: 4 }, 
+            { name: "noface", count: 4 }
+        ]);
 
         // エフェクト用のテクスチャを作成（WebGLモード）
         this.sourceTexture = p.createGraphics(p.width, p.height);
@@ -104,5 +111,13 @@ export class ImageLayer {
     resize(p: p5): void {
         this.sourceTexture?.resizeCanvas(p.width, p.height);
         this.effectTexture?.resizeCanvas(p.width, p.height);
+    }
+
+    getImageAnimation(): ImageAnimation {
+        return this.imageAnimation;
+    }
+
+    getImageGallery(): ImageGallery {
+        return this.imageGallery;
     }
 }

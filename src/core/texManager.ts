@@ -3,6 +3,7 @@ import p5 from "p5";
 import { Pattern } from "../scenes/background/patern";
 import { ImageLayer } from "../scenes/image/ImageLayer";
 import { OverLayer } from "../scenes/overlay/OverLayer";
+import { ImageOverlay } from "../scenes/overlay/ImageOverlay";
 
 // TexManager は描画用の p5.Graphics とシーン、MIDI デバッグ描画のハブを担当する。
 export class TexManager {
@@ -10,7 +11,8 @@ export class TexManager {
     private backgroundPattern: Pattern;
     private imageLayer: ImageLayer;
     private overLayer: OverLayer;
-    private sceneIndex: number = 10;
+    private imageOverlay: ImageOverlay;
+    private sceneIndex: number = 13;
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -26,6 +28,7 @@ export class TexManager {
         this.backgroundPattern = new Pattern();
         this.imageLayer = new ImageLayer();
         this.overLayer = new OverLayer();
+        this.imageOverlay = new ImageOverlay();
     }
 
     /**
@@ -120,13 +123,15 @@ export class TexManager {
             throw new Error("Texture not initialized");
         }
 
+        this.sceneIndex = Math.floor(p.millis() / 1000.0) % 13;
+
         texture.push();
         texture.clear();
 
         // this.backgroundPattern.draw(texture, beat);
         this.imageLayer.draw(p, texture, this.sceneIndex, beat);
         this.overLayer.draw(p, texture, this.sceneIndex, beat);
-
+        this.imageOverlay.draw(p, texture, this.imageLayer.getImageAnimation(), this.imageLayer.getImageGallery());
         texture.pop();
     }
 }

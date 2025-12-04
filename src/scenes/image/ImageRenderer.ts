@@ -5,6 +5,7 @@ import { ImageAnimation } from "./ImageAnimation";
 import { ImageGallery } from "./ImageGallery";
 import { Easing } from "../../utils/easing";
 import { UniformRandom } from "../../utils/uniformRandom";
+import { fract } from "../../utils/mathUtils";
 
 // 画像描画コンテキストの型定義
 interface ImageDrawContext {
@@ -155,6 +156,45 @@ const imageScenes: ImageDrawFn[] = [
         ctx.tex.imageMode(ctx.p.CENTER);
         ctx.tex.translate(ctx.tex.width * 0.5, ctx.tex.height * 0.7);
         ctx.tex.scale(1.2);
+        ctx.tex.image(img, 0, 0);
+        ctx.tex.pop();
+    },
+
+    // scene 11: human 4
+    (ctx) => {
+        for (let i = 0; i < 10; i++) {
+            const dance = ctx.imageAnimation.getImage("dance", Math.floor(UniformRandom.rand(Math.floor(ctx.beat * 2), i * 45782) * 4), Easing.zigzag(ctx.beat * 0.15));
+            const x = UniformRandom.rand(i * 54729, Math.floor(ctx.beat / 4)) * ctx.tex.width;
+            const y = UniformRandom.rand(i * 84291, Math.floor(ctx.beat / 4)) * ctx.tex.height;
+            const scl = Math.pow(UniformRandom.rand(i, 2), 2) * 2.0 + 0.5;
+            ctx.tex.push();
+            ctx.tex.imageMode(ctx.p.CENTER);
+            ctx.tex.translate(x, y);
+            ctx.tex.scale(scl);
+            ctx.tex.image(dance, 0, 0);
+            ctx.tex.pop();
+        }
+    },
+
+    // scene 12: noface
+    (ctx) => {
+        const img = ctx.imageGallery.getImage("noface", Math.floor(UniformRandom.rand(Math.floor(ctx.beat * 0.5), 0) * 4));
+        ctx.tex.push();
+        ctx.tex.imageMode(ctx.p.CENTER);
+        ctx.tex.translate(ctx.tex.width * 0.5, ctx.tex.height * 1.6);
+        ctx.tex.scale(2.5);
+        ctx.tex.image(img, 0, 0);
+        ctx.tex.pop();
+    },
+
+    // scene 13: noface
+    (ctx) => {
+
+        const img = ctx.imageAnimation.getImage("dothand", Math.floor(UniformRandom.rand(Math.floor(ctx.beat * 0.25), 0) * 3), fract(ctx.beat * 0.25));
+        ctx.tex.push();
+        ctx.tex.imageMode(ctx.p.CENTER);
+        ctx.tex.translate(ctx.tex.width * 0.5, ctx.tex.height * 0.5);
+        ctx.tex.scale(0.8);
         ctx.tex.image(img, 0, 0);
         ctx.tex.pop();
     },
