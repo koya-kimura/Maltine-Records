@@ -10,7 +10,7 @@ import { LED_PALETTE, PAGE_LED_PALETTE } from "./ledPalette";
 type FaderButtonMode = "mute" | "random";
 
 /** ボタンの入力タイプ */
-export type InputType = "radio" | "toggle" | "oneshot" | "momentary" | "random";
+export type InputType = "radio" | "toggle" | "oneshot" | "momentary" | "random" | "sequence";
 
 /** セルの位置指定 */
 export interface CellPosition {
@@ -31,7 +31,12 @@ export interface ButtonConfig {
     // randomタイプ専用オプション
     randomTarget?: string;    // ランダム対象のradioボタンのkey
     excludeCurrent?: boolean; // 現在値を除外するか（デフォルト: true）
-    speed?: number;           // ランダム切り替えのスピード倍率（デフォルト: 1）
+    speed?: number;           // ランダム/シーケンス切り替えのスピード倍率（デフォルト: 1）
+
+    // sequenceタイプ専用オプション
+    initialPattern?: boolean[]; // 初期パターン（セル数に合わせた配列）
+    onColor?: number;           // ONセルのLED色
+    offColor?: number;          // OFFセルのLED色
 }
 
 /** 内部管理用: 登録されたセル情報 */
@@ -96,6 +101,12 @@ export class APCMiniMK2Manager extends MIDIManager {
     private momentaryState: Map<string, boolean> = new Map();
     /** random同期用: 前回のbeat値を保持 */
     private lastRandomBeat: Map<string, number> = new Map();
+    /** sequence パターン: key -> boolean[] */
+    private sequencePatterns: Map<string, boolean[]> = new Map();
+    /** sequence 現在位置: key -> number */
+    private sequencePositions: Map<string, number> = new Map();
+    /** sequence 同期用: 前回のbeat値を保持 */
+    private lastSequenceBeat: Map<string, number> = new Map();
 
     constructor() {
         super();
@@ -178,6 +189,16 @@ export class APCMiniMK2Manager extends MIDIManager {
                     this.inputValues.set(key, false);
                     this.lastRandomBeat.set(key, -1);
                     break;
+                case "sequence":
+                    // sequenceタイプ: パターンに従ってbeat同期で値が変化
+                    const cellCount = config.cells.length;
+                    const initialPattern = config.initialPattern ?? new Array(cellCount).fill(false);
+                    this.sequencePatterns.set(key, [...initialPattern]);
+                    this.sequencePositions.set(key, 0);
+                    this.lastSequenceBeat.set(key, -1);
+                    // 初期値: 位置0のパターン値
+                    this.inputValues.set(key, initialPattern[0] ?? false);
+                    break;
             }
         }
     }
@@ -217,6 +238,9 @@ export class APCMiniMK2Manager extends MIDIManager {
 
         // randomタイプのbeat同期処理
         this.updateRandomSync(beat);
+
+        // sequenceタイプのbeat同期処理
+        this.updateSequenceSync(beat);
 
         // フェーダーボタンのミュート/ランダム処理
         this.updateFaderButtonEffects(beat);
@@ -259,6 +283,37 @@ export class APCMiniMK2Manager extends MIDIManager {
             if (scaledBeat !== lastBeat) {
                 this.lastRandomBeat.set(key, scaledBeat);
                 this.applyRandom(key, scaledBeat);
+            }
+        }
+    }
+
+    /**
+     * sequenceタイプのbeat同期処理
+     * beatに従って位置を更新し、現在位置のON/OFFを値として設定
+     */
+    private updateSequenceSync(beat: number): void {
+        for (const [key, config] of this.buttonConfigs) {
+            if (config.type !== "sequence") {
+                continue;
+            }
+
+            const speed = config.speed ?? 1;
+            const scaledBeat = Math.floor(beat * speed);
+            const lastBeat = this.lastSequenceBeat.get(key) ?? -1;
+
+            // beatが変化した時のみ位置を更新
+            if (scaledBeat !== lastBeat) {
+                this.lastSequenceBeat.set(key, scaledBeat);
+
+                const pattern = this.sequencePatterns.get(key);
+                if (!pattern) continue;
+
+                const cellCount = pattern.length;
+                const position = scaledBeat % cellCount;
+                this.sequencePositions.set(key, position);
+
+                // 現在位置のON/OFFを値として設定
+                this.inputValues.set(key, pattern[position]);
             }
         }
     }
@@ -402,6 +457,13 @@ export class APCMiniMK2Manager extends MIDIManager {
                         this.lastRandomBeat.set(key, -1);
                     }
                     break;
+                case "sequence":
+                    // sequenceタイプ: 押したセルのパターンをトグル
+                    const pattern = this.sequencePatterns.get(key);
+                    if (pattern && cellIndex < pattern.length) {
+                        pattern[cellIndex] = !pattern[cellIndex];
+                    }
+                    break;
             }
         } else if ((isNoteOff || (isNoteOn && velocity === 0)) && type === "momentary") {
             // ボタン離した（momentaryのみ）
@@ -505,6 +567,26 @@ export class APCMiniMK2Manager extends MIDIManager {
             case "random":
                 // randomボタンはON/OFFで色を切り替え
                 return currentValue === true ? activeColor : inactiveColor;
+            case "sequence":
+                // sequenceタイプ: アクティブ位置、ON、OFFの3パターン
+                const config = this.buttonConfigs.get(key);
+                const pattern = this.sequencePatterns.get(key);
+                const position = this.sequencePositions.get(key) ?? 0;
+                if (!pattern || !config) return LED_PALETTE.OFF;
+
+                const isCurrentPosition = cellIndex === position;
+                const isOn = pattern[cellIndex] ?? false;
+
+                if (isCurrentPosition) {
+                    // アクティブ位置はactiveColor
+                    return activeColor;
+                } else if (isOn) {
+                    // ONセルはonColor
+                    return config.onColor ?? LED_PALETTE.GREEN;
+                } else {
+                    // OFFセルはoffColor
+                    return config.offColor ?? LED_PALETTE.DIM;
+                }
             default:
                 return LED_PALETTE.OFF;
         }

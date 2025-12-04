@@ -15,72 +15,7 @@ import { LED_PALETTE } from "./ledPalette";
  * 必要に応じてページ・行・列を指定してボタンを登録してください。
  */
 export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
-    // ========================================
-    // サンプル: シーン選択（radioタイプ）
-    // ========================================
-    {
-        key: "sceneSelect",
-        type: "radio",
-        cells: [
-            { page: 0, row: 0, col: 0 },
-            { page: 0, row: 1, col: 0 },
-            { page: 0, row: 2, col: 0 },
-            { page: 0, row: 3, col: 0 },
-        ],
-        activeColor: LED_PALETTE.RED,
-        inactiveColor: LED_PALETTE.DIM,
-        defaultValue: 0,
-    },
-
-    // ========================================
-    // サンプル: エフェクトトグル（toggleタイプ）
-    // ========================================
-    // {
-    //     key: "effectEnabled",
-    //     type: "toggle",
-    //     cells: [{ page: 0, row: 0, col: 1 }],
-    //     activeColor: LED_PALETTE.GREEN,
-    //     inactiveColor: LED_PALETTE.DIM,
-    //     defaultValue: false,
-    // },
-
-    // ========================================
-    // サンプル: ワンショットトリガー（oneshotタイプ）
-    // ========================================
-    // {
-    //     key: "trigger",
-    //     type: "oneshot",
-    //     cells: [{ page: 0, row: 0, col: 2 }],
-    //     activeColor: LED_PALETTE.ORANGE,
-    //     inactiveColor: LED_PALETTE.DIM,
-    // },
-
-    // ========================================
-    // サンプル: 押している間だけ（momentaryタイプ）
-    // ========================================
-    // {
-    //     key: "flash",
-    //     type: "momentary",
-    //     cells: [{ page: 0, row: 0, col: 3 }],
-    //     activeColor: LED_PALETTE.CYAN,
-    //     inactiveColor: LED_PALETTE.DIM,
-    // },
-
-    // ========================================
-    // サンプル: ランダム選択（randomタイプ）
-    // ========================================
-    // sceneSelectをBPM同期でランダムに切り替えるボタン（トグル）
-    // ONの間はradioボタンの手動入力がブロックされる
-    {
-        key: "sceneRandom",
-        type: "random",
-        cells: [{ page: 0, row: 0, col: 7 }],
-        randomTarget: "sceneSelect",  // 対象のradioボタンのkey
-        excludeCurrent: true,         // 現在値を除外（デフォルト: true）
-        speed: 1,                     // ランダム切り替えのスピード倍率（1=1beat毎、4=4倍速）
-        activeColor: LED_PALETTE.PURPLE,
-        inactiveColor: LED_PALETTE.DIM,
-    },
+    
 ];
 
 // ========================================

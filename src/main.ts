@@ -44,7 +44,7 @@ const sketch = (p: p5) => {
     capture.hide(); // HTML要素としてのビデオは隠す
 
     // リソースの読み込み
-    logo = await p.loadImage("/local/logo.png");
+    logo = await p.loadImage("/local/logotype.png");
     font = await p.loadFont("/font/Jost-Regular.ttf");
     await effectManager.load(
       p,

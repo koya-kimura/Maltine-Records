@@ -71,7 +71,29 @@ const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     tex.pop();
 }
 
+const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number): void => {
+    tex.push();
+    tex.imageMode(p.CENTER);
+    tex.translate(tex.width * 0.95 - tex.width * 0.1, tex.height / 2);
+    const w = tex.width * 0.2 / logo.width;
+    tex.scale(w);
+    tex.image(logo, 0, 0);
+    tex.pop();
+
+    tex.push();
+    tex.textAlign(p.RIGHT, p.BOTTOM);
+    tex.translate(tex.width * 0.95, tex.height * 0.95);
+    tex.textSize(tex.width * 0.015);
+    tex.fill(255);
+    tex.noStroke();
+    tex.textFont(font);
+    tex.text(DateText.getYYYYMMDD_HHMMSS_format(), 0, 0);
+    tex.pop();
+}
+
+
 const UIDRAWERS: readonly UIDrawFunction[] = [
+    UIDraw03,
     UIDraw02,
     UIDraw01,
 ];
