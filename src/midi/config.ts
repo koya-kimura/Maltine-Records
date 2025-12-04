@@ -69,14 +69,17 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
     // ========================================
     // サンプル: ランダム選択（randomタイプ）
     // ========================================
-    // sceneSelectをランダムに切り替えるボタン
+    // sceneSelectをBPM同期でランダムに切り替えるボタン（トグル）
+    // ONの間はradioボタンの手動入力がブロックされる
     {
         key: "sceneRandom",
         type: "random",
         cells: [{ page: 0, row: 0, col: 7 }],
         randomTarget: "sceneSelect",  // 対象のradioボタンのkey
         excludeCurrent: true,         // 現在値を除外（デフォルト: true）
+        speed: 1,                     // ランダム切り替えのスピード倍率（1=1beat毎、4=4倍速）
         activeColor: LED_PALETTE.PURPLE,
+        inactiveColor: LED_PALETTE.DIM,
     },
 ];
 

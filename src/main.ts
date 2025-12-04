@@ -77,7 +77,7 @@ const sketch = (p: p5) => {
     //=============
 
     bpmManager.update();
-    midiManager.update(Math.floor(bpmManager.getBeat()));
+    midiManager.update(bpmManager.getBeat());
 
     // シーンの更新と描画
     texManager.update(p);

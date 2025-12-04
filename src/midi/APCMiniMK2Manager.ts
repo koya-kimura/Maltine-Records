@@ -31,6 +31,7 @@ export interface ButtonConfig {
     // randomタイプ専用オプション
     randomTarget?: string;    // ランダム対象のradioボタンのkey
     excludeCurrent?: boolean; // 現在値を除外するか（デフォルト: true）
+    speed?: number;           // ランダム切り替えのスピード倍率（デフォルト: 1）
 }
 
 /** 内部管理用: 登録されたセル情報 */
@@ -93,6 +94,8 @@ export class APCMiniMK2Manager extends MIDIManager {
     private buttonConfigs: Map<string, ButtonConfig> = new Map();
     /** momentary状態管理用 */
     private momentaryState: Map<string, boolean> = new Map();
+    /** random同期用: 前回のbeat値を保持 */
+    private lastRandomBeat: Map<string, number> = new Map();
 
     constructor() {
         super();
@@ -171,8 +174,9 @@ export class APCMiniMK2Manager extends MIDIManager {
                     this.momentaryState.set(key, false);
                     break;
                 case "random":
-                    // randomタイプ自体は値を持たない（トリガーとして機能）
+                    // randomタイプはトグルとして機能（ON時にbeat同期でランダム）
                     this.inputValues.set(key, false);
+                    this.lastRandomBeat.set(key, -1);
                     break;
             }
         }
@@ -205,14 +209,17 @@ export class APCMiniMK2Manager extends MIDIManager {
 
     /**
      * フレーム更新処理
-     * @param beat - 現在のビート数（BPM同期用、将来のランダムモード用に予約）
+     * @param beat - 現在のビート数（float値、BPM同期用）
      */
-    public update(_beat: number): void {
+    public update(beat: number): void {
         // oneshotをリセット
         this.resetOneshotValues();
 
+        // randomタイプのbeat同期処理
+        this.updateRandomSync(beat);
+
         // フェーダーボタンのミュート/ランダム処理
-        this.updateFaderButtonEffects(_beat);
+        this.updateFaderButtonEffects(beat);
 
         // LED出力
         this.midiOutputSendControls();
@@ -225,6 +232,33 @@ export class APCMiniMK2Manager extends MIDIManager {
         for (const [key, config] of this.buttonConfigs) {
             if (config.type === "oneshot") {
                 this.inputValues.set(key, false);
+            }
+        }
+    }
+
+    /**
+     * randomタイプのbeat同期処理
+     * ONになっているrandomボタンはbeat×speedごとに対象をランダム切り替え
+     */
+    private updateRandomSync(beat: number): void {
+        for (const [key, config] of this.buttonConfigs) {
+            if (config.type !== "random") {
+                continue;
+            }
+
+            const isEnabled = this.inputValues.get(key) as boolean;
+            if (!isEnabled) {
+                continue;
+            }
+
+            const speed = config.speed ?? 1;
+            const scaledBeat = Math.floor(beat * speed);
+            const lastBeat = this.lastRandomBeat.get(key) ?? -1;
+
+            // beatが変化した時のみランダム切り替え
+            if (scaledBeat !== lastBeat) {
+                this.lastRandomBeat.set(key, scaledBeat);
+                this.applyRandom(key, scaledBeat);
             }
         }
     }
@@ -343,7 +377,10 @@ export class APCMiniMK2Manager extends MIDIManager {
             // ボタン押下
             switch (type) {
                 case "radio":
-                    this.inputValues.set(key, cellIndex);
+                    // randomがONなら手動入力をブロック
+                    if (!this.isRadioBlockedByRandom(key)) {
+                        this.inputValues.set(key, cellIndex);
+                    }
                     break;
                 case "toggle":
                     const currentToggle = this.inputValues.get(key) as boolean;
@@ -357,7 +394,13 @@ export class APCMiniMK2Manager extends MIDIManager {
                     this.momentaryState.set(key, true);
                     break;
                 case "random":
-                    this.triggerRandom(key);
+                    // randomはトグルとして動作
+                    const currentRandom = this.inputValues.get(key) as boolean;
+                    this.inputValues.set(key, !currentRandom);
+                    // OFFになったらlastBeatをリセット
+                    if (currentRandom) {
+                        this.lastRandomBeat.set(key, -1);
+                    }
                     break;
             }
         } else if ((isNoteOff || (isNoteOn && velocity === 0)) && type === "momentary") {
@@ -460,8 +503,8 @@ export class APCMiniMK2Manager extends MIDIManager {
             case "momentary":
                 return this.momentaryState.get(key) === true ? activeColor : inactiveColor;
             case "random":
-                // randomボタンは常にactiveColor（押すとトリガー）
-                return activeColor;
+                // randomボタンはON/OFFで色を切り替え
+                return currentValue === true ? activeColor : inactiveColor;
             default:
                 return LED_PALETTE.OFF;
         }
@@ -472,10 +515,26 @@ export class APCMiniMK2Manager extends MIDIManager {
     // ========================================
 
     /**
-     * randomタイプのボタンが押されたときの処理
-     * 対象のradioボタンをランダムに切り替える
+     * 指定されたradioボタンがrandomによってブロックされているかチェック
      */
-    private triggerRandom(randomKey: string): void {
+    private isRadioBlockedByRandom(radioKey: string): boolean {
+        for (const [, config] of this.buttonConfigs) {
+            if (config.type === "random" && config.randomTarget === radioKey) {
+                const isEnabled = this.inputValues.get(config.key) as boolean;
+                if (isEnabled) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * randomタイプのランダム選択を実行
+     * @param randomKey - randomボタンのkey
+     * @param seed - ランダムシード（beatベース）
+     */
+    private applyRandom(randomKey: string, seed: number): void {
         const config = this.buttonConfigs.get(randomKey);
         if (!config || config.type !== "random") {
             return;
@@ -483,42 +542,36 @@ export class APCMiniMK2Manager extends MIDIManager {
 
         const targetKey = config.randomTarget;
         if (!targetKey) {
-            console.warn(`randomボタン "${randomKey}" にrandomTargetが設定されていません`);
             return;
         }
 
         const targetConfig = this.buttonConfigs.get(targetKey);
-        if (!targetConfig) {
-            console.warn(`randomTarget "${targetKey}" が見つかりません`);
-            return;
-        }
-
-        if (targetConfig.type !== "radio") {
-            console.warn(`randomTarget "${targetKey}" はradioタイプではありません（type: ${targetConfig.type}）`);
+        if (!targetConfig || targetConfig.type !== "radio") {
             return;
         }
 
         const cellCount = targetConfig.cells.length;
         if (cellCount <= 1) {
-            return; // 選択肢が1つ以下なら何もしない
+            return;
         }
 
         const currentValue = this.inputValues.get(targetKey) as number;
-        const excludeCurrent = config.excludeCurrent !== false; // デフォルトtrue
+        const excludeCurrent = config.excludeCurrent !== false;
 
         let newValue: number;
-        if (excludeCurrent) {
-            // 現在値を除外してランダム選択
+        if (excludeCurrent && cellCount > 1) {
+            // 現在値を除外してUniformRandomで選択
             const candidates = [];
             for (let i = 0; i < cellCount; i++) {
                 if (i !== currentValue) {
                     candidates.push(i);
                 }
             }
-            newValue = candidates[Math.floor(Math.random() * candidates.length)];
+            const randomIndex = Math.floor(UniformRandom.rand(seed, randomKey.length) * candidates.length);
+            newValue = candidates[randomIndex];
         } else {
-            // 全ての選択肢からランダム選択
-            newValue = Math.floor(Math.random() * cellCount);
+            // 全ての選択肢からUniformRandomで選択
+            newValue = Math.floor(UniformRandom.rand(seed, randomKey.length) * cellCount);
         }
 
         this.inputValues.set(targetKey, newValue);
