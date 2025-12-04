@@ -153,6 +153,24 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
         activeColor: LED_PALETTE.CYAN,
         inactiveColor: LED_PALETTE.DIM,
     },
+
+    {
+        key: "backShadowToggle",
+        type: "toggle",
+        cells: [{ page: 0, row: 6, col: 0 }],
+        activeColor: LED_PALETTE.GREEN,
+        inactiveColor: LED_PALETTE.DIM,
+        defaultValue: false,
+    },
+
+    {
+        key: "vibeToggle",
+        type: "toggle",
+        cells: [{ page: 0, row: 6, col: 1 }],
+        activeColor: LED_PALETTE.GREEN,
+        inactiveColor: LED_PALETTE.DIM,
+        defaultValue: false,
+    },
 ];
 
 // ========================================

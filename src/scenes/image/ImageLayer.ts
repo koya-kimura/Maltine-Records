@@ -48,7 +48,8 @@ export class ImageLayer {
             { name: "hand", animationCount: 5, framesPerAnimation: 40 },
             { name: "walk", animationCount: 4, framesPerAnimation: 40 },
             { name: "dance", animationCount: 4, framesPerAnimation: 40 },
-            { name: "dothand", animationCount: 3, framesPerAnimation: 24 }
+            { name: "dothand", animationCount: 3, framesPerAnimation: 24 },
+            { name: "step", animationCount: 1, framesPerAnimation: 40 }
         ]);
         await this.imageGallery.load(p, "/image", [
             { name: "animal", count: 3 }, 
@@ -100,7 +101,7 @@ export class ImageLayer {
         // シェーダーにUniform変数を設定
         this.shader.setUniform("u_tex", this.sourceTexture);
         this.shader.setUniform("u_resolution", [this.sourceTexture.width, this.sourceTexture.height]);
-        this.shader.setUniform("u_isLife", [14, 15].includes(sceneIndex) ? 1 : 0);
+        this.shader.setUniform("u_isLife", [13, 14].includes(sceneIndex) ? 1 : 0);
         this.shader.setUniform("u_beat", beat);
 
         // WEBGLモードは中心原点なので、中心から描画

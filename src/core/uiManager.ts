@@ -46,20 +46,23 @@ const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     tex.push();
     tex.textFont(font);
 
-    const arr = [
-        "Maltine Records",
-        "Gigandect",
-        "2025.12.07",
-    ]
+    tex.textSize(tex.width * 0.05);
+    tex.fill(255);
+    tex.noStroke();
 
-    tex.fill(20);
-    tex.stroke(255);
-    tex.strokeWeight(10);
-    tex.textAlign(p.CENTER, p.CENTER);
-    tex.textSize(tex.width * 0.1);
-    for(let i = 0; i <= 2; i++){
-        const y = map(i, 0, 2, 0.25, 0.75) * tex.height;
-        tex.text(arr[i], tex.width / 2, y);
+    tex.textAlign(p.LEFT, p.CENTER);
+    tex.text("Gigandect", tex.width * 0.05, tex.height * 0.5);
+
+    tex.textAlign(p.RIGHT, p.CENTER);
+    tex.text("Gigandect", tex.width * 0.95, tex.height * 0.5);
+
+    for(let i = 0; i < 5; i++) {
+        const x = map(i, 0, 4, tex.width * 0.12, tex.width * 0.88);
+        const w = tex.width * 0.1;
+        const h = w * (logo.height / logo.width);
+
+        tex.imageMode(p.CENTER);
+        tex.image(logo, x, tex.height * 0.95, w, h);
     }
 
     tex.pop();
@@ -88,9 +91,9 @@ const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
 
 const UIDRAWERS: readonly UIDrawFunction[] = [
     UINone,
+    UIDraw03,
     UIDraw01,
     UIDraw02,
-    UIDraw03,
 ];
 
 // UIManager は単純なテキストオーバーレイの描画を担当する。

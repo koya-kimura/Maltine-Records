@@ -12,6 +12,8 @@ uniform vec3 u_mainColor;
 uniform vec3 u_subColor;
 uniform int u_patternIndex;
 uniform float u_faderValues[9];
+uniform bool u_backShadowToggle;
+uniform bool u_vibeToggle;
 
 float PI = 3.14159265358979;
 
@@ -451,7 +453,7 @@ void main(void) {
     // メインテクスチャ処理
     // ----------------------------------------
     vec2 mainUV = initialUV;
-    vec4 mainCol = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 mainCol = vec4(0.0, 0.0, 0.0, 0.0);
 
     float colIndex = 0.0;
 
@@ -485,34 +487,35 @@ void main(void) {
     }
 
     // ----------------------------------------
-    // コラージュ効果サンプル（コメントアウト）
+    // コラージュ効果サンプル
     // ----------------------------------------
     
-    // ゴリラ風配置: 同じ画像を横に3つ並べる
-    // for(float i = 0.0; i < 3.0; i++) {
-    //     vec2 uvOffset = uv - vec2(0.5 - i*0.3, 0.0);
-    //     vec4 offsetCol = safeTexture2D(u_tex, uvOffset);
-    //     if(offsetCol.a > 0.0){
-    //         mainCol.rgb = offsetCol.rgb;
-    //     }
-    // }
+    if(u_backShadowToggle) {
+        for(float i = 0.0; i < 20.0; i++) {
+            float sp =  1.0;
+            vec2 uvOffset = mainUV;
+            uvOffset = mosaic(uvOffset, u_resolution, 160.0);
+            vec2 randomOffset = vec2(random(vec2(i * 12.34, 56.78 * floor(u_beat * sp))) - 0.5, random(vec2(i * 87.65, 43.21 * floor(u_beat * sp))) - 0.5) * 2.0;
+            uvOffset += randomOffset;
+            float scl = map(random(vec2(i * 98.76, 54.32 * floor(u_beat * sp))), 0.0, 1.0, 0.3, 1.0);
+            uvOffset = scale(uvOffset, scl);
+            vec4 offsetCol = safeTexture2D(u_tex, uvOffset);
+            if(offsetCol.a > 0.0){
+                mainCol = vec4(vec3(u_mainColor * easeQuadInOut(floor(gray(offsetCol.rgb)*4.0 + 0.5) / 4.0)), offsetCol.a);
+            }
+        }
+    }
+    
+    if(u_vibeToggle) {
+        mainUV -= vec2(0.5);
+        mainUV *= rot(map(sin(u_beat * 64.0), -1.0, 1.0, -0.01, 0.01));
+        mainUV += vec2(0.5);
+        mainUV = scale(mainUV, 1.0 + map(sin(u_beat * 32.0), -1.0, 1.0, 0.0, 0.05));
+    }
 
-    // メガホン風配置: 左右反転＋回転して重ねる
-    // for(float i = 0.0; i < 2.0; i++) {
-    //     vec2 uvOffset = floor(i) == 0.0 ? uv : vec2(1.0-uv.x, uv.y);
-    //     if(floor(i) == 1.0) {
-    //         uvOffset *= rot(0.1);
-    //         uvOffset.x += 0.2;
-    //         uvOffset = scale(uvOffset, 1.3);
-    //     }
-    //     vec4 offsetCol = safeTexture2D(u_tex, uvOffset);
-    //     if(offsetCol.a > 0.0){
-    //         mainCol.rgb = offsetCol.rgb;
-    //     }
-    // }
-
-    // メインテクスチャ取得
-    mainCol = texture2D(u_tex, mainUV);
+    if(texture2D(u_tex, mainUV).a > 0.0) {
+        mainCol = texture2D(u_tex, mainUV);
+    }
 
     // fader2: 階調制限（モザイクと組み合わせ）
     if(getFaderValue(2) == 1.0) {

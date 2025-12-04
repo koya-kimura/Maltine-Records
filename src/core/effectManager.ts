@@ -82,6 +82,9 @@ export class EffectManager {
             midiManager.faderValues[8],
         ]);
 
+        this.shader.setUniform("u_backShadowToggle", midiManager.midiInput["backShadowToggle"]);
+        this.shader.setUniform("u_vibeToggle", midiManager.midiInput["vibeToggle"]);
+
         p.rect(0, 0, p.width, p.height);
     }
 }

@@ -24,11 +24,14 @@ type ImageDrawFn = (ctx: ImageDrawContext) => void;
 const imageScenes: ImageDrawFn[] = [
     // scene 1: noface cycling
     (ctx) => {
-        const img = ctx.imageGallery.getImage("noface", Math.floor((ctx.beat * 0.2) % 4));
+        const t = ctx.beat * 0.25 + GVM.leapRamp(ctx.beat, 8, 2) * 8.0;
+        const img = ctx.imageGallery.getImage("noface", Math.floor((t) % 4));
+        const sclX = map(UniformRandom.rand(1234, Math.floor(ctx.beat * 0.5)), 0, 1, 0.8, 1.1);
+        const sclY = map(UniformRandom.rand(5678, Math.floor(ctx.beat * 0.5)), 0, 1, 0.8, 1.0);
         ctx.tex.push();
         ctx.tex.imageMode(ctx.p.CENTER);
         ctx.tex.translate(ctx.tex.width / 2, ctx.tex.height * 0.6);
-        ctx.tex.scale(0.85);
+        ctx.tex.scale(sclX, sclY);
         ctx.tex.image(img, 0, 0);
         ctx.tex.pop();
     },
@@ -36,20 +39,33 @@ const imageScenes: ImageDrawFn[] = [
     // scene 2: animal 0
     (ctx) => {
         const img = ctx.imageGallery.getImage("animal", 0);
-        ctx.tex.push();
-        ctx.tex.imageMode(ctx.p.CENTER);
-        ctx.tex.translate(ctx.tex.width * 0.25, ctx.tex.height * 0.65);
-        ctx.tex.scale(0.6);
-        ctx.tex.image(img, 0, 0);
-        ctx.tex.pop();
+        const angle = map(Easing.zigzag(GVM.leapRamp(ctx.beat, 8, 2) * 16.0), 0, 1, -Math.PI * 0.02, Math.PI * 0.02);
+        const scl = map(Easing.zigzag(GVM.leapRamp(ctx.beat, 8, 2) * 16.0), 0, 1, 0.55, 0.6);
+
+        const n = 15;
+        for (let i = 0; i < n; i++) {
+            const m = fract(GVM.leapRamp(ctx.beat, 8, 2)) * n;
+            const x = map(i, 0, n - 1, ctx.tex.width * 0.25, ctx.tex.width * 1.1);
+            if (i > m) continue;
+            ctx.tex.push();
+            ctx.tex.imageMode(ctx.p.CENTER);
+            ctx.tex.translate(x, ctx.tex.height * 0.65);
+            ctx.tex.rotate(angle);
+            ctx.tex.scale(scl);
+            ctx.tex.image(img, 0, 0);
+            ctx.tex.pop();
+        }
     },
 
     // scene 3: animal 1
     (ctx) => {
         const img = ctx.imageGallery.getImage("animal", 1);
+        const angle = map(Easing.zigzag(GVM.leapRamp(ctx.beat, 4, 3) * 16.0), 0, 1, -Math.PI * 0.02, Math.PI * 0.02);
+
         ctx.tex.push();
         ctx.tex.imageMode(ctx.p.CENTER);
-        ctx.tex.translate(ctx.tex.width * 0.25, ctx.tex.height * 0.55);
+        ctx.tex.translate(ctx.tex.width * 0.3, ctx.tex.height * 0.55);
+        ctx.tex.rotate(angle);
         ctx.tex.scale(1.5);
         ctx.tex.image(img, 0, 0);
         ctx.tex.pop();
@@ -212,11 +228,11 @@ const imageScenes: ImageDrawFn[] = [
     // scene 15: life
     (ctx) => {
         const img = ctx.imageGallery.getImage("life", 1);
-        for(let i = 0; i < 10; i++){
+        for (let i = 0; i < 10; i++) {
             const sp = map(UniformRandom.rand(i * 1234), 0, 1, 0.1, 0.2);
-            const seed = Math.floor(UniformRandom.rand(i * 5678) * 10.0 + ctx.beat*sp)
+            const seed = Math.floor(UniformRandom.rand(i * 5678) * 10.0 + ctx.beat * sp)
             const x = UniformRandom.rand(i * 1234, seed) * ctx.tex.width;
-            const y = map((UniformRandom.rand(i * 5678) * 10.0 + ctx.beat*sp) % 1, 0, 1, -0.5, 1.5) * ctx.tex.height;
+            const y = map((UniformRandom.rand(i * 5678) * 10.0 + ctx.beat * sp) % 1, 0, 1, -0.5, 1.5) * ctx.tex.height;
             const angle = UniformRandom.rand(i * 91011) * Math.PI * 2 + ctx.beat * map(UniformRandom.rand(i * 1213), 0, 1, 0.2, 0.5);
             const scl = map(Math.pow(UniformRandom.rand(i * 1213, seed), 2), 0, 1, 0.3, 0.7);
 
@@ -233,10 +249,10 @@ const imageScenes: ImageDrawFn[] = [
     // scene 16: 人の回転
     (ctx) => {
         const n = 3;
-        for(let j = 0; j < n; j++){
-            const m = map(j, 0, n-1, 12, 5);
-            for(let i = 0; i < m; i++){
-                const radius = Math.min(ctx.tex.width, ctx.tex.height) * map(j, 0, n-1, 0.8, 0.25);
+        for (let j = 0; j < n; j++) {
+            const m = map(j, 0, n - 1, 12, 5);
+            for (let i = 0; i < m; i++) {
+                const radius = Math.min(ctx.tex.width, ctx.tex.height) * map(j, 0, n - 1, 0.8, 0.25);
                 const angle = (i / m) * Math.PI * 2 + ctx.beat * 0.125 + j * 0.2 + GVM.leapRamp(ctx.beat, 8, 2) * 0.25 * Math.PI + j * 0.1;
                 const x = Math.cos(angle) * radius + ctx.tex.width / 2;
                 const y = Math.sin(angle) * radius + ctx.tex.height / 2;
@@ -276,8 +292,8 @@ const imageScenes: ImageDrawFn[] = [
         const sclY = map(Easing.easeOutSine(Easing.zigzag(ctx.beat)), 0, 1, 0.8, 1);
         const n = 5;
 
-        for(let i = 0; i < n; i++){
-            const angle = GVM.leapNoise(ctx.beat + i/n, 8, 2, Easing.easeOutExpo) * Math.PI * 2;
+        for (let i = 0; i < n; i++) {
+            const angle = GVM.leapNoise(ctx.beat + i / n, 8, 2, Easing.easeOutExpo) * Math.PI * 2;
 
             ctx.tex.push();
             ctx.tex.imageMode(ctx.p.CENTER);
@@ -297,6 +313,17 @@ const imageScenes: ImageDrawFn[] = [
         ctx.tex.imageMode(ctx.p.CENTER);
         ctx.tex.translate(ctx.tex.width * 0.7, ctx.tex.height * 0.85);
         ctx.tex.scale(3.0);
+        ctx.tex.image(img, 0, 0);
+        ctx.tex.pop();
+    },
+
+        // scene 19:
+    (ctx) => {
+        const img = ctx.imageAnimation.getImage("step", 0, Easing.zigzag(ctx.beat * 0.2));
+        ctx.tex.push();
+        ctx.tex.imageMode(ctx.p.CENTER);
+        ctx.tex.translate(ctx.tex.width * 0.5, ctx.tex.height * 0.5);
+        ctx.tex.scale(2.0);
         ctx.tex.image(img, 0, 0);
         ctx.tex.pop();
     },

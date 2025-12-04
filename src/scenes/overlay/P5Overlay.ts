@@ -24,7 +24,7 @@ const overlayScenes: OverlayDrawFn[] = [
             tex.fill(255);
             tex.circle(tex.width / 2, tex.height * 0.18, s * 0.3);
 
-            const angle = beat * 0.5;
+            const angle = beat * 0.5 + GVM.leapRamp(beat, 8, 2) * Math.PI * 2 * i;
             const gapx = Math.cos(angle) * s * 0.1;
             const gapy = Math.sin(angle) * s * 0.1;
             tex.fill(10);
@@ -40,7 +40,7 @@ const overlayScenes: OverlayDrawFn[] = [
         const p1 = { x: tex.width * 0.45, y: tex.height * 0.4 };
         const p2 = { x: tex.width * 0.7, y: tex.height * 0.2 };
         for (let i = 0; i < n; i++) {
-            const t = GVM.leapRamp(beat, 8, 2) * Math.PI * 0.5 + beat * 0.3 + i;
+            const t = GVM.leapRamp(beat, 8, 2) * Math.PI * 1.5 + beat * 0.3 + i;
             const x = map(Math.sin(t), -1, 1, p1.x, p2.x);
             const y = map(Math.sin(t), -1, 1, p1.y, p2.y);
             const s = map(Math.sin(t), -1, 1, 0.3, 0.5) * (Math.sin(beat + i * 0.5) * 0.5 + 0.5) * Math.min(tex.width, tex.height) * 0.3;
@@ -61,15 +61,21 @@ const overlayScenes: OverlayDrawFn[] = [
         tex.clear();
         const c = colorPalette.accentColor;
         const s = Math.min(tex.width, tex.height) * 0.25;
+        const gapY = map(Easing.zigzag(GVM.leapRamp(beat, 8, 2)), 0, 1, 0, tex.height * 0.2);
+        const gapX = map(Easing.zigzag(GVM.leapRamp(beat, 8, 2)), 0, 1, 0, tex.width * 0.02);
 
+        tex.push();
+        tex.translate(gapX, gapY);
         tex.noStroke();
         tex.fill(c);
-        tex.circle(tex.width * 0.3, tex.height * 0.5, s);
-        tex.circle(tex.width * 0.43, tex.height * 0.45, s);
+        tex.circle(tex.width * 0.35, tex.height * 0.5, s);
+        tex.circle(tex.width * 0.48, tex.height * 0.45, s);
 
         tex.fill(colorPalette.mainColor);
-        tex.circle(tex.width * 0.3, tex.height * 0.5, s * map(Easing.zigzag(beat), 0, 1, 0.7, 0.9));
-        tex.circle(tex.width * 0.43, tex.height * 0.45, s * map(Easing.zigzag(beat), 0, 1, 0.7, 0.9));
+        tex.circle(tex.width * 0.35, tex.height * 0.5, s * map(Easing.zigzag(beat), 0, 1, 0.7, 0.9));
+        tex.circle(tex.width * 0.48, tex.height * 0.45, s * map(Easing.zigzag(beat), 0, 1, 0.7, 0.9));
+
+        tex.pop();
     },
 
     // scene 4: star shape
