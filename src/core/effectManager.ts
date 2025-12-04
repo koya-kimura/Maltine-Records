@@ -1,5 +1,9 @@
 // EffectManager はポストエフェクト用のシェーダーを読み込み適用する責務を持つ。
 import p5 from "p5";
+import { colorcode2rgbArray } from "../utils/mathUtils";
+import { APCMiniMK2Manager } from "../midi/APCMiniMK2Manager";
+import { getPalette } from "../utils/colorPalette";
+
 export class EffectManager {
     private shader: p5.Shader | null;
 
@@ -47,21 +51,36 @@ export class EffectManager {
      * @param beat 現在のビート情報。リズムに合わせたエフェクト同期に使用。
      * @param colorPaletteRGBArray カラーパレットのRGB値がフラットに並んだ配列。
      */
-    apply(p: p5, sourceTexture: p5.Graphics, uiTexture: p5.Graphics, captureTexture: p5.Graphics): void {
+    apply(p: p5, sourceTexture: p5.Graphics, uiTexture: p5.Graphics, captureTexture: p5.Graphics, midiManager: APCMiniMK2Manager, beat: number): void {
         if (!this.shader) {
             return;
         }
 
+        const colorPalette = getPalette(midiManager.midiInput["colorSelect"] as number || 0);
+        const patternIndex = midiManager.midiInput["patternSelect"] as number || 0;
+
         p.shader(this.shader);
-        this.shader.setUniform("u_beat", p.millis() / 1000.0);
+        this.shader.setUniform("u_beat", beat);
         this.shader.setUniform("u_tex", sourceTexture);
         this.shader.setUniform("u_uiTex", uiTexture);
         this.shader.setUniform("u_captureTex", captureTexture);
         this.shader.setUniform("u_resolution", [p.width, p.height]);
         this.shader.setUniform("u_time", p.millis() / 1000.0);
-        this.shader.setUniform("u_mainColor", [1.0, 0.0, 0.0]); // 例: 赤色
-        this.shader.setUniform("u_subColor", [0.0, 0.0, 1.0]); // 例: 青色
-        this.shader.setUniform("u_patternIndex", Math.floor(p.millis() / 1000.0) % 10); // 例: パターンインデックス1
+        this.shader.setUniform("u_mainColor", colorcode2rgbArray(colorPalette.mainColor)); // 例: 赤色
+        this.shader.setUniform("u_subColor", colorcode2rgbArray(colorPalette.subColor)); // 例: 青色
+        this.shader.setUniform("u_patternIndex", patternIndex); // 例: パターンインデックス1
+
+        this.shader.setUniform("u_faderValues", [
+            midiManager.faderValues[0],
+            midiManager.faderValues[1],
+            midiManager.faderValues[2],
+            midiManager.faderValues[3],
+            midiManager.faderValues[4],
+            midiManager.faderValues[5],
+            midiManager.faderValues[6],
+            midiManager.faderValues[7],
+            midiManager.faderValues[8],
+        ]);
 
         p.rect(0, 0, p.width, p.height);
     }

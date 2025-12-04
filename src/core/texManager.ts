@@ -4,6 +4,7 @@ import { Pattern } from "../scenes/background/patern";
 import { ImageLayer } from "../scenes/image/ImageLayer";
 import { OverLayer } from "../scenes/overlay/OverLayer";
 import { ImageOverlay } from "../scenes/overlay/ImageOverlay";
+import { APCMiniMK2Manager } from "../midi/APCMiniMK2Manager";
 
 // TexManager は描画用の p5.Graphics とシーン、MIDI デバッグ描画のハブを担当する。
 export class TexManager {
@@ -12,7 +13,6 @@ export class TexManager {
     private imageLayer: ImageLayer;
     private overLayer: OverLayer;
     private imageOverlay: ImageOverlay;
-    private sceneIndex: number = 1;
 
     /**
      * TexManagerクラスのコンストラクタです。
@@ -117,7 +117,7 @@ export class TexManager {
      *
      * @param p p5.jsのインスタンス。
      */
-    draw(p: p5, beat: number): void {
+    draw(p: p5, beat: number, midiManager: APCMiniMK2Manager): void {
         const texture = this.renderTexture;
         if (!texture) {
             throw new Error("Texture not initialized");
@@ -127,8 +127,8 @@ export class TexManager {
         texture.clear();
 
         // this.backgroundPattern.draw(texture, beat);
-        this.imageLayer.draw(p, texture, this.sceneIndex, beat);
-        this.overLayer.draw(p, texture, this.sceneIndex, beat);
+        this.imageLayer.draw(p, texture, midiManager, beat);
+        this.overLayer.draw(p, texture, midiManager, beat);
         this.imageOverlay.draw(p, texture, this.imageLayer.getImageAnimation(), this.imageLayer.getImageGallery());
         texture.pop();
     }

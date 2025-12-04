@@ -57,7 +57,7 @@ void main(void) {
 
     col = texture2D(u_tex, uv);
 
-    if(u_sceneIndex == 12) {
+    if(u_sceneIndex == 11) {
         vec2 centerUV = vec2(0.5, 0.4);
         vec2 normUV = vec2(uv.x * u_resolution.x / u_resolution.y, uv.y);
         float d = distance(normUV, vec2(u_resolution.x / u_resolution.y * centerUV.x, centerUV.y));

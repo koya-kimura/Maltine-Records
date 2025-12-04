@@ -11,8 +11,32 @@ uniform sampler2D u_captureTex;
 uniform vec3 u_mainColor;
 uniform vec3 u_subColor;
 uniform int u_patternIndex;
+uniform float u_faderValues[9];
 
 float PI = 3.14159265358979;
+
+float getFaderValue(int index) {
+    if(index == 0) {
+        return u_faderValues[0];
+    } else if(index == 1) {
+        return u_faderValues[1];
+    } else if(index == 2) {
+        return u_faderValues[2];
+    } else if(index == 3) {
+        return u_faderValues[3];
+    } else if(index == 4) {
+        return u_faderValues[4];
+    } else if(index == 5) {
+        return u_faderValues[5];
+    } else if(index == 6) {
+        return u_faderValues[6];
+    } else if(index == 7) {
+        return u_faderValues[7];
+    } else if(index == 8) {
+        return u_faderValues[8];
+    }
+    return 0.0;
+}
 
 float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -68,7 +92,7 @@ vec3 rgb2hsv(vec3 c) {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
     vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
     vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
-    
+
     float d = q.x - min(q.w, q.y);
     float e = 1.0e-10;
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
@@ -82,9 +106,11 @@ vec3 hsv2rgbFull(vec3 c) {
 }
 
 // RGB色相回転（角度はラジアン）
-vec3 rgbRotate(vec3 rgb, float angle) {
+vec3 rgbRotate(vec3 rgb, float angle, float devide) {
     vec3 hsv = rgb2hsv(rgb);
     hsv.x = fract(hsv.x + angle / (2.0 * PI)); // 角度を0-1の範囲に正規化
+    hsv.x = floor(hsv.x * devide) / devide; // 色相を指定した分割数で量子化
+    hsv.y = 1.0; // 彩度を最大に
     return hsv2rgbFull(hsv);
 }
 
@@ -196,8 +222,9 @@ vec3 gridPattern(vec2 uv, float beat, float time) {
 // パターン5: チェッカーボード（5キー）- beatで色が切り替わる
 vec3 checkerboardPattern(vec2 uv, float beat, float time) {
     // グリッドの数（8x8のチェッカーボード）
-    float gridCountX = 8.0;
-    float gridCountY = 5.0;
+    float scl = floor(pow(random(vec2(floor(beat * 0.125)) ), 2.0) * 3.0) + 1.0;;
+    float gridCountX = 8.0 * scl;
+    float gridCountY = 5.0 * scl;
 
     // UV座標をグリッドに分割（移動なし）
     float cellX = floor(uv.x * gridCountX);
@@ -335,42 +362,53 @@ void main(void) {
     } else if(u_patternIndex == 1) {
         patternColor = stripePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 2) {
-        patternColor = dotPattern(patternUV, u_resolution, u_beat, u_time);
+        patternColor = gridLinePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 3) {
         patternColor = circlePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 4) {
-        patternColor = gridPattern(patternUV, u_beat, u_time);
+        patternColor = psychedelicSpiralPattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 5) {
         patternColor = checkerboardPattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 6) {
         patternColor = polkaDotPattern(patternUV, u_beat, u_time);
-    } else if(u_patternIndex == 7) {
-        patternColor = sunburstPattern(patternUV, u_beat, u_time);
-    } else if(u_patternIndex == 8) {
-        patternColor = gridLinePattern(patternUV, u_beat, u_time);
-    } else if(u_patternIndex == 9) {
-        patternColor = psychedelicSpiralPattern(patternUV, u_beat, u_time);
     } else {
         patternColor = noiseTexturePattern(patternUV, u_beat, u_time);
     }
 
     // patternColor.rgb = floor(patternColor.rgb * 8.0 + 0.5) / 8.0; // 8階調に量子化
 
-    col.rgb = patternColor;
+    col.rgb = patternColor * getFaderValue(8);
 
     // ============
 
     vec2 mainUV = initialUV;
     vec4 mainCol = vec4(0.0, 0.0, 0.0, 1.0);
 
-    // mainUV = tile(mainUV, 3.0);
+    float colIndex = 0.0;
 
-    // mainUV.x = fract(mainUV.x + u_time * 0.08);
-    // mainUV = mosaic(mainUV, u_resolution, 100.0);
+    if(getFaderValue(2) == 1.0) {
+        mainUV = mosaic(mainUV, u_resolution, 120.0);
+    }
 
-    // float n = 3.0;
-    // mainUV.x = fract(mainUV.x * n);
-    // mainUV.x = map(mainUV.x, 0.0, 1.0, floor(n * 0.5) / n, (floor(n * 0.5) + 1.0) / n);
+    if(getFaderValue(4) == 1.0) {
+        mainUV.x = fract(mainUV.x + u_time * 0.08);
+    }
+
+    if(getFaderValue(3) == 1.0) {
+        colIndex = mainUV.x * 4.0;
+        mainUV = tile(mainUV, 4.0);
+    }
+
+    if(getFaderValue(5) == 1.0) {
+        float n = 3.0;
+        colIndex *= 3.0;
+        mainUV.x = fract(mainUV.x * n);
+        mainUV.x = map(mainUV.x, 0.0, 1.0, floor(n * 0.5) / n, (floor(n * 0.5) + 1.0) / n);
+    }
+
+    if(getFaderValue(6) == 1.0) {
+        mainUV.y = fract(mainUV.y + u_time * 0.12 * (mod(floor(colIndex), 2.0) == 0.0 ? 1.0 : -1.0));
+    }
 
     // ゴリラ
     // for(float i = 0.0; i < 3.0; i++) {
@@ -398,9 +436,11 @@ void main(void) {
     //     }
     // }
 
-
-
     mainCol = texture2D(u_tex, mainUV);
+
+    if(getFaderValue(2) == 1.0) {
+        mainCol.rgb = floor(mainCol.rgb * 8.0 + 0.5) / 8.0; // 8階調に量子化
+    }
 
     // TODO:この辺のポスト処理でコラージュ感出したい
     // if(abs(initialUV.y - 0.35) < 0.3 && mainCol.a > 0.0){
@@ -408,13 +448,18 @@ void main(void) {
     // }   
 
     if(mainCol.a > 0.0) {
-        col.rgb = mainCol.rgb;
+        col.rgb = mix(col.rgb, mainCol.rgb, getFaderValue(7));
+    }
+
+    if(getFaderValue(0) == 1.0) {
+        col.rgb = rgbRotate(col.rgb, u_time * 50.0, 360.0);
+    }
+    if(getFaderValue(1) == 1.0) {
+        col.rgb = rgbRotate(col.rgb, u_time * 20.0, 8.0);
     }
 
     vec4 uiCol = texture2D(u_uiTex, initialUV);
     col.rgb = mix(col.rgb, uiCol.rgb, uiCol.a);
-
-    // col.rgb = rgbRotate(col.rgb, u_time * 30.0);
 
     gl_FragColor = col;
 }

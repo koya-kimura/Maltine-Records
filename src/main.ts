@@ -6,7 +6,6 @@ import { TexManager } from "./core/texManager";
 import { UIManager } from "./core/uiManager";
 import { EffectManager } from "./core/effectManager";
 import { APCMiniMK2Manager } from "./midi/APCMiniMK2Manager";
-
 // グローバルMIDIマネージャー
 const midiManager = new APCMiniMK2Manager();
 const bpmManager = new BPMManager();
@@ -51,6 +50,9 @@ const sketch = (p: p5) => {
       "/shader/main.vert",
       "/shader/postProcess.frag",
     );
+
+    // TODO: 後で消す
+    midiManager.faderValues = [0, 0, 0, 0, 0, 0, 0, 1, 1];
   };
 
   // draw は毎フレームのループでシーン更新とポストエフェクトを適用する。
@@ -59,7 +61,6 @@ const sketch = (p: p5) => {
   // 3. UIマネージャー（オーバーレイ情報）の更新
   // 4. エフェクトマネージャーによるポストプロセスの適用（最終出力）
   p.draw = () => {
-    // p.background(0);
     p.clear();
 
     //=============
@@ -81,16 +82,14 @@ const sketch = (p: p5) => {
 
     // シーンの更新と描画
     texManager.update(p);
-    texManager.draw(p, bpmManager.getBeat());
+    texManager.draw(p, bpmManager.getBeat(), midiManager);
 
     // UIの更新と描画
     uiManager.update(p);
-    uiManager.draw(p, font, logo);
+    uiManager.draw(p, midiManager,font, logo);
 
     // ポストエフェクトの適用と画面への描画
-    effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture);
-
-    console.log(midiManager.midiInput["sceneSelect"]);
+    effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture, midiManager, bpmManager.getBeat());
   };
 
   // windowResized はブラウザのリサイズに追従してバッファを更新する。

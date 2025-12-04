@@ -3,21 +3,15 @@ import { DateText } from "../utils/dateText";
 import { Easing } from "../utils/easing";
 import { UniformRandom } from "../utils/uniformRandom";
 import { fract, map } from "../utils/mathUtils";
+import { APCMiniMK2Manager } from "../midi/APCMiniMK2Manager";
 
 type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number) => void;
 
-/**
- * UI描画関数その2（インデックス1）。
- * メインのビジュアルオーバーレイとして機能し、以下の要素を描画します：
- * 1. 中央にアーティスト名（TAKASHIMA & KIMURA）
- * 2. 上下に流れる「OVER!FLOW」のテキストアニメーション
- * 3. 右下に現在のBPMと日付・時刻
- * 4. ビートに合わせて動くインジケーター（矩形）
- * これらはすべてオフスクリーンキャンバス（tex）に描画され、
- * 最終的にメインキャンバスに合成されます。
- *
- * @param context 描画に必要なコンテキスト情報。
- */
+const UINone: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number): void => {
+    tex.push();
+    tex.pop();
+}
+
 const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number): void => {
     tex.push();
     tex.textFont(font);
@@ -93,9 +87,10 @@ const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
 
 
 const UIDRAWERS: readonly UIDrawFunction[] = [
-    UIDraw03,
-    UIDraw02,
+    UINone,
     UIDraw01,
+    UIDraw02,
+    UIDraw03,
 ];
 
 // UIManager は単純なテキストオーバーレイの描画を担当する。
@@ -188,11 +183,13 @@ export class UIManager {
      * @param font UI描画に使用するフォント。
      * @param resources その他の描画に必要なリソース群（BPM、ビート、カラーパレットなど）。
      */
-    draw(p: p5, font: p5.Font, logo: p5.Image): void {
+    draw(p: p5, midiManager: APCMiniMK2Manager, font: p5.Font, logo: p5.Image): void {
         const texture = this.renderTexture;
         if (!texture) {
             throw new Error("Texture not initialized");
         }
+
+        this.activePatternIndex = this.normalizePatternIndex(midiManager.midiInput["uiSelect"] as number | undefined);
 
         texture.push();
         texture.clear();

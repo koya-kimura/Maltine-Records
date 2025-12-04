@@ -1,6 +1,7 @@
 // ImageLayer は画像をテクスチャに描画し、シェーダーエフェクトを適用する共通レイヤー。
 import p5 from "p5";
 
+import { APCMiniMK2Manager } from "../../midi/APCMiniMK2Manager";
 import { ImageRenderer } from "./ImageRenderer";
 
 import { ImageAnimation } from "./ImageAnimation";
@@ -75,10 +76,12 @@ export class ImageLayer {
      * 
      * @param p p5.jsのインスタンス、またはp5.Graphicsオブジェクト。
      */
-    draw(p: p5, tex: p5.Graphics, sceneIndex: number, beat: number): void {
+    draw(p: p5, tex: p5.Graphics, midiManager: APCMiniMK2Manager, beat: number): void {
         if (!this.effectTexture || !this.shader || !this.sourceTexture) {
             return;
         }
+
+        const sceneIndex = midiManager.midiInput["sceneSelect"] as number || 0;
         
         // 1. 画像をsourceTextureに描画（アスペクト比を保持）
         this.sourceTexture.push();

@@ -1,6 +1,8 @@
 import p5 from "p5";
 
 import { P5Overlay } from "./P5Overlay";
+import { APCMiniMK2Manager } from "../../midi/APCMiniMK2Manager";
+import { getPalette } from "../../utils/colorPalette";
 
 export class OverLayer {
     private shader: p5.Shader | null;
@@ -49,13 +51,16 @@ export class OverLayer {
         * 
         * @param p p5.jsのインスタンス、またはp5.Graphicsオブジェクト。
         */
-    draw(p: p5, tex: p5.Graphics, sceneIndex: number, beat: number): void {
+    draw(p: p5, tex: p5.Graphics, midiManager: APCMiniMK2Manager, beat: number): void {
         if (!this.destTexture || !this.shader || !this.sourceTexture) {
             return;
         }
 
+        const sceneIndex = midiManager.midiInput["sceneSelect"] as number || 0;
+
         // 1. 画像をsourceTextureに描画（アスペクト比を保持）
-        this.p5Overlay.draw(p, this.sourceTexture, sceneIndex, beat);
+        const colorPalette = getPalette(midiManager.midiInput["colorSelect"] as number || 0);
+        this.p5Overlay.draw(p, this.sourceTexture, sceneIndex, beat, colorPalette);
 
         // 
         this.destTexture.push();

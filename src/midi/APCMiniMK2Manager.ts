@@ -219,9 +219,20 @@ export class APCMiniMK2Manager extends MIDIManager {
 
     /**
      * MIDI入力値を取得する
+     * radioタイプは数値、それ以外はbooleanを返す
      */
     get midiInput(): Record<string, MidiInputValue> {
-        return Object.fromEntries(this.inputValues);
+        const result: Record<string, MidiInputValue> = {};
+        for (const [key, value] of this.inputValues) {
+            const config = this.buttonConfigs.get(key);
+            if (config?.type === "radio") {
+                // radioタイプは数値を保証
+                result[key] = typeof value === "number" ? value : 0;
+            } else {
+                result[key] = value;
+            }
+        }
+        return result;
     }
 
     // ========================================

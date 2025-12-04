@@ -22,11 +22,6 @@ type ImageDrawFn = (ctx: ImageDrawContext) => void;
 
 // シーン描画関数の配列
 const imageScenes: ImageDrawFn[] = [
-    // scene 0: empty
-    (ctx) => {
-        ctx.tex.clear();
-    },
-
     // scene 1: noface cycling
     (ctx) => {
         const img = ctx.imageGallery.getImage("noface", Math.floor((ctx.beat * 0.2) % 4));
