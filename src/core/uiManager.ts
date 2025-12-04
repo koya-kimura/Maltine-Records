@@ -1,8 +1,10 @@
 import p5 from "p5";
 import { DateText } from "../utils/dateText";
 import { Easing } from "../utils/easing";
+import { UniformRandom } from "../utils/uniformRandom";
+import { fract, map } from "../utils/mathUtils";
 
-type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: number) => void;
+type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number) => void;
 
 /**
  * UI描画関数その2（インデックス1）。
@@ -16,7 +18,7 @@ type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: number) => 
  *
  * @param context 描画に必要なコンテキスト情報。
  */
-const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: number): void => {
+const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number): void => {
     tex.push();
     tex.textFont(font);
 
@@ -46,7 +48,31 @@ const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, beat: 
     tex.pop();
 }
 
+const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number): void => {
+    tex.push();
+    tex.textFont(font);
+
+    const arr = [
+        "Maltine Records",
+        "Gigandect",
+        "2025.12.07",
+    ]
+
+    tex.fill(20);
+    tex.stroke(255);
+    tex.strokeWeight(10);
+    tex.textAlign(p.CENTER, p.CENTER);
+    tex.textSize(tex.width * 0.1);
+    for(let i = 0; i <= 2; i++){
+        const y = map(i, 0, 2, 0.25, 0.75) * tex.height;
+        tex.text(arr[i], tex.width / 2, y);
+    }
+
+    tex.pop();
+}
+
 const UIDRAWERS: readonly UIDrawFunction[] = [
+    UIDraw02,
     UIDraw01,
 ];
 
@@ -140,7 +166,7 @@ export class UIManager {
      * @param font UI描画に使用するフォント。
      * @param resources その他の描画に必要なリソース群（BPM、ビート、カラーパレットなど）。
      */
-    draw(p: p5, font: p5.Font): void {
+    draw(p: p5, font: p5.Font, logo: p5.Image): void {
         const texture = this.renderTexture;
         if (!texture) {
             throw new Error("Texture not initialized");
@@ -149,7 +175,7 @@ export class UIManager {
         texture.push();
         texture.clear();
         const drawer = UIDRAWERS[this.activePatternIndex] ?? UIDRAWERS[0];
-        drawer(p, texture, font, p.millis() / 500);
+        drawer(p, texture, font, logo, p.millis() / 500);
 
         texture.pop();
     }

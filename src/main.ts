@@ -18,6 +18,7 @@ const effectManager = new EffectManager();
 let capture: p5.Element;
 let captureTexture: p5.Graphics;
 let font: p5.Font;
+let logo: p5.Image;
 
 // sketch は p5 インスタンスモードで実行されるエントリー関数。
 // sketch は p5 インスタンスモードで実行されるエントリー関数。
@@ -42,6 +43,7 @@ const sketch = (p: p5) => {
     capture.hide(); // HTML要素としてのビデオは隠す
 
     // リソースの読み込み
+    logo = await p.loadImage("/image/logo.png");
     font = await p.loadFont("/font/Jost-Regular.ttf");
     await effectManager.load(
       p,
@@ -82,7 +84,7 @@ const sketch = (p: p5) => {
 
     // UIの更新と描画
     uiManager.update(p);
-    uiManager.draw(p, font);
+    uiManager.draw(p, font, logo);
 
     // ポストエフェクトの適用と画面への描画
     effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture);

@@ -63,6 +63,31 @@ vec3 hsv2rgb(in float h) {
     return rgb;
 }
 
+// RGB to HSV変換
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+// HSV to RGB変換（完全版）
+vec3 hsv2rgbFull(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+// RGB色相回転（角度はラジアン）
+vec3 rgbRotate(vec3 rgb, float angle) {
+    vec3 hsv = rgb2hsv(rgb);
+    hsv.x = fract(hsv.x + angle / (2.0 * PI)); // 角度を0-1の範囲に正規化
+    return hsv2rgbFull(hsv);
+}
+
 float map(float value, float min1, float max1, float min2, float max2) {
     return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
@@ -381,7 +406,9 @@ void main(void) {
     }
 
     vec4 uiCol = texture2D(u_uiTex, initialUV);
-    col.rgb += uiCol.rgb;
+    col.rgb = mix(col.rgb, uiCol.rgb, uiCol.a);
+
+    // col.rgb = rgbRotate(col.rgb, u_time * 30.0);
 
     gl_FragColor = col;
 }
