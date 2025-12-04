@@ -20,6 +20,10 @@ export class BPMManager {
     private readonly TAP_HISTORY_SIZE: number = 4; // テンポ計算に使うタップ数の最大値
     private readonly TAP_TIMEOUT: number = 2000;   // 連続タップが途切れるまでのミリ秒
 
+    // スピード倍率関連
+    private speedMultiplier: number = 1.0;     // 現在のスピード倍率
+    private speedMultiplierApplied: boolean = false; // このフレームで倍率が適用されたか
+
     /**
      * BPMManagerクラスのコンストラクタです。
      * 初期BPMを設定し、それに基づいた1ビートあたりの時間間隔（ミリ秒）を計算します。
@@ -100,6 +104,13 @@ export class BPMManager {
      */
     public update(): void {
         const currentTime = performance.now();
+
+        // 前フレームでプリセット関数が呼ばれなかった場合、倍率を1に戻す
+        if (!this.speedMultiplierApplied) {
+            this.speedMultiplier = 1.0;
+        }
+        this.speedMultiplierApplied = false; // 次フレーム用にリセット
+
         if (!this.isPlaying) {
             this.isBeatUpdated = false;
             return;
@@ -135,11 +146,73 @@ export class BPMManager {
      * 整数部分はこれまでに経過した総ビート数、小数部分は現在のビート内の進行度（0.0〜1.0未満）を表します。
      * この値を使用することで、ビートに同期した滑らかなアニメーション
      * （例えば、sin(beat * PI) での点滅や移動など）を実装することができます。
+     * スピード倍率が適用された値を返します。
      *
      * @returns 現在の累積ビート数（浮動小数点数）。
      */
     public getBeat(): number {
-        return this.beatCount + (this.elapsed / this.interval);
+        const rawBeat = this.beatCount + (this.elapsed / this.interval);
+        return rawBeat * this.speedMultiplier;
+    }
+
+    /**
+     * スピード倍率を直接設定します。
+     * 0以下の値は無視されます。
+     *
+     * @param multiplier スピード倍率（0より大きい値）
+     */
+    public setSpeedMultiplier(multiplier: number): void {
+        if (multiplier > 0) {
+            this.speedMultiplier = multiplier;
+            this.speedMultiplierApplied = true;
+        }
+    }
+
+    /**
+     * 現在のスピード倍率を取得します。
+     *
+     * @returns 現在のスピード倍率
+     */
+    public getSpeedMultiplier(): number {
+        return this.speedMultiplier;
+    }
+
+    // --- プリセット関数（毎フレーム呼ばないと1倍に戻る） ---
+
+    /**
+     * 2倍速にします。毎フレーム呼び出す必要があります。
+     * 呼び出しをやめると自動的に1倍速に戻ります。
+     */
+    public doubleSpeed(): void {
+        this.speedMultiplier = 2.0;
+        this.speedMultiplierApplied = true;
+    }
+
+    /**
+     * 4倍速にします。毎フレーム呼び出す必要があります。
+     * 呼び出しをやめると自動的に1倍速に戻ります。
+     */
+    public quadSpeed(): void {
+        this.speedMultiplier = 4.0;
+        this.speedMultiplierApplied = true;
+    }
+
+    /**
+     * 半分の速度にします。毎フレーム呼び出す必要があります。
+     * 呼び出しをやめると自動的に1倍速に戻ります。
+     */
+    public halfSpeed(): void {
+        this.speedMultiplier = 0.5;
+        this.speedMultiplierApplied = true;
+    }
+
+    /**
+     * 4分の1の速度にします。毎フレーム呼び出す必要があります。
+     * 呼び出しをやめると自動的に1倍速に戻ります。
+     */
+    public quarterSpeed(): void {
+        this.speedMultiplier = 0.25;
+        this.speedMultiplierApplied = true;
     }
 
     /**

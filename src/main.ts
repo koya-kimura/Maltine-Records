@@ -77,6 +77,12 @@ const sketch = (p: p5) => {
 
     //=============
 
+    if(midiManager.midiInput["quadSpeedMomentary"]){
+        bpmManager.quadSpeed();
+    }
+    else if(midiManager.midiInput["doubleSpeedToggle"]){
+        bpmManager.doubleSpeed();
+    }
     bpmManager.update();
     midiManager.update(bpmManager.getBeat());
 

@@ -136,6 +136,23 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
         inactiveColor: LED_PALETTE.DIM,
         defaultValue: 0,
     },
+
+    {
+        key: "doubleSpeedToggle",
+        type: "toggle",
+        cells: [{ page: 0, row: 5, col: 0 }],
+        activeColor: LED_PALETTE.GREEN,
+        inactiveColor: LED_PALETTE.DIM,
+        defaultValue: false,
+    },
+
+    {
+        key: "quadSpeedMomentary",
+        type: "momentary",
+        cells: [{ page: 0, row: 5, col: 1 }],
+        activeColor: LED_PALETTE.CYAN,
+        inactiveColor: LED_PALETTE.DIM,
+    },
 ];
 
 // ========================================
@@ -147,4 +164,4 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
  * - "mute": フェーダーボタンON時、フェーダー値を0にミュート
  * - "random": フェーダーボタンON時、フェーダー値をBPM同期でランダムに0/1切り替え
  */
-export const FADER_BUTTON_MODE: "mute" | "random" = "mute";
+export const FADER_BUTTON_MODE: "mute" | "random" = "random";

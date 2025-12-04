@@ -166,7 +166,7 @@ const overlayScenes: OverlayDrawFn[] = [
             const s = map(Easing.easeOutQuad(t), 0, 1, 0.02, 0.25) * Math.min(tex.width, tex.height) * map(Easing.easeOutQuint(Easing.zigzag(beat)), 0, 1, 0.5, 1.0);
             const c = colorPalette.accentColor;
 
-            tex.fill(c);
+            tex.fill(p.red(c), p.green(c), p.blue(c), 150);
             tex.noStroke();
             tex.circle(x, y, s);
         }
