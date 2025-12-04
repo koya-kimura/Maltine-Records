@@ -5,7 +5,7 @@ import { BPMManager } from "./rhythm/BPMManager";
 import { TexManager } from "./core/texManager";
 import { UIManager } from "./core/uiManager";
 import { EffectManager } from "./core/effectManager";
-import { APCMiniMK2Manager } from "./midi/apcmini_mk2/APCMiniMK2Manager";
+import { APCMiniMK2Manager } from "./midi/APCMiniMK2Manager";
 
 // グローバルMIDIマネージャー
 const midiManager = new APCMiniMK2Manager();
@@ -35,6 +35,7 @@ const sketch = (p: p5) => {
 
     // 各マネージャーの初期化
     await texManager.load(p);
+    await midiManager.init(); // MIDI設定をconfig.tsから読み込み
     uiManager.init(p);
 
     // カメラキャプチャ用のバッファと要素の作成
@@ -43,7 +44,7 @@ const sketch = (p: p5) => {
     capture.hide(); // HTML要素としてのビデオは隠す
 
     // リソースの読み込み
-    logo = await p.loadImage("/image/logo.png");
+    logo = await p.loadImage("/local/logo.png");
     font = await p.loadFont("/font/Jost-Regular.ttf");
     await effectManager.load(
       p,
@@ -88,6 +89,8 @@ const sketch = (p: p5) => {
 
     // ポストエフェクトの適用と画面への描画
     effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture);
+
+    console.log(midiManager.midiInput["sceneSelect"]);
   };
 
   // windowResized はブラウザのリサイズに追従してバッファを更新する。

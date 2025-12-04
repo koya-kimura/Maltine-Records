@@ -6,15 +6,26 @@
 export class MIDIManager {
     private midiOutput: WebMidi.MIDIOutput | null = null;
     public onMidiMessageCallback: ((message: WebMidi.MIDIMessageEvent) => void) | null = null;
+    private initPromise: Promise<void> | null = null;
+    protected midiAvailable: boolean = false;
 
     /**
      * MIDIManagerクラスのコンストラクタです。
-     * インスタンス生成時に自動的に `initialize` メソッドを呼び出し、
-     * ブラウザのMIDIアクセス権限の取得と初期設定を開始します。
-     * これにより、アプリケーション起動時にスムーズにMIDIデバイスとの接続を試みることができます。
+     * 初期化は init() メソッドを明示的に呼び出すまで開始されません。
      */
     constructor() {
-        this.initialize();
+        // 初期化は init() で行う
+    }
+
+    /**
+     * MIDIの初期化を開始し、完了を待機します。
+     * このメソッドを await することで、MIDI接続完了後に処理を続行できます。
+     */
+    public async init(): Promise<void> {
+        if (!this.initPromise) {
+            this.initPromise = this.initialize();
+        }
+        return this.initPromise;
     }
 
     /**
@@ -96,11 +107,22 @@ export class MIDIManager {
      * MIDIデバイスの利用可能性が変化した際に呼び出されるフックメソッドです。
      * サブクラスでオーバーライドして、接続状態に応じた処理（UIの更新、初期化シーケンスの実行など）
      * を実装することを想定しています。
-     * デフォルトでは何もしません。
      *
-     * @param _available MIDIデバイスが利用可能になった場合は true、そうでなければ false。
+     * @param available MIDIデバイスが利用可能になった場合は true、そうでなければ false。
      */
-    protected onMidiAvailabilityChanged(_available: boolean): void {
-        // Override in subclass
+    protected onMidiAvailabilityChanged(available: boolean): void {
+        this.midiAvailable = available;
+        if (available) {
+            console.log("✅ MIDI接続完了: デバイスが利用可能です");
+        } else {
+            console.warn("⚠️ MIDI接続失敗: デバイスが見つかりませんでした");
+        }
+    }
+
+    /**
+     * MIDIが利用可能かどうかを返します。
+     */
+    public isMidiAvailable(): boolean {
+        return this.midiAvailable;
     }
 }
