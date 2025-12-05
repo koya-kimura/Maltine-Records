@@ -1,6 +1,9 @@
 // main.ts は p5 スケッチのエントリーポイントとして描画ループを構成する。
 import p5 from "p5";
 
+// p5.jsのフレンドリーエラーシステムを無効化（パフォーマンス向上＆不要なコンソールエラー抑制）
+(p5 as unknown as { disableFriendlyErrors: boolean }).disableFriendlyErrors = true;
+
 import { BPMManager } from "./rhythm/BPMManager";
 import { TexManager } from "./core/texManager";
 import { UIManager } from "./core/uiManager";
@@ -61,9 +64,6 @@ const sketch = (p: p5) => {
       "/shader/main.vert",
       "/shader/postProcess.frag",
     );
-
-    // TODO: 後で消す
-    midiManager.faderValues = [0, 0, 0, 0, 0, 0, 0, 1, 1];
   };
 
   // draw は毎フレームのループでシーン更新とポストエフェクトを適用する。

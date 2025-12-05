@@ -1,6 +1,6 @@
 import { MIDIManager } from "./midiManager";
 import { UniformRandom } from "../utils/uniformRandom";
-import { MIDI_BUTTON_CONFIGS, FADER_BUTTON_MODE } from "./config";
+import { MIDI_BUTTON_CONFIGS, FADER_BUTTON_MODE, DEFAULT_FADER_VALUES, DEFAULT_PAGE_INDEX, DEFAULT_FADER_BUTTON_TOGGLE_STATE } from "./config";
 import { LED_PALETTE, PAGE_LED_PALETTE } from "./ledPalette";
 
 // ========================================
@@ -112,10 +112,10 @@ export class APCMiniMK2Manager extends MIDIManager {
 
     constructor() {
         super();
-        this.faderValues = new Array(9).fill(0);
-        this.rawFaderValues = new Array(9).fill(0);
-        this.faderButtonToggleState = new Array(9).fill(false);
-        this.currentPageIndex = 0;
+        this.faderValues = [...DEFAULT_FADER_VALUES];
+        this.rawFaderValues = [...DEFAULT_FADER_VALUES];
+        this.faderButtonToggleState = [...DEFAULT_FADER_BUTTON_TOGGLE_STATE];
+        this.currentPageIndex = DEFAULT_PAGE_INDEX;
         this.faderButtonMode = FADER_BUTTON_MODE;
 
         this.onMidiMessageCallback = this.handleMIDIMessage.bind(this);

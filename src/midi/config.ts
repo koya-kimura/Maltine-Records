@@ -191,3 +191,26 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
  * - "random": フェーダーボタンON時、フェーダー値をBPM同期でランダムに0/1切り替え
  */
 export const FADER_BUTTON_MODE: "mute" | "random" = "random";
+
+// ========================================
+// デフォルト値設定
+// MIDI接続なしで使用する場合の初期値
+// ========================================
+
+/**
+ * フェーダーのデフォルト値（9本分: 0-7 + マスター）
+ * 値は0.0～1.0の範囲
+ */
+export const DEFAULT_FADER_VALUES: number[] = [0, 0, 0, 0, 0, 0, 0, 1, 1];
+
+/**
+ * サイドボタン（ページ選択）のデフォルトインデックス
+ * 0-7の範囲（ページ0～7）
+ */
+export const DEFAULT_PAGE_INDEX: number = 0;
+
+/**
+ * フェーダーボタンのデフォルトトグル状態（9本分）
+ * true = ON（ミュートまたはランダム有効）
+ */
+export const DEFAULT_FADER_BUTTON_TOGGLE_STATE: boolean[] = [false, false, false, false, false, false, false, false, false];
