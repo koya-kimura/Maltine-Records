@@ -14,6 +14,7 @@ uniform int u_patternIndex;
 uniform float u_faderValues[9];
 uniform bool u_backShadowToggle;
 uniform bool u_vibeToggle;
+uniform bool u_stroboMomentary;
 
 float PI = 3.14159265358979;
 
@@ -444,7 +445,9 @@ void main(void) {
         patternColor = noiseTexturePattern(patternUV, u_beat, u_time);
     }
 
-    // patternColor.rgb = floor(patternColor.rgb * 8.0 + 0.5) / 8.0; // 8階調に量子化（オプション）
+    if(u_stroboMomentary) {
+        patternColor = mix(vec3(1.0), patternColor, pow(zigzag(u_time * 48.0), 3.0));
+    }
 
     // 背景パターンの適用（fader8で強度調整）
     col.rgb = patternColor * getFaderValue(8);

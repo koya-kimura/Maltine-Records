@@ -3,7 +3,7 @@ import { ImageAnimation } from "../image/ImageAnimation";
 import { ImageGallery } from "../image/ImageGallery";
 
 export class ImageOverlay {
-    draw(p: p5, tex: p5.Graphics, imageAnimation: ImageAnimation, imageGallery: ImageGallery): void {
+    draw(_p: p5, tex: p5.Graphics, _imageAnimation: ImageAnimation, _imageGallery: ImageGallery): void {
         tex.push();
         // 最終オーバーレイしたくなったら使う
         tex.pop();

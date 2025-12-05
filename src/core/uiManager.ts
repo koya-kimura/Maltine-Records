@@ -1,18 +1,16 @@
 import p5 from "p5";
 import { DateText } from "../utils/dateText";
-import { Easing } from "../utils/easing";
-import { UniformRandom } from "../utils/uniformRandom";
-import { fract, map } from "../utils/mathUtils";
+import { map } from "../utils/mathUtils";
 import { APCMiniMK2Manager } from "../midi/APCMiniMK2Manager";
 
 type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number) => void;
 
-const UINone: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number): void => {
+const UINone: UIDrawFunction = (_p: p5, tex: p5.Graphics, _font: p5.Font, _logo: p5.Image, _beat: number): void => {
     tex.push();
     tex.pop();
 }
 
-const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number): void => {
+const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo: p5.Image, _beat: number): void => {
     tex.push();
     tex.textFont(font);
 
@@ -42,7 +40,7 @@ const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     tex.pop();
 }
 
-const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number): void => {
+const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, _beat: number): void => {
     tex.push();
     tex.textFont(font);
 
@@ -68,7 +66,7 @@ const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     tex.pop();
 }
 
-const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number): void => {
+const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, _beat: number): void => {
     tex.push();
     tex.imageMode(p.CENTER);
     tex.translate(tex.width * 0.95 - tex.width * 0.1, tex.height / 2);

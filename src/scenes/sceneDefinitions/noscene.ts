@@ -5,11 +5,10 @@ export const noscene: SceneDefinition = {
     id: "scene01_noface_cycling",
     name: "Noface Cycling",
 
-    drawImage: (ctx) => {
+    drawImage: (_ctx) => {
     },
 
     drawOverlay: (ctx) => {
-        const s = Math.min(ctx.tex.width, ctx.tex.height) * 0.25;
         ctx.tex.clear();
     }
 };

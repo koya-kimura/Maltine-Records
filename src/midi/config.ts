@@ -171,6 +171,14 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
         inactiveColor: LED_PALETTE.YELLOW,
         defaultValue: false,
     },
+
+    {
+        key: "stroboMomentary",
+        type: "momentary",
+        cells: [{ page: 0, row: 7, col: 0 }],
+        activeColor: LED_PALETTE.CYAN,
+        inactiveColor: LED_PALETTE.YELLOW,
+    },
 ];
 
 // ========================================

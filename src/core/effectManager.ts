@@ -84,6 +84,7 @@ export class EffectManager {
 
         this.shader.setUniform("u_backShadowToggle", midiManager.midiInput["backShadowToggle"]);
         this.shader.setUniform("u_vibeToggle", midiManager.midiInput["vibeToggle"]);
+        this.shader.setUniform("u_stroboMomentary", midiManager.midiInput["stroboMomentary"]);
 
         p.rect(0, 0, p.width, p.height);
     }

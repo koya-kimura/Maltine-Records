@@ -71,7 +71,7 @@ export class Pattern {
      */
     draw(
         p: p5 | p5.Graphics,
-        beat: number = 0
+        _beat: number = 0
     ): void {
         if (!this.patternTexture) return;
 
