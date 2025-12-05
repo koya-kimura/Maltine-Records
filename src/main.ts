@@ -44,12 +44,17 @@ const sketch = (p: p5) => {
 
     // リソースの読み込み
     // localディレクトリの画像はオプション（なくてもエラーしない）
-    try {
-      logo = await p.loadImage("/local/logotype.png");
-    } catch {
-      console.warn("Logo image not found at /local/logotype.png - skipping");
-      logo = undefined;
-    }
+    // p5.jsのloadImageはPromise rejectではなくコールバックでエラーを返すため、Promise化して対応
+    logo = await new Promise<p5.Image | undefined>((resolve) => {
+      p.loadImage(
+        "/local/logotype.png",
+        (img) => resolve(img),
+        () => {
+          console.warn("Logo image not found at /local/logotype.png - skipping");
+          resolve(undefined);
+        }
+      );
+    });
     font = await p.loadFont("/font/Jost-Regular.ttf");
     await effectManager.load(
       p,
