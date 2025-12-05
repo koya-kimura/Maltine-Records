@@ -84,7 +84,7 @@ const sketch = (p: p5) => {
         bpmManager.doubleSpeed();
     }
     bpmManager.update();
-    midiManager.update(bpmManager.getBeat());
+    midiManager.update(bpmManager.getBeat() * 2.0);
 
     // シーンの更新と描画
     texManager.update(p);

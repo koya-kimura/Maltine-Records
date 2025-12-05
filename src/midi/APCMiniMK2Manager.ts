@@ -84,6 +84,8 @@ export class APCMiniMK2Manager extends MIDIManager {
 
     // フェーダー関連
     public faderValues: number[];
+    /** フェーダーの物理的な値（ミュート/ランダム適用前の生の値） */
+    private rawFaderValues: number[];
     public faderButtonToggleState: boolean[];
 
     // ページ管理
@@ -111,6 +113,7 @@ export class APCMiniMK2Manager extends MIDIManager {
     constructor() {
         super();
         this.faderValues = new Array(9).fill(0);
+        this.rawFaderValues = new Array(9).fill(0);
         this.faderButtonToggleState = new Array(9).fill(false);
         this.currentPageIndex = 0;
         this.faderButtonMode = FADER_BUTTON_MODE;
@@ -384,7 +387,18 @@ export class APCMiniMK2Manager extends MIDIManager {
             index = noteNumber - NOTE_RANGES.FADER_BUTTONS.START;
         }
 
-        this.faderButtonToggleState[index] = (velocity > 0) ? !this.faderButtonToggleState[index] : this.faderButtonToggleState[index];
+        if (velocity > 0) {
+            const wasToggled = this.faderButtonToggleState[index];
+            this.faderButtonToggleState[index] = !wasToggled;
+
+            // ランダムモードでOFF→ONに切り替わった時、現在のfader値をraw値に保存
+            // OFF→OFFは変化なし
+            // ON→OFFに切り替わった時（解除時）、raw値をfaderValuesに復元
+            if (this.faderButtonMode === "random" && wasToggled && !this.faderButtonToggleState[index]) {
+                // ランダム解除時: 現在の物理fader値を適用
+                this.faderValues[index] = this.rawFaderValues[index];
+            }
+        }
     }
 
     /**
@@ -497,6 +511,16 @@ export class APCMiniMK2Manager extends MIDIManager {
 
         const index = noteNumber - NOTE_RANGES.FADERS.START;
         const normalizedValue = value / 127;
+
+        // 物理的なfader値は常に保存
+        this.rawFaderValues[index] = normalizedValue;
+
+        // ランダムモードでトグルがONの場合はfaderValuesを更新しない（ランダム値を維持）
+        // ミュートモードの場合も同様
+        if (this.faderButtonToggleState[index]) {
+            return;
+        }
+
         this.faderValues[index] = normalizedValue;
     }
 
