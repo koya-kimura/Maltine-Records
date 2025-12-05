@@ -17,7 +17,7 @@ const effectManager = new EffectManager();
 let capture: p5.Element;
 let captureTexture: p5.Graphics;
 let font: p5.Font;
-let logo: p5.Image;
+let logo: p5.Image | undefined;
 
 // sketch は p5 インスタンスモードで実行されるエントリー関数。
 // sketch は p5 インスタンスモードで実行されるエントリー関数。
@@ -43,7 +43,13 @@ const sketch = (p: p5) => {
     capture.hide(); // HTML要素としてのビデオは隠す
 
     // リソースの読み込み
-    logo = await p.loadImage("/local/logotype.png");
+    // localディレクトリの画像はオプション（なくてもエラーしない）
+    try {
+      logo = await p.loadImage("/local/logotype.png");
+    } catch {
+      console.warn("Logo image not found at /local/logotype.png - skipping");
+      logo = undefined;
+    }
     font = await p.loadFont("/font/Jost-Regular.ttf");
     await effectManager.load(
       p,

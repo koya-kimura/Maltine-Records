@@ -3,14 +3,14 @@ import { DateText } from "../utils/dateText";
 import { map } from "../utils/mathUtils";
 import { APCMiniMK2Manager } from "../midi/APCMiniMK2Manager";
 
-type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, beat: number) => void;
+type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image | undefined, beat: number) => void;
 
-const UINone: UIDrawFunction = (_p: p5, tex: p5.Graphics, _font: p5.Font, _logo: p5.Image, _beat: number): void => {
+const UINone: UIDrawFunction = (_p: p5, tex: p5.Graphics, _font: p5.Font, _logo: p5.Image | undefined, _beat: number): void => {
     tex.push();
     tex.pop();
 }
 
-const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo: p5.Image, _beat: number): void => {
+const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo: p5.Image | undefined, _beat: number): void => {
     tex.push();
     tex.textFont(font);
 
@@ -40,7 +40,7 @@ const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo:
     tex.pop();
 }
 
-const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, _beat: number): void => {
+const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image | undefined, _beat: number): void => {
     tex.push();
     tex.textFont(font);
 
@@ -54,26 +54,30 @@ const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     tex.textAlign(p.RIGHT, p.CENTER);
     tex.text("Gigandect", tex.width * 0.95, tex.height * 0.5);
 
-    for(let i = 0; i < 5; i++) {
-        const x = map(i, 0, 4, tex.width * 0.12, tex.width * 0.88);
-        const w = tex.width * 0.1;
-        const h = w * (logo.height / logo.width);
+    if (logo) {
+        for(let i = 0; i < 5; i++) {
+            const x = map(i, 0, 4, tex.width * 0.12, tex.width * 0.88);
+            const w = tex.width * 0.1;
+            const h = w * (logo.height / logo.width);
 
-        tex.imageMode(p.CENTER);
-        tex.image(logo, x, tex.height * 0.95, w, h);
+            tex.imageMode(p.CENTER);
+            tex.image(logo, x, tex.height * 0.95, w, h);
+        }
     }
 
     tex.pop();
 }
 
-const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image, _beat: number): void => {
-    tex.push();
-    tex.imageMode(p.CENTER);
-    tex.translate(tex.width * 0.95 - tex.width * 0.1, tex.height / 2);
-    const w = tex.width * 0.2 / logo.width;
-    tex.scale(w);
-    tex.image(logo, 0, 0);
-    tex.pop();
+const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image | undefined, _beat: number): void => {
+    if (logo) {
+        tex.push();
+        tex.imageMode(p.CENTER);
+        tex.translate(tex.width * 0.95 - tex.width * 0.1, tex.height / 2);
+        const w = tex.width * 0.2 / logo.width;
+        tex.scale(w);
+        tex.image(logo, 0, 0);
+        tex.pop();
+    }
 
     tex.push();
     tex.textAlign(p.RIGHT, p.BOTTOM);
@@ -184,7 +188,7 @@ export class UIManager {
      * @param font UI描画に使用するフォント。
      * @param resources その他の描画に必要なリソース群（BPM、ビート、カラーパレットなど）。
      */
-    draw(p: p5, midiManager: APCMiniMK2Manager, font: p5.Font, logo: p5.Image): void {
+    draw(p: p5, midiManager: APCMiniMK2Manager, font: p5.Font, logo: p5.Image | undefined): void {
         const texture = this.renderTexture;
         if (!texture) {
             throw new Error("Texture not initialized");
