@@ -53,7 +53,8 @@ export class ImageLayer {
             { name: "walk", animationCount: 4, framesPerAnimation: 40 },
             { name: "dance", animationCount: 4, framesPerAnimation: 40 },
             { name: "dothand", animationCount: 3, framesPerAnimation: 24 },
-            { name: "step", animationCount: 1, framesPerAnimation: 40 }
+            { name: "step", animationCount: 1, framesPerAnimation: 40 },
+            { name: "car", animationCount: 1, framesPerAnimation: 100 }
         ]);
         await this.imageGallery.load(p, "/image", [
             { name: "animal", count: 3 }, 

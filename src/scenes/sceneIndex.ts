@@ -32,6 +32,7 @@ import { HandRotate } from "./sceneDefinitions/HandRotate";
 import { RandomAnimation } from "./sceneDefinitions/RandomAnimation";
 import { RandomImage } from "./sceneDefinitions/RandomImage";
 import { FaceGrid } from "./sceneDefinitions/FaceGrid";
+import { CarMoving } from "./sceneDefinitions/carMoving";
 
 import { EmptyScene } from "./sceneDefinitions/EmptyScene";
 
@@ -75,7 +76,7 @@ sceneManager.register(EmptyScene);         // x
 sceneManager.register(WalkTriple);         // 元9
 sceneManager.register(WalkCircle);         // 元16
 sceneManager.register(RandomAnimation);    // 元23
-sceneManager.register(EmptyScene);         // x
+sceneManager.register(CarMoving);         // 新規追加
 
 //======
 
