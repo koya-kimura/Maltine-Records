@@ -81,7 +81,7 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
         ],
         activeColor: LED_PALETTE.BLUE,
         inactiveColor: LED_PALETTE.PINK,
-        defaultValue: 23,
+        defaultValue: 8,
     },
 
     {

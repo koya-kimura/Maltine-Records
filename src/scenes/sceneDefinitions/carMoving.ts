@@ -10,9 +10,11 @@ export const CarMoving: SceneDefinition = {
 
     drawImage: (ctx) => {
         ctx.tex.push();
-        const car = ctx.imageAnimation.getImage("car", 0, Easing.zigzag(ctx.beat * 0.2));
+        const car = ctx.imageAnimation.getImage("car", 0, Easing.zigzag(ctx.beat * 0.2 + (UniformRandom.rand(Math.floor(ctx.beat * 3.0), 999) < 0.7 ? 0 : UniformRandom.rand(Math.floor(ctx.beat * 3.0), 1000))));
         ctx.tex.imageMode(ctx.p.CENTER);
-        ctx.tex.image(car, ctx.tex.width / 2, ctx.tex.height / 2);
+        ctx.tex.translate(ctx.tex.width / 2, ctx.tex.height / 2);
+        ctx.tex.scale(0.5);
+        ctx.tex.image(car, 0, 0);
         ctx.tex.pop();
     },
 

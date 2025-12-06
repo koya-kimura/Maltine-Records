@@ -27,6 +27,25 @@ let keyVisual: p5.Image | undefined;
 // sketch は p5 インスタンスモードで実行されるエントリー関数。
 // p5.jsのライフサイクルメソッド（setup, drawなど）を定義し、
 // アプリケーション全体の初期化と更新ループを管理します。
+// ローディング画面の進捗更新用ヘルパー
+const updateLoadingProgress = (progress: number) => {
+  const progressBar = document.getElementById('progress-bar');
+  if (progressBar) {
+    progressBar.style.width = `${Math.min(100, progress)}%`;
+  }
+};
+
+const hideLoadingScreen = () => {
+  const loadingScreen = document.getElementById('loading-screen');
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
+    // アニメーション完了後にDOMから削除
+    setTimeout(() => {
+      loadingScreen.remove();
+    }, 500);
+  }
+};
+
 const sketch = (p: p5) => {
   // setup は一度だけ呼ばれ、レンダーターゲットとシェーダーを初期化する。
   // キャンバスの作成、テクスチャ管理、UI管理、エフェクト管理の初期化、
@@ -36,15 +55,22 @@ const sketch = (p: p5) => {
     p.noCursor(); // カーソルを非表示にする
     // p.pixelDensity(3); // 高解像度ディスプレイ対応
 
+    updateLoadingProgress(5);
+
     // 各マネージャーの初期化
     await texManager.load(p);
+    updateLoadingProgress(70);
+    
     await midiManager.init(); // MIDI設定をconfig.tsから読み込み
+    updateLoadingProgress(75);
+    
     uiManager.init(p);
 
     // カメラキャプチャ用のバッファと要素の作成
     captureTexture = p.createGraphics(p.windowWidth, p.windowHeight);
     capture = p.createCapture((p as any).VIDEO);
     capture.hide(); // HTML要素としてのビデオは隠す
+    updateLoadingProgress(80);
 
     // リソースの読み込み
     // localディレクトリの画像はオプション（なくてもエラーしない）
@@ -59,6 +85,8 @@ const sketch = (p: p5) => {
         }
       );
     });
+    updateLoadingProgress(85);
+    
     keyVisual = await new Promise<p5.Image | undefined>((resolve) => {
       p.loadImage(
         "/local/city.png",
@@ -69,12 +97,20 @@ const sketch = (p: p5) => {
         }
       );
     });
+    updateLoadingProgress(90);
+    
     font = await p.loadFont("/font/Jost-Regular.ttf");
+    updateLoadingProgress(95);
+    
     await effectManager.load(
       p,
       "/shader/main.vert",
       "/shader/postProcess.frag",
     );
+    updateLoadingProgress(100);
+    
+    // ロード完了、画面を非表示
+    hideLoadingScreen();
   };
 
   // draw は毎フレームのループでシーン更新とポストエフェクトを適用する。
