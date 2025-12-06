@@ -19,6 +19,7 @@ export const scene02: SceneDefinition = {
             const x = map(i, 0, n - 1, ctx.tex.width * 0.25, ctx.tex.width * 1.1);
             if (i > m) continue;
             ctx.tex.push();
+            ctx.tex.translate(Math.sin(ctx.beat * 0.5) * 0.03 * ctx.tex.width, 0);
             ctx.tex.imageMode(ctx.p.CENTER);
             ctx.tex.translate(x, ctx.tex.height * 0.65);
             ctx.tex.rotate(angle);

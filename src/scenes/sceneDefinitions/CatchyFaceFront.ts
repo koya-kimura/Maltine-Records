@@ -4,7 +4,7 @@ import { GVM } from "../../utils/gvm";
 import { UniformRandom } from "../../utils/uniformRandom";
 import { map } from "../../utils/mathUtils";
 
-export const scene01: SceneDefinition = {
+export const CatchyFaceFront: SceneDefinition = {
     id: "scene01_noface_cycling",
     name: "Noface Cycling",
 

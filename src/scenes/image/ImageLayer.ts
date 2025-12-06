@@ -54,7 +54,7 @@ export class ImageLayer {
         await this.imageGallery.load(p, "/image", [
             { name: "animal", count: 3 }, 
             { name: "human", count: 5 }, 
-            { name: "life", count: 4 }, 
+            { name: "life", count: 6 }, 
             { name: "noface", count: 4 }
         ]);
 

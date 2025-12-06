@@ -3,6 +3,7 @@ import type { SceneDefinition } from "../SceneManager";
 import { Easing } from "../../utils/easing";
 import { GVM } from "../../utils/gvm";
 import { map } from "../../utils/mathUtils";
+import { UniformRandom } from "../../utils/uniformRandom";
 
 export const scene21: SceneDefinition = {
     id: "scene21_step",
@@ -12,7 +13,7 @@ export const scene21: SceneDefinition = {
 
         const n = 8;
         for (let i = 0; i < n; i++) {
-            const t =  ctx.beat * 0.25 + GVM.leapRamp(ctx.beat + i, 64, n * 2);
+            const t =  ctx.beat * 0.25 + GVM.leapRamp(ctx.beat + i, 64, n * 2) + (UniformRandom.rand(Math.floor(ctx.beat), i) < 0.95 ? 0 : (UniformRandom.rand(Math.floor(ctx.beat * 4.0), i)));
             const angle = (ctx.p.TWO_PI / n) * i + ctx.beat * 0.3;
             const hand = ctx.imageAnimation.getImage("hand", 0, Easing.zigzag(t));
             ctx.tex.push();

@@ -6,6 +6,9 @@
  */
 export class Easing {
     // 静的メソッドとして元のロジックをそのまま保持
+    static linear(x: number): number {
+        return x;
+    }
 
     /**
      * Sine（正弦波）カーブを使用したイージング関数（入り）。

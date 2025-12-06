@@ -1,7 +1,7 @@
 // Scene Definitions Index - すべてのシーンをここで登録
 import { sceneManager } from "../SceneManager";
 import { noscene } from "./noscene";
-import { scene01 } from "./scene01";
+import { CatchyFaceFront } from "./CatchyFaceFront";
 import { scene02 } from "./scene02";
 import { scene03 } from "./scene03";
 import { scene04 } from "./scene04";
@@ -24,10 +24,11 @@ import { scene20 } from "./scene20";
 import { scene21 } from "./scene21";
 import { scene22 } from "./scene22";
 import { scene23 } from "./scene23";
+import { scene24 } from "./scene24";
 
 // シーンを順番に登録（この順番がボタンの順番になる）
 
-sceneManager.register(scene01);
+sceneManager.register(CatchyFaceFront);
 sceneManager.register(scene02);
 sceneManager.register(scene03);
 sceneManager.register(scene04);
@@ -65,7 +66,7 @@ sceneManager.register(scene20);
 sceneManager.register(scene21);
 sceneManager.register(scene22);
 sceneManager.register(scene23);
-sceneManager.register(noscene);
+sceneManager.register(scene24);
 
 //======
 
@@ -73,6 +74,13 @@ sceneManager.register(noscene);
 sceneManager.register(noscene);
 sceneManager.register(noscene);
 sceneManager.register(noscene);
+
+//======
+
+sceneManager.register(noscene);
+sceneManager.register(noscene);
+sceneManager.register(noscene);
+// 最後のボタンはランダムに割当たってる
 
 // シーンの総数をエクスポート
 export const SCENE_COUNT = sceneManager.getSceneCount();

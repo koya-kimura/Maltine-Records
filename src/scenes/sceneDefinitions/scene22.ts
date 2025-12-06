@@ -13,10 +13,10 @@ export const scene22: SceneDefinition = {
         ctx.tex.push();
         const n = 30;
         for (let i = 0; i < n; i++) {
-            const t = ctx.beat * 0.0675 + i * 0.3;
+            const t = ctx.beat / 128 + i * 0.3;
             const count = Math.floor(t);
             const progress = t - count;
-            const x = Math.floor(UniformRandom.rand(count * 87401, i) * 20.0 + 0.5) / 20.0 * ctx.tex.width;
+            const x = i / n * ctx.tex.width;
             const y = map(progress, 0, 1, ctx.tex.height * 2.0, -ctx.tex.height * 1.0);
             const scl = map(Math.pow(UniformRandom.rand(count * 87401 + 1, i), 2), 0, 1, 0.4, 0.7);
 
@@ -28,7 +28,7 @@ export const scene22: SceneDefinition = {
                 const label = labels[Math.floor(UniformRandom.rand(count * 1389 + 2, i) * labels.length)];
                 const animationNums = ctx.imageAnimation.getLength(label);
                 const animationNum = Math.floor(UniformRandom.rand(count * 2468 + 3, i) * animationNums);
-                img = ctx.imageAnimation.getImage(label, animationNum, Easing.zigzag(progress * 0.2));
+                img = ctx.imageAnimation.getImage(label, animationNum, Easing.zigzag(ctx.beat * 0.15 + (UniformRandom.rand(Math.floor(t * 4.0), i) < 0.8 ? 0 : (UniformRandom.rand(Math.floor(t * 16.0), i)))));
             } else {
                 const labels = ctx.imageGallery.getLabels();
                 const label = labels[Math.floor(UniformRandom.rand(count * 2468 + 4, i) * labels.length)];
