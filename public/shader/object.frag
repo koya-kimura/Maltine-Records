@@ -9,7 +9,7 @@ uniform vec2 u_resolution;
 uniform int u_patternIndex;
 uniform vec3 u_mainColor;  // メインカラー
 uniform vec3 u_subColor;   // サブカラー
-uniform int u_sceneIndex;
+uniform int u_isNofaceBottom;  // NofaceBottomシーンかどうか
 
 float PI = 3.14159265358979;
 
@@ -57,7 +57,7 @@ void main(void) {
 
     col = texture2D(u_tex, uv);
 
-    if(u_sceneIndex == 11) {
+    if(u_isNofaceBottom == 1) {
         vec2 centerUV = vec2(0.5, 0.4);
         vec2 normUV = vec2(uv.x * u_resolution.x / u_resolution.y, uv.y);
         float d = distance(normUV, vec2(u_resolution.x / u_resolution.y * centerUV.x, centerUV.y));
@@ -69,8 +69,6 @@ void main(void) {
         vec3 pattern = mod(floor(uv.x * 160.0) + floor(uv.y * 90.0), 2.0) == 0.0 ? vec3(1.0) : vec3(0.0);
         col = mix(col, vec4(pattern, 1.0), mask);
     }
-
-    // col.rgb = floor(col.rgb * 8.0 + 0.5) / 8.0; // 8階調に量子化
     
     gl_FragColor = col;
 }

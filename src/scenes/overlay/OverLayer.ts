@@ -3,6 +3,10 @@ import p5 from "p5";
 import { P5Overlay } from "./P5Overlay";
 import { APCMiniMK2Manager } from "../../midi/APCMiniMK2Manager";
 import { getPalette } from "../../utils/colorPalette";
+import { sceneManager } from "../SceneManager";
+
+// 特別なシェーダー処理を適用するシーンIDのリスト
+const NOFACE_BOTTOM_SCENE_IDS = ["scene12_noface_bottom"];
 
 export class OverLayer {
     private shader: p5.Shader | null;
@@ -69,7 +73,11 @@ export class OverLayer {
 
         this.shader.setUniform("u_tex", this.sourceTexture);
         this.shader.setUniform("u_resolution", [this.sourceTexture.width, this.sourceTexture.height]);
-        this.shader.setUniform("u_sceneIndex", sceneIndex);
+        
+        // シーン名でisNofaceBottomを判定
+        const currentScene = sceneManager.getScene(sceneIndex);
+        const isNofaceBottom = currentScene ? NOFACE_BOTTOM_SCENE_IDS.includes(currentScene.id) : false;
+        this.shader.setUniform("u_isNofaceBottom", isNofaceBottom ? 1 : 0);
 
         this.destTexture.rect(0, 0, this.destTexture.width, this.destTexture.height);
         this.destTexture.pop();

@@ -149,7 +149,7 @@ const UIDraw05: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo:
         pg.push();
         pg.clear();
         pg.textFont(font);
-        pg.textSize(s*1.4);
+        pg.textSize(s * 1.38);
         pg.fill(255);
         pg.noStroke();
         pg.textAlign(p.CENTER, p.CENTER);
@@ -177,15 +177,171 @@ const UIDraw05: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo:
     }
 }
 
+const UIDraw06: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo: p5.Image | undefined, _beat: number): void => {
+    tex.push();
+    tex.clear();
+    tex.translate(tex.width / 2, tex.height / 2);
+
+    for (let j of [0.5, 0.95]) {
+        tex.push();
+        const n = 100 * j;
+        for (let i = 0; i < n; i++) {
+            const cw = tex.width * j;
+            const ch = tex.height * j;
+            const l = cw * 2 + ch * 2;
+            const k = (p.map(i, 0, n, 0, l) + p.millis() * 0.1) % l;
+            const index = (UniformRandom.rand(i + j * 75920, Math.floor(_beat)) < 0.9 ? i : Math.floor(UniformRandom.rand(i + j * 75920, Math.floor(_beat * 8.0)) * 100)) % 9;
+
+            let x = 0;
+            let y = 0;
+            let angle = 0;
+            if (k < cw) {
+                x = -cw / 2 + k;
+                y = -ch / 2;
+                angle = 0;
+            }
+            else if (k < cw + ch) {
+                x = cw / 2;
+                y = -ch / 2 + (k - cw);
+                angle = p.HALF_PI;
+            }
+            else if (k < cw * 2 + ch) {
+                x = cw / 2 - (k - (cw + ch));
+                y = ch / 2;
+                angle = p.PI;
+            }
+            else {
+                x = -cw / 2;
+                y = ch / 2 - (k - (cw * 2 + ch));
+                angle = -p.HALF_PI;
+            }
+
+            const cornerDist = Math.min(tex.width, tex.height) * 0.02;
+            if (cw - cornerDist < k && k < cw + cornerDist) {
+                angle = p.map(k, cw - cornerDist, cw + cornerDist, 0, p.HALF_PI);
+            }
+            else if (cw + ch - cornerDist < k && k < cw + ch + cornerDist) {
+                angle = p.map(k, cw + ch - cornerDist, cw + ch + cornerDist, p.HALF_PI, p.PI);
+            }
+            else if (cw * 2 + ch - cornerDist < k && k < cw * 2 + ch + cornerDist) {
+                angle = p.map(k, cw * 2 + ch - cornerDist, cw * 2 + ch + cornerDist, p.PI, p.PI * 1.5);
+            }
+            else if (l - cornerDist < k || k < cornerDist) {
+                angle = p.map(k < cornerDist ? k + l : k, l - cornerDist, l + cornerDist, p.PI * 1.5, p.TWO_PI);
+            }
+
+            tex.push();
+            tex.textFont(font);
+            tex.noStroke();
+            tex.fill(255);
+            tex.translate(x, y);
+            tex.rotate(angle);
+            tex.textAlign(p.CENTER, p.CENTER);
+            tex.textSize(p.min(tex.width, tex.height) * 0.05);
+            tex.text([...'Gigandect'][index], 0, 0);
+            tex.pop();
+        }
+        tex.pop();
+    }
+    tex.pop();
+}
+
+const UIDraw07: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo: p5.Image | undefined, _beat: number): void => {
+    tex.clear();
+
+    tex.push();
+    tex.stroke(255);
+    tex.noFill();
+    tex.strokeWeight(2);
+    tex.rectMode(p.CENTER);
+    tex.rect(tex.width / 2, tex.height / 2, tex.width * 0.98, tex.height * 0.98);
+    tex.pop();
+
+    tex.push();
+    tex.stroke(255);
+    tex.noFill();
+    tex.strokeWeight(4);
+    tex.rect(tex.width * 0.025, tex.height * 0.82, tex.width * 0.95, tex.height * 0.15);
+    tex.pop();
+
+    // セリフ風テキスト表示
+    const dialogues = [
+        "Welcome to Gigandect Live...",
+        "Let's get started!",
+        "Are you ready?",
+        "Feel the rhythm...",
+        "Dance with me!",
+    ];
+    const charPerBeat = 8; // 1ビートあたりの文字数（早め）
+    const pauseBeats = 8; // セリフ間の待機ビート数
+    
+    // 現在のセリフを計算
+    const totalBeatsPerDialogue = (dialogues.reduce((max, d) => Math.max(max, d.length), 0) / charPerBeat) + pauseBeats;
+    const dialogueIndex = Math.floor(_beat / totalBeatsPerDialogue) % dialogues.length;
+    const currentDialogue = dialogues[dialogueIndex];
+    const beatInDialogue = _beat % totalBeatsPerDialogue;
+    
+    const visibleChars = Math.floor(beatInDialogue * charPerBeat);
+    const displayText = currentDialogue.substring(0, Math.min(visibleChars, currentDialogue.length));
+    
+    tex.push();
+    tex.textFont(font);
+    tex.textAlign(p.CENTER, p.CENTER);
+    tex.fill(255);
+    tex.noStroke();
+    tex.textSize(tex.height * 0.06);
+    
+    const textY = tex.height * 0.9;
+    tex.text(displayText, tex.width / 2, textY);
+    
+    // カーソル点滅（入力中のみ）
+    if (visibleChars < currentDialogue.length && Math.floor(_beat * 4) % 2 === 0) {
+        const cursorX = tex.width / 2 + tex.textWidth(displayText) / 2;
+        tex.text("_", cursorX + tex.textWidth("_") / 2, textY);
+    }
+    tex.pop();
+
+    tex.push();
+    tex.textFont(font);
+    tex.textAlign(p.RIGHT, p.TOP);
+    tex.fill(255);
+    tex.noStroke();
+    tex.textSize(tex.height * 0.04);
+    tex.text("vs.Gigandect", tex.width - tex.width * 0.025, tex.height * 0.05);
+    tex.pop();
+
+    tex.push();
+    tex.textFont(font);
+    tex.textAlign(p.LEFT, p.TOP);
+    tex.fill(255);
+    tex.noStroke();
+    tex.textSize(tex.height * 0.04);
+    tex.text(DateText.getYYYYMMDD_HHMMSS_format(), tex.width * 0.025, tex.height * 0.05);
+    tex.pop();
+
+    tex.push();
+    tex.stroke(255);
+    tex.noFill();
+    tex.strokeWeight(2);
+    tex.rect(tex.width - tex.width * 0.025 - tex.width * 0.2, tex.height * 0.1, tex.width * 0.2, tex.height * 0.02);
+
+    const w = tex.width * map(GVM.leapNoise(_beat, 1.0, 0.5, Easing.easeInOutBack), 0, 1, 0, 0.2);
+    tex.fill(255);
+    tex.noStroke();
+    tex.rect(tex.width - tex.width * 0.025 - w, tex.height * 0.1, w, tex.height * 0.02);
+    tex.pop();
+}
+
 
 const UIDRAWERS: readonly UIDrawFunction[] = [
     UINone,
     UIDraw03,
     UIDraw02,
     UIDraw01,
+    UIDraw07,
+    UIDraw06,
     UIDraw05,
     UIDraw04,
-
 ];
 
 // UIManager は単純なテキストオーバーレイの描画を担当する。

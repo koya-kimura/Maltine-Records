@@ -6,6 +6,10 @@ import { ImageRenderer } from "./ImageRenderer";
 
 import { ImageAnimation } from "./ImageAnimation";
 import { ImageGallery } from "./ImageGallery";
+import { sceneManager } from "../SceneManager";
+
+// isLifeをtrueにするシーンIDのリスト
+const LIFE_SCENE_IDS = ["scene14_life_0", "scene15_life_1_falling"];
 
 export class ImageLayer {
     private shader: p5.Shader | null;
@@ -101,7 +105,12 @@ export class ImageLayer {
         // シェーダーにUniform変数を設定
         this.shader.setUniform("u_tex", this.sourceTexture);
         this.shader.setUniform("u_resolution", [this.sourceTexture.width, this.sourceTexture.height]);
-        this.shader.setUniform("u_isLife", [13, 14].includes(sceneIndex) ? 1 : 0);
+        
+        // シーン名でisLifeを判定
+        const currentScene = sceneManager.getScene(sceneIndex);
+        const isLife = currentScene ? LIFE_SCENE_IDS.includes(currentScene.id) : false;
+        this.shader.setUniform("u_isLife", isLife ? 1 : 0);
+        
         this.shader.setUniform("u_beat", beat);
 
         // WEBGLモードは中心原点なので、中心から描画
