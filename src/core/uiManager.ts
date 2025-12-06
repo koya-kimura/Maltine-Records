@@ -14,28 +14,38 @@ const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo:
     tex.push();
     tex.textFont(font);
 
-    // Maltine Records のテキスト（各文字の後ろに黒い四角形）
-    const titleText = "Maltine Records";
-    const titleSize = tex.width * 0.04;
-    tex.textSize(titleSize);
-    tex.textAlign(p.CENTER, p.CENTER);
+    const m = 3;
+    const textArray1 = [..."MaltineRecords"];
+    const textArray2 = [..."Gigandect"];
+    for(let j = 0; j < m; j ++){
+        const cx = map(j, 0, m-1, 0.17, 0.83) * tex.width;
+        const cy = tex.height * 0.5;
+        const arr = j%2 === 0 ? textArray1 : textArray2;
+        const n = arr.length * 2;
 
-    tex.fill(255);
-    tex.noStroke();
-    tex.text(titleText, tex.width / 2, tex.height * 0.1);
+        tex.push();
+        tex.translate(cx, cy);
+        for(let i = 0; i < n; i ++){
+            const str = arr[i % arr.length];
+            const angle = Math.PI * 2 * i / n + _beat * 0.5;
+            const radius = Math.min(tex.width, tex.height) * (j%2 == 0 ? 0.2 : 0.25);
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+            const s = Math.min(tex.width, tex.height) * 0.5 / arr.length;
 
-    const dateTimeString = DateText.getYYYYMMDD_HHMMSS_format();
+            tex.push();
+            tex.fill(255);
+            tex.noStroke();
+            tex.textSize(s);
+            tex.textAlign(p.CENTER, p.CENTER);
+            tex.translate(x, y);
+            tex.rotate(angle + Math.PI / 2);
+            tex.text(str, 0, 0);
+            tex.pop();
 
-    tex.textSize(tex.width * 0.015);
-    tex.textAlign(p.RIGHT, p.BOTTOM);
-    tex.noStroke();
-    tex.fill(255);
-    tex.text(dateTimeString, tex.width * 0.95, tex.height * 0.95);
-
-    tex.stroke(255);
-    tex.strokeWeight(2);
-    tex.line(tex.width * 0.05, tex.height * 0.1, tex.width * 0.3, tex.height * 0.1);
-    tex.line(tex.width * 0.7, tex.height * 0.1, tex.width * 0.95, tex.height * 0.1);
+        }
+        tex.pop();
+    }
 
     tex.pop();
 }
@@ -94,8 +104,8 @@ const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
 const UIDRAWERS: readonly UIDrawFunction[] = [
     UINone,
     UIDraw03,
-    UIDraw01,
     UIDraw02,
+    UIDraw01,
 ];
 
 // UIManager は単純なテキストオーバーレイの描画を担当する。

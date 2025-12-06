@@ -99,9 +99,26 @@ export class ImageAnimation {
     }
 
     /**
+     * 指定したカテゴリのアニメーション数を取得（getAnimationCountのエイリアス）
+     * @param category カテゴリ名
+     * @returns アニメーション数
+     */
+    getLength(category: string): number {
+        return this.getAnimationCount(category);
+    }
+
+    /**
      * 全カテゴリ名を取得
      */
     getCategories(): string[] {
         return Array.from(this.images.keys());
+    }
+
+    /**
+     * 全カテゴリ名を取得（getCategoriesのエイリアス）
+     * @returns カテゴリ名の配列
+     */
+    getLabels(): string[] {
+        return this.getCategories();
     }
 }

@@ -21,6 +21,9 @@ import { scene17 } from "./scene17";
 import { scene18 } from "./scene18";
 import { scene19 } from "./scene19";
 import { scene20 } from "./scene20";
+import { scene21 } from "./scene21";
+import { scene22 } from "./scene22";
+import { scene23 } from "./scene23";
 
 // シーンを順番に登録（この順番がボタンの順番になる）
 
@@ -59,9 +62,9 @@ sceneManager.register(scene20);
 
 //======
 
-sceneManager.register(noscene);
-sceneManager.register(noscene);
-sceneManager.register(noscene);
+sceneManager.register(scene21);
+sceneManager.register(scene22);
+sceneManager.register(scene23);
 sceneManager.register(noscene);
 
 //======

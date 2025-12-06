@@ -80,9 +80,26 @@ export class ImageGallery {
     }
 
     /**
+     * 指定したカテゴリの画像数を取得（getImageCountのエイリアス）
+     * @param category カテゴリ名
+     * @returns 画像数
+     */
+    getLength(category: string): number {
+        return this.getImageCount(category);
+    }
+
+    /**
      * 全カテゴリ名を取得
      */
     getCategories(): string[] {
         return Array.from(this.images.keys());
+    }
+
+    /**
+     * 全カテゴリ名を取得（getCategoriesのエイリアス）
+     * @returns カテゴリ名の配列
+     */
+    getLabels(): string[] {
+        return this.getCategories();
     }
 }
