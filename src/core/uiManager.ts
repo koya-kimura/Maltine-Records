@@ -2,6 +2,9 @@ import p5 from "p5";
 import { DateText } from "../utils/dateText";
 import { map } from "../utils/mathUtils";
 import { APCMiniMK2Manager } from "../midi/APCMiniMK2Manager";
+import { UniformRandom } from "../utils/uniformRandom";
+import { GVM } from "../utils/gvm";
+import { Easing } from "../utils/easing";
 
 type UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image | undefined, beat: number) => void;
 
@@ -17,18 +20,18 @@ const UIDraw01: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo:
     const m = 3;
     const textArray1 = [..."MaltineRecords"];
     const textArray2 = [..."Gigandect"];
-    for(let j = 0; j < m; j ++){
-        const cx = map(j, 0, m-1, 0.17, 0.83) * tex.width;
+    for (let j = 0; j < m; j++) {
+        const cx = map(j, 0, m - 1, 0.17, 0.83) * tex.width;
         const cy = tex.height * 0.5;
-        const arr = j%2 === 0 ? textArray1 : textArray2;
+        const arr = j % 2 === 0 ? textArray1 : textArray2;
         const n = arr.length * 2;
 
         tex.push();
         tex.translate(cx, cy);
-        for(let i = 0; i < n; i ++){
+        for (let i = 0; i < n; i++) {
             const str = arr[i % arr.length];
             const angle = Math.PI * 2 * i / n + _beat * 0.5;
-            const radius = Math.min(tex.width, tex.height) * (j%2 == 0 ? 0.2 : 0.25);
+            const radius = Math.min(tex.width, tex.height) * (j % 2 == 0 ? 0.2 : 0.25);
             const x = radius * Math.cos(angle);
             const y = radius * Math.sin(angle);
             const s = Math.min(tex.width, tex.height) * 0.5 / arr.length;
@@ -65,7 +68,7 @@ const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     tex.text("Gigandect", tex.width * 0.95, tex.height * 0.5);
 
     if (logo) {
-        for(let i = 0; i < 5; i++) {
+        for (let i = 0; i < 5; i++) {
             const x = map(i, 0, 4, tex.width * 0.12, tex.width * 0.88);
             const w = tex.width * 0.1;
             const h = w * (logo.height / logo.width);
@@ -100,12 +103,89 @@ const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     tex.pop();
 }
 
+const UIDraw04: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image | undefined, _beat: number): void => {
+    tex.push();
+    tex.textAlign(p.CENTER, p.CENTER);
+    tex.textFont(font);
+    tex.fill(255);
+    tex.noStroke();
+
+    const n = 10;
+    const m = 6;
+    for (let j = 0; j < m; j++) {
+        for (let i = 0; i < n; i++) {
+            const index = Math.floor(GVM.leapRamp(_beat + Math.floor(UniformRandom.rand(j, i) * 1000), 16, 2, Easing.linear) * 16);
+            const str = [..."MaltineRecords"][index % "MaltineRecords".length];
+            const x = map(i, 0, n - 1, tex.width * 0.1, tex.width * 0.9);
+            const y = map(j, 0, m - 1, tex.height * 0.1, tex.height * 0.9);
+            const s = tex.width * 0.05;
+
+            tex.push();
+            tex.textSize(s);
+            tex.translate(x, y);
+            tex.rotate(0);
+            tex.text(str, 0, 0);
+            tex.pop();
+        }
+    }
+    tex.pop();
+}
+
+// UIDraw05用のキャッシュ
+let uiDraw05Cache: { pg: p5.Graphics; size: number } | null = null;
+
+const UIDraw05: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo: p5.Image | undefined, _beat: number): void => {
+    const s = Math.min(tex.width, tex.height) * 0.3;
+
+    // キャッシュがないか、サイズが変わった場合のみ再作成
+    if (!uiDraw05Cache || uiDraw05Cache.size !== s) {
+        // 既存のキャッシュがあれば削除
+        if (uiDraw05Cache) {
+            uiDraw05Cache.pg.remove();
+        }
+
+        const pg = p.createGraphics(s, s);
+        const str = "G";
+        pg.push();
+        pg.clear();
+        pg.textFont(font);
+        pg.textSize(s*1.4);
+        pg.fill(255);
+        pg.noStroke();
+        pg.textAlign(p.CENTER, p.CENTER);
+        pg.text(str, s * 0.5, s * 0.65);
+        pg.pop();
+
+        uiDraw05Cache = { pg, size: s };
+    }
+
+    const pg = uiDraw05Cache.pg;
+
+    for (let j of [-1, 1]) {
+        for (let i of [-1, 1]) {
+            const x = tex.width * 0.5 + i * tex.width * 0.5 - i * s * 0.5;
+            const y = tex.height * 0.5 + j * tex.height * 0.5 - j * s * 0.5;
+            const angle = _beat * 0.5 * (i * j);
+
+            tex.push();
+            tex.imageMode(p.CENTER);
+            tex.translate(x, y);
+            tex.rotate(angle);
+            tex.image(pg, 0, 0);
+            tex.pop();
+        }
+    }
+}
+
 
 const UIDRAWERS: readonly UIDrawFunction[] = [
     UINone,
     UIDraw03,
     UIDraw02,
     UIDraw01,
+    UIDraw05,
+    UIDraw04,
+
 ];
 
 // UIManager は単純なテキストオーバーレイの描画を担当する。
