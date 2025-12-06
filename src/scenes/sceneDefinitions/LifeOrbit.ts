@@ -3,7 +3,7 @@ import type { SceneDefinition } from "../SceneManager";
 import { Easing } from "../../utils/easing";
 import { map } from "../../utils/mathUtils";
 
-export const scene14: SceneDefinition = {
+export const LifeOrbit: SceneDefinition = {
     id: "scene14_life_0",
     name: "Life 0",
 

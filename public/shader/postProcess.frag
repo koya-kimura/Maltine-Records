@@ -14,7 +14,8 @@ uniform int u_patternIndex;
 uniform float u_faderValues[9];
 uniform bool u_backShadowToggle;
 uniform bool u_vibeToggle;
-uniform bool u_stroboMomentary;
+uniform sampler2D u_keyVisualTex;
+uniform bool u_keyVisualToggle;
 
 float PI = 3.14159265358979;
 
@@ -445,7 +446,7 @@ void main(void) {
         patternColor = noiseTexturePattern(patternUV, u_beat, u_time);
     }
 
-    if(u_stroboMomentary) {
+    if(getFaderValue(1) == 1.0) {
         patternColor = mix(vec3(1.0), patternColor, pow(zigzag(u_time * 48.0), 3.0));
     }
 
@@ -543,17 +544,20 @@ void main(void) {
     if(getFaderValue(0) == 1.0) {
         col.rgb = rgbRotate(col.rgb, u_time * 50.0, 360.0);
     }
-    
-    // fader1: 低速色相回転（8段階量子化）
-    if(getFaderValue(1) == 1.0) {
-        col.rgb = rgbRotate(col.rgb, u_time * 20.0, 8.0);
-    }
 
     // ----------------------------------------
     // UI オーバーレイ
     // ----------------------------------------
     vec4 uiCol = texture2D(u_uiTex, initialUV);
     col.rgb = mix(col.rgb, uiCol.rgb, uiCol.a);
+
+    // ----------------------------------------
+    // キービジュアルオーバーレイ
+    // ----------------------------------------
+    if(u_keyVisualToggle) {
+        vec4 keyVisualCol = texture2D(u_keyVisualTex, initialUV);
+        col = keyVisualCol;
+    }
 
     gl_FragColor = col;
 }

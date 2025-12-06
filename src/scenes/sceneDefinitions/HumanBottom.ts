@@ -3,7 +3,7 @@ import type { SceneDefinition } from "../SceneManager";
 import { Easing } from "../../utils/easing";
 import { map } from "../../utils/mathUtils";
 
-export const scene06: SceneDefinition = {
+export const HumanBottom: SceneDefinition = {
     id: "scene06_human_1",
     name: "Human 1",
 

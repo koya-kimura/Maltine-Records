@@ -3,7 +3,7 @@ import type { SceneDefinition } from "../SceneManager";
 import { GVM } from "../../utils/gvm";
 import { map, fract } from "../../utils/mathUtils";
 
-export const scene16: SceneDefinition = {
+export const WalkCircle: SceneDefinition = {
     id: "scene16_walk_circle",
     name: "Walk Circle",
 

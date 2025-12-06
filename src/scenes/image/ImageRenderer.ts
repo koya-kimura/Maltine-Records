@@ -6,7 +6,7 @@ import { ImageGallery } from "./ImageGallery";
 import { sceneManager, type ImageSceneContext } from "../SceneManager";
 
 // シーン定義を登録（このインポートにより全シーンが登録される）
-import "../sceneDefinitions/index";
+import "../sceneIndex";
 
 /**
  * ImageRendererクラス

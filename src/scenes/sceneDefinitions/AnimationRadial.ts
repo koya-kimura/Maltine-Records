@@ -5,7 +5,7 @@ import { GVM } from "../../utils/gvm";
 import { map } from "../../utils/mathUtils";
 import { UniformRandom } from "../../utils/uniformRandom";
 
-export const scene21: SceneDefinition = {
+export const AnimationRadial: SceneDefinition = {
     id: "scene21_step",
     name: "Step Animation",
 

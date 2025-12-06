@@ -5,7 +5,7 @@ import { sceneManager, type OverlaySceneContext, type ColorPalette } from "../Sc
 
 // シーン定義を登録（このインポートにより全シーンが登録される）
 // 注意: ImageRendererで既にインポート済みの場合は重複登録されない
-import "../sceneDefinitions/index";
+import "../sceneIndex";
 
 /**
  * P5Overlayクラス

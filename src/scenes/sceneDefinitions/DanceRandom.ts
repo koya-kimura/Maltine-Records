@@ -3,7 +3,7 @@ import type { SceneDefinition } from "../SceneManager";
 import { Easing } from "../../utils/easing";
 import { UniformRandom } from "../../utils/uniformRandom";
 
-export const scene11: SceneDefinition = {
+export const DanceRandom: SceneDefinition = {
     id: "scene11_dance_random",
     name: "Dance Random",
 

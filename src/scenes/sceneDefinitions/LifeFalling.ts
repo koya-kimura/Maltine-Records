@@ -3,7 +3,7 @@ import type { SceneDefinition } from "../SceneManager";
 import { UniformRandom } from "../../utils/uniformRandom";
 import { map } from "../../utils/mathUtils";
 
-export const scene15: SceneDefinition = {
+export const LifeFalling: SceneDefinition = {
     id: "scene15_life_1_falling",
     name: "Life 1 Falling",
 

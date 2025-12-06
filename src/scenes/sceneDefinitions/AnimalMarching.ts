@@ -4,7 +4,7 @@ import { GVM } from "../../utils/gvm";
 import { Easing } from "../../utils/easing";
 import { map, fract } from "../../utils/mathUtils";
 
-export const scene02: SceneDefinition = {
+export const AnimalMarching: SceneDefinition = {
     id: "scene02_animal_0",
     name: "Animal 0",
 

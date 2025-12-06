@@ -3,7 +3,7 @@ import type { SceneDefinition } from "../SceneManager";
 import { UniformRandom } from "../../utils/uniformRandom";
 import { fract } from "../../utils/mathUtils";
 
-export const scene13: SceneDefinition = {
+export const DothandSpin: SceneDefinition = {
     id: "scene13_dothand",
     name: "Dothand Animation",
 

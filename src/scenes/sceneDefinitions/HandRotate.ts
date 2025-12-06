@@ -1,11 +1,10 @@
 // Scene 20: Step Animation
 import type { SceneDefinition } from "../SceneManager";
 import { Easing } from "../../utils/easing";
-import { GVM } from "../../utils/gvm";
 import { UniformRandom } from "../../utils/uniformRandom";
 import { map } from "../../utils/mathUtils";
 
-export const scene22: SceneDefinition = {
+export const HandRotate: SceneDefinition = {
     id: "scene22_step",
     name: "Step Animation",
 

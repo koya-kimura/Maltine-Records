@@ -51,7 +51,7 @@ export class EffectManager {
      * @param beat 現在のビート情報。リズムに合わせたエフェクト同期に使用。
      * @param colorPaletteRGBArray カラーパレットのRGB値がフラットに並んだ配列。
      */
-    apply(p: p5, sourceTexture: p5.Graphics, uiTexture: p5.Graphics, captureTexture: p5.Graphics, midiManager: APCMiniMK2Manager, beat: number): void {
+    apply(p: p5, sourceTexture: p5.Graphics, uiTexture: p5.Graphics, captureTexture: p5.Graphics, midiManager: APCMiniMK2Manager, beat: number, keyVisual: p5.Image | undefined): void {
         if (!this.shader) {
             return;
         }
@@ -84,7 +84,8 @@ export class EffectManager {
 
         this.shader.setUniform("u_backShadowToggle", midiManager.midiInput["backShadowToggle"]);
         this.shader.setUniform("u_vibeToggle", midiManager.midiInput["vibeToggle"]);
-        this.shader.setUniform("u_stroboMomentary", midiManager.midiInput["stroboMomentary"]);
+        this.shader.setUniform("u_keyVisualTex", keyVisual ? keyVisual : p.createGraphics(1, 1));
+        this.shader.setUniform("u_keyVisualToggle", midiManager.midiInput["keyVisualToggle"]);
 
         p.rect(0, 0, p.width, p.height);
     }

@@ -4,7 +4,7 @@ import { GVM } from "../../utils/gvm";
 import { Easing } from "../../utils/easing";
 import { map } from "../../utils/mathUtils";
 
-export const scene03: SceneDefinition = {
+export const AnimalSwing: SceneDefinition = {
     id: "scene03_animal_1",
     name: "Animal 1",
 

@@ -5,7 +5,7 @@ import { Easing } from "../../utils/easing";
 import { UniformRandom } from "../../utils/uniformRandom";
 import { map } from "../../utils/mathUtils";
 
-export const scene18: SceneDefinition = {
+export const LifeRotate: SceneDefinition = {
     id: "scene18_life_3",
     name: "Life 3",
 

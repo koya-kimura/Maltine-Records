@@ -2,7 +2,7 @@
 import type { SceneDefinition } from "../SceneManager";
 import { map } from "../../utils/mathUtils";
 
-export const scene08: SceneDefinition = {
+export const HumanZigzag: SceneDefinition = {
     id: "scene08_human_3",
     name: "Human 3",
 

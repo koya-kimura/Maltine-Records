@@ -21,6 +21,7 @@ let capture: p5.Element;
 let captureTexture: p5.Graphics;
 let font: p5.Font;
 let logo: p5.Image | undefined;
+let keyVisual: p5.Image | undefined;
 
 // sketch は p5 インスタンスモードで実行されるエントリー関数。
 // sketch は p5 インスタンスモードで実行されるエントリー関数。
@@ -54,6 +55,16 @@ const sketch = (p: p5) => {
         (img) => resolve(img),
         () => {
           console.warn("Logo image not found at /local/logotype.png - skipping");
+          resolve(undefined);
+        }
+      );
+    });
+    keyVisual = await new Promise<p5.Image | undefined>((resolve) => {
+      p.loadImage(
+        "/local/city.png",
+        (img) => resolve(img),
+        () => {
+          console.warn("Key visual image not found at /local/keyVisual.png - skipping");
           resolve(undefined);
         }
       );
@@ -106,7 +117,7 @@ const sketch = (p: p5) => {
     uiManager.draw(p, midiManager,font, logo);
 
     // ポストエフェクトの適用と画面への描画
-    effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture, midiManager, bpmManager.getBeat());
+    effectManager.apply(p, texManager.getTexture(), uiManager.getTexture(), captureTexture, midiManager, bpmManager.getBeat(), keyVisual);
   };
 
   // windowResized はブラウザのリサイズに追従してバッファを更新する。

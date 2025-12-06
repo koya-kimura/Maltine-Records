@@ -1,7 +1,7 @@
 // Scene 01: Noface Cycling
 import type { SceneDefinition } from "../SceneManager";
 
-export const noscene: SceneDefinition = {
+export const EmptyScene: SceneDefinition = {
     id: "scene01_noface_cycling",
     name: "Noface Cycling",
 

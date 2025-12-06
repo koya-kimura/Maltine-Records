@@ -3,7 +3,7 @@ import type { SceneDefinition } from "../SceneManager";
 import { Easing } from "../../utils/easing";
 import { UniformRandom } from "../../utils/uniformRandom";
 
-export const scene09: SceneDefinition = {
+export const WalkTriple: SceneDefinition = {
     id: "scene09_walk_x3",
     name: "Walk Animation x3",
 

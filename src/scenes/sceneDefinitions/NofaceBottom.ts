@@ -2,7 +2,7 @@
 import type { SceneDefinition } from "../SceneManager";
 import { UniformRandom } from "../../utils/uniformRandom";
 
-export const scene12: SceneDefinition = {
+export const NofaceBottom: SceneDefinition = {
     id: "scene12_noface_bottom",
     name: "Noface Bottom",
 

@@ -5,7 +5,7 @@ import { Easing } from "../../utils/easing";
 import { UniformRandom } from "../../utils/uniformRandom";
 import { map } from "../../utils/mathUtils";
 
-export const scene04: SceneDefinition = {
+export const AnimalMirrored: SceneDefinition = {
     id: "scene04_animal_2_mirrored",
     name: "Animal 2 Mirrored",
 

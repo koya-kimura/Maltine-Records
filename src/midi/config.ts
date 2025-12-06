@@ -131,31 +131,18 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
             { page: 0, row: 4, col: 1 },
             { page: 0, row: 4, col: 2 },
             { page: 0, row: 4, col: 3 },
+            { page: 0, row: 5, col: 0 },
+            { page: 0, row: 5, col: 1 },
+            { page: 0, row: 5, col: 2 },
+            { page: 0, row: 5, col: 3 },
         ],
         activeColor: LED_PALETTE.RED,
         inactiveColor: LED_PALETTE.DIM,
-        defaultValue: 3,
+        defaultValue: 0,
     },
 
     {
         key: "doubleSpeedToggle",
-        type: "toggle",
-        cells: [{ page: 0, row: 5, col: 0 }],
-        activeColor: LED_PALETTE.GREEN,
-        inactiveColor: LED_PALETTE.YELLOW,
-        defaultValue: false,
-    },
-
-    {
-        key: "quadSpeedMomentary",
-        type: "momentary",
-        cells: [{ page: 0, row: 5, col: 1 }],
-        activeColor: LED_PALETTE.CYAN,
-        inactiveColor: LED_PALETTE.YELLOW,
-    },
-
-    {
-        key: "backShadowToggle",
         type: "toggle",
         cells: [{ page: 0, row: 6, col: 0 }],
         activeColor: LED_PALETTE.GREEN,
@@ -164,20 +151,38 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
     },
 
     {
-        key: "vibeToggle",
-        type: "toggle",
+        key: "quadSpeedMomentary",
+        type: "momentary",
         cells: [{ page: 0, row: 6, col: 1 }],
+        activeColor: LED_PALETTE.CYAN,
+        inactiveColor: LED_PALETTE.YELLOW,
+    },
+
+    {
+        key: "backShadowToggle",
+        type: "toggle",
+        cells: [{ page: 0, row: 7, col: 0 }],
         activeColor: LED_PALETTE.GREEN,
         inactiveColor: LED_PALETTE.YELLOW,
         defaultValue: false,
     },
 
     {
-        key: "stroboMomentary",
-        type: "momentary",
-        cells: [{ page: 0, row: 7, col: 0 }],
-        activeColor: LED_PALETTE.CYAN,
+        key: "vibeToggle",
+        type: "toggle",
+        cells: [{ page: 0, row: 7, col: 1 }],
+        activeColor: LED_PALETTE.GREEN,
         inactiveColor: LED_PALETTE.YELLOW,
+        defaultValue: false,
+    },
+
+    {
+        key: "keyVisualToggle",
+        type: "toggle",
+        cells: [{ page: 7, row: 0, col: 0 }],
+        activeColor: LED_PALETTE.GREEN,
+        inactiveColor: LED_PALETTE.YELLOW,
+        defaultValue: false,
     },
 ];
 

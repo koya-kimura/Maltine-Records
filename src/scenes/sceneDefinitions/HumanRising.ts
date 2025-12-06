@@ -4,7 +4,7 @@ import { Easing } from "../../utils/easing";
 import { UniformRandom } from "../../utils/uniformRandom";
 import { map, fract } from "../../utils/mathUtils";
 
-export const scene10: SceneDefinition = {
+export const HumanRising: SceneDefinition = {
     id: "scene10_human_4",
     name: "Human 4",
 
