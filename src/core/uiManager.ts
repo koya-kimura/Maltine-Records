@@ -267,10 +267,9 @@ const UIDraw07: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo:
     // セリフ風テキスト表示
     const dialogues = [
         "Welcome to Gigandect Live...",
-        "Let's get started!",
-        "Are you ready?",
-        "Feel the rhythm...",
-        "Dance with me!",
+        "Maltine Records 20th Anniversary",
+        "20Hour Event「CITY」 DAY",
+        "Thank you!!",
     ];
     const charPerBeat = 8; // 1ビートあたりの文字数（早め）
     const pauseBeats = 8; // セリフ間の待機ビート数

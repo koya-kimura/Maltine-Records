@@ -31,6 +31,7 @@ import { AnimationRadial } from "./sceneDefinitions/AnimationRadial";
 import { HandRotate } from "./sceneDefinitions/HandRotate";
 import { RandomAnimation } from "./sceneDefinitions/RandomAnimation";
 import { RandomImage } from "./sceneDefinitions/RandomImage";
+import { FaceGrid } from "./sceneDefinitions/FaceGrid";
 
 import { EmptyScene } from "./sceneDefinitions/EmptyScene";
 
@@ -39,7 +40,7 @@ import { EmptyScene } from "./sceneDefinitions/EmptyScene";
 sceneManager.register(CatchyFaceFront);    // 元1
 sceneManager.register(NofaceBottom);       // 元12
 sceneManager.register(RandomImage);        // 元24
-sceneManager.register(EmptyScene);         // x
+sceneManager.register(FaceGrid);          // 元25
 
 //======
 
