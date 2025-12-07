@@ -1,7 +1,7 @@
 // Scene 06: Human 1
 import type { SceneDefinition } from "../SceneManager";
 import { Easing } from "../../utils/easing";
-import { UniformRandom } from "../../utils/uniformRandom";
+
 import { map } from "../../utils/mathUtils";
 import { GVM } from "../../utils/gvm";
 import { fract } from "../../utils/mathUtils";

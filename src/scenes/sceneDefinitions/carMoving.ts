@@ -2,7 +2,7 @@
 import type { SceneDefinition } from "../SceneManager";
 import { Easing } from "../../utils/easing";
 import { UniformRandom } from "../../utils/uniformRandom";
-import { fract, map } from "../../utils/mathUtils";
+
 
 export const CarMoving: SceneDefinition = {
     id: "scene09_walk_x3",

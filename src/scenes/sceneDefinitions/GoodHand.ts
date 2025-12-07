@@ -1,6 +1,6 @@
 // Scene 05: Human 0 with Hand Animation
 import type { SceneDefinition } from "../SceneManager";
-import { Easing } from "../../utils/easing";
+
 import { map, fract } from "../../utils/mathUtils";
 import { UniformRandom } from "../../utils/uniformRandom";
 

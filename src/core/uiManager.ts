@@ -81,7 +81,7 @@ const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     tex.pop();
 }
 
-const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image | undefined, _beat: number): void => {
+const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, _font: p5.Font, logo: p5.Image | undefined, _beat: number): void => {
     if (logo) {
         tex.push();
         tex.imageMode(p.CENTER);
@@ -103,7 +103,7 @@ const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     // tex.pop();
 }
 
-const UIDraw04: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: p5.Image | undefined, _beat: number): void => {
+const UIDraw04: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo: p5.Image | undefined, _beat: number): void => {
     tex.push();
     tex.textAlign(p.CENTER, p.CENTER);
     tex.textFont(font);

@@ -2,7 +2,7 @@
 import type { SceneDefinition } from "../SceneManager";
 import { GVM } from "../../utils/gvm";
 import { Easing } from "../../utils/easing";
-import { map, fract } from "../../utils/mathUtils";
+import { map } from "../../utils/mathUtils";
 import { UniformRandom } from "../../utils/uniformRandom";
 
 export const Building: SceneDefinition = {
