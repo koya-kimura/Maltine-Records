@@ -2,7 +2,6 @@
 import type { SceneDefinition } from "../SceneManager";
 import { Easing } from "../../utils/easing";
 import { map } from "../../utils/mathUtils";
-import { UniformRandom } from "../../utils/uniformRandom";
 import { GVM } from "../../utils/gvm";
 
 export const StopMachine: SceneDefinition = {

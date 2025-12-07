@@ -37,8 +37,6 @@ import { Building } from "./sceneDefinitions/Building";
 import { GoodHand } from "./sceneDefinitions/GoodHand";
 import { StopMachine } from "./sceneDefinitions/StopMachine";
 
-import { EmptyScene } from "./sceneDefinitions/EmptyScene";
-
 // シーンを順番に登録（この順番がボタンの順番になる）
 
 sceneManager.register(CatchyFaceFront);    // 元1
