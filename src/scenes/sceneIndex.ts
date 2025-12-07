@@ -35,6 +35,7 @@ import { FaceGrid } from "./sceneDefinitions/FaceGrid";
 import { CarMoving } from "./sceneDefinitions/carMoving";
 import { Building } from "./sceneDefinitions/Building";
 import { GoodHand } from "./sceneDefinitions/GoodHand";
+import { StopMachine } from "./sceneDefinitions/StopMachine";
 
 import { EmptyScene } from "./sceneDefinitions/EmptyScene";
 
@@ -85,13 +86,11 @@ sceneManager.register(CarMoving);         // 新規追加
 sceneManager.register(DanceRandom);        // 元11
 sceneManager.register(DanceBig);           // 元19
 sceneManager.register(StepCenter);         // 元20
-sceneManager.register(EmptyScene);         // x
+sceneManager.register(StopMachine);         // x
 
 //======
 
 sceneManager.register(HandRotate);         // 元22
-sceneManager.register(EmptyScene);         // x
-sceneManager.register(EmptyScene);         // x
 // 最後のボタンはランダムに割当たってる
 
 // シーンの総数をエクスポート

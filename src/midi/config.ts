@@ -76,8 +76,6 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
             { page: 0, row: 2, col: 6 },
             { page: 0, row: 3, col: 6 },
             { page: 0, row: 0, col: 7 },
-            { page: 0, row: 1, col: 7 },
-            { page: 0, row: 2, col: 7 },
         ],
         activeColor: LED_PALETTE.BLUE,
         inactiveColor: LED_PALETTE.PINK,
