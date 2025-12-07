@@ -28,7 +28,7 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
             { page: 0, row: 7, col: 6 },
         ],
         activeColor: LED_PALETTE.RED,
-        inactiveColor: LED_PALETTE.DIM,
+        inactiveColor: LED_PALETTE.CYAN,
         defaultValue: 0,
     },
 
@@ -81,7 +81,7 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
         ],
         activeColor: LED_PALETTE.BLUE,
         inactiveColor: LED_PALETTE.PINK,
-        defaultValue: 8,
+        defaultValue: 0,
     },
 
     {
@@ -108,7 +108,7 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
             { page: 0, row: 5, col: 6 },
         ],
         activeColor: LED_PALETTE.RED,
-        inactiveColor: LED_PALETTE.DIM,
+        inactiveColor: LED_PALETTE.CYAN,
         defaultValue: 0,
     },
 
@@ -137,8 +137,8 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
             { page: 0, row: 5, col: 3 },
         ],
         activeColor: LED_PALETTE.RED,
-        inactiveColor: LED_PALETTE.DIM,
-        defaultValue: 4,
+        inactiveColor: LED_PALETTE.CYAN,
+        defaultValue: 0,
     },
 
     {
@@ -146,7 +146,7 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
         type: "toggle",
         cells: [{ page: 0, row: 6, col: 0 }],
         activeColor: LED_PALETTE.GREEN,
-        inactiveColor: LED_PALETTE.YELLOW,
+        inactiveColor: LED_PALETTE.PINK,
         defaultValue: false,
     },
 
@@ -155,7 +155,7 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
         type: "momentary",
         cells: [{ page: 0, row: 6, col: 1 }],
         activeColor: LED_PALETTE.CYAN,
-        inactiveColor: LED_PALETTE.YELLOW,
+        inactiveColor: LED_PALETTE.PINK,
     },
 
     {
@@ -170,10 +170,32 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
     {
         key: "vibeToggle",
         type: "toggle",
-        cells: [{ page: 0, row: 7, col: 1 }],
+        cells: [{ page: 0, row: 6, col: 2 }],
         activeColor: LED_PALETTE.GREEN,
         inactiveColor: LED_PALETTE.YELLOW,
         defaultValue: false,
+    },
+
+    {
+        key: "oneColorToggle",
+        type: "toggle",
+        cells: [{ page: 0, row: 6, col: 3 }],
+        activeColor: LED_PALETTE.GREEN,
+        inactiveColor: LED_PALETTE.YELLOW,
+        defaultValue: false,
+    },
+
+    {
+        key: "limitSelect",
+        type: "radio",
+        cells: [
+            { page: 0, row: 7, col: 1 },
+            { page: 0, row: 7, col: 2 },
+            { page: 0, row: 7, col: 3 },
+        ],
+        activeColor: LED_PALETTE.BLUE,
+        inactiveColor: LED_PALETTE.GREEN,
+        defaultValue: 0,
     },
 
     {
@@ -182,7 +204,7 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
         cells: [{ page: 7, row: 0, col: 0 }],
         activeColor: LED_PALETTE.GREEN,
         inactiveColor: LED_PALETTE.YELLOW,
-        defaultValue: false,
+        defaultValue: true,
     },
 ];
 
@@ -206,7 +228,7 @@ export const FADER_BUTTON_MODE: "mute" | "random" = "random";
  * フェーダーのデフォルト値（9本分: 0-7 + マスター）
  * 値は0.0～1.0の範囲
  */
-export const DEFAULT_FADER_VALUES: number[] = [0, 0, 0, 0, 0, 0, 0, 1, 1];
+export const DEFAULT_FADER_VALUES: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 /**
  * サイドボタン（ページ選択）のデフォルトインデックス

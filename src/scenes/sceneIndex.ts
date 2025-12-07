@@ -33,6 +33,8 @@ import { RandomAnimation } from "./sceneDefinitions/RandomAnimation";
 import { RandomImage } from "./sceneDefinitions/RandomImage";
 import { FaceGrid } from "./sceneDefinitions/FaceGrid";
 import { CarMoving } from "./sceneDefinitions/carMoving";
+import { Building } from "./sceneDefinitions/Building";
+import { GoodHand } from "./sceneDefinitions/GoodHand";
 
 import { EmptyScene } from "./sceneDefinitions/EmptyScene";
 
@@ -48,7 +50,7 @@ sceneManager.register(FaceGrid);          // 元25
 sceneManager.register(AnimalMarching);     // 元2
 sceneManager.register(AnimalSwing);        // 元3
 sceneManager.register(AnimalMirrored);     // 元4
-sceneManager.register(EmptyScene);         // x
+sceneManager.register(Building);          // 新規追加
 
 //======
 
@@ -69,7 +71,7 @@ sceneManager.register(LifeRotate);         // 元18
 sceneManager.register(DothandSpin);        // 元13
 sceneManager.register(AnimationRadial);    // 元21
 sceneManager.register(HumanWithHand);      // 元5
-sceneManager.register(EmptyScene);         // x
+sceneManager.register(GoodHand);         // x
 
 //======
 

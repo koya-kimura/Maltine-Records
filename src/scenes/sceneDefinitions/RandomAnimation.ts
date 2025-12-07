@@ -40,7 +40,7 @@ export const RandomAnimation: SceneDefinition = {
         for (let i = 0; i < n; i++) {
             const x = (i + 0.5) / n * ctx.tex.width;
             const y = ctx.tex.height * 0.9;
-            const s = Math.min(ctx.tex.width, ctx.tex.height) * 0.1;
+            const s = Math.min(ctx.tex.width, ctx.tex.height) * 0.05;
             const isShow = UniformRandom.rand(Math.floor(ctx.beat * 2.0), i) < 0.7;
 
             ctx.tex.push();
@@ -50,6 +50,11 @@ export const RandomAnimation: SceneDefinition = {
             if (isShow) {
                 ctx.tex.noStroke();
                 ctx.tex.fill(ctx.colorPalette.accentColor);
+                ctx.tex.rect(0, 0, s, s);
+            } else {
+                ctx.tex.strokeWeight(2);
+                ctx.tex.stroke(ctx.colorPalette.accentColor);
+                ctx.tex.noFill();
                 ctx.tex.rect(0, 0, s, s);
             }
             

@@ -73,6 +73,7 @@ export class OverLayer {
 
         this.shader.setUniform("u_tex", this.sourceTexture);
         this.shader.setUniform("u_resolution", [this.sourceTexture.width, this.sourceTexture.height]);
+        this.shader.setUniform("u_time", p.millis() * 0.001 * 0.5);
         
         // シーン名でisNofaceBottomを判定
         const currentScene = sceneManager.getScene(sceneIndex);

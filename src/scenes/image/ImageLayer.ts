@@ -59,8 +59,9 @@ export class ImageLayer {
         await this.imageGallery.load(p, "/image", [
             { name: "animal", count: 3 }, 
             { name: "human", count: 5 }, 
-            { name: "life", count: 6 }, 
-            { name: "noface", count: 4 }
+            { name: "life", count: 7 }, 
+            { name: "noface", count: 4 },
+            { name: "building", count: 2 }
         ]);
 
         // エフェクト用のテクスチャを作成（WebGLモード）

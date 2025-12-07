@@ -16,6 +16,7 @@ uniform bool u_backShadowToggle;
 uniform bool u_vibeToggle;
 uniform sampler2D u_keyVisualTex;
 uniform bool u_keyVisualToggle;
+uniform bool u_oneColorToggle;
 
 float PI = 3.14159265358979;
 
@@ -429,17 +430,17 @@ void main(void) {
     // patternUV = mosaic(patternUV, u_resolution, 160.0); // モザイク化（オプション）
 
     if(u_patternIndex == 0) {
-        patternColor = noiseTexturePattern(patternUV, u_beat, u_time);
+        patternColor = checkerboardPattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 1) {
-        patternColor = stripePattern(patternUV, u_beat, u_time);
+        patternColor = psychedelicSpiralPattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 2) {
         patternColor = gridLinePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 3) {
-        patternColor = sunburstPattern(patternUV, u_beat, u_time);
+        patternColor = noiseTexturePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 4) {
-        patternColor = psychedelicSpiralPattern(patternUV, u_beat, u_time);
+        patternColor = sunburstPattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 5) {
-        patternColor = checkerboardPattern(patternUV, u_beat, u_time);
+        patternColor = stripePattern(patternUV, u_beat, u_time);
     } else if(u_patternIndex == 6) {
         patternColor = polkaDotPattern(patternUV, u_beat, u_time);
     } else {
@@ -543,6 +544,10 @@ void main(void) {
     // fader0: 高速色相回転（滑らか）
     if(getFaderValue(0) == 1.0) {
         col.rgb = rgbRotate(col.rgb, u_time * 50.0, 360.0);
+    }
+
+    if(u_oneColorToggle) {
+        col.rgb = gray(col.rgb) < 0.7 ? vec3(0.0) : u_subColor;
     }
 
     // ----------------------------------------

@@ -56,8 +56,8 @@ export class EffectManager {
             return;
         }
 
-        const colorPalette = getPalette(midiManager.midiInput["colorSelect"] as number || 0);
-        const patternIndex = midiManager.midiInput["patternSelect"] as number || 0;
+        const colorPalette = getPalette((midiManager.midiInput["colorSelect"] as number || 0) % (Math.pow(2, (midiManager.midiInput["limitSelect"] as number) + 1)));
+        const patternIndex = (midiManager.midiInput["patternSelect"] as number || 0) % (Math.pow(2, (midiManager.midiInput["limitSelect"] as number) + 1));
 
         p.shader(this.shader);
         this.shader.setUniform("u_beat", beat);
@@ -86,6 +86,7 @@ export class EffectManager {
         this.shader.setUniform("u_vibeToggle", midiManager.midiInput["vibeToggle"]);
         this.shader.setUniform("u_keyVisualTex", keyVisual ? keyVisual : p.createGraphics(1, 1));
         this.shader.setUniform("u_keyVisualToggle", midiManager.midiInput["keyVisualToggle"]);
+        this.shader.setUniform("u_oneColorToggle", midiManager.midiInput["oneColorToggle"]);
 
         p.rect(0, 0, p.width, p.height);
     }

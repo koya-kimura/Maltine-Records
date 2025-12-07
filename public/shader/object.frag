@@ -66,7 +66,12 @@ void main(void) {
         float edge = 0.03; // エッジのぼかし幅
         float mask = 1.0 - smoothstep(radius - edge, radius, d);
         
-        vec3 pattern = mod(floor(uv.x * 160.0) + floor(uv.y * 90.0), 2.0) == 0.0 ? vec3(1.0) : vec3(0.0);
+        vec2 centeredUV = normUV - vec2(u_resolution.x / u_resolution.y * centerUV.x, centerUV.y);
+        centeredUV *= rot(u_time * 0.2);
+        centeredUV.y += 0.1 * sin(u_time * 2.0 + d * 10.0);
+        vec2 distortedUV = centeredUV + vec2(0.02 * sin(u_time * 2.0 + centeredUV.y * 20.0), 0.02 * sin(u_time * 2.0 + centeredUV.x * 20.0));
+        distortedUV += vec2(u_resolution.x / u_resolution.y * centerUV.x, centerUV.y);
+        vec3 pattern = mod(floor(distortedUV.x * 160.0) + floor(distortedUV.y * 90.0), 2.0) == 0.0 ? vec3(1.0) : vec3(0.0);
         col = mix(col, vec4(pattern, 1.0), mask);
     }
     

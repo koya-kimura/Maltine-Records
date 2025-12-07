@@ -4,6 +4,7 @@ import { Easing } from "../../utils/easing";
 import { UniformRandom } from "../../utils/uniformRandom";
 import { map } from "../../utils/mathUtils";
 import { GVM } from "../../utils/gvm";
+import { fract } from "../../utils/mathUtils";
 
 export const HumanBottom: SceneDefinition = {
     id: "scene06_human_1",
@@ -30,7 +31,7 @@ export const HumanBottom: SceneDefinition = {
         }
 
         const img = ctx.imageGallery.getImage("human", 1);
-        const xgap = map(GVM.leapNoise(ctx.beat, 4, 1, Easing.easeOutQuad, 0), 0, 1, -1, 1) * Math.min(ctx.tex.width, ctx.tex.height) * 0.2;
+        const xgap = map(Easing.easeOutQuint(Easing.zigzag(ctx.beat)), 1, 0, 0, ctx.tex.width * 0.3) * (Math.floor(ctx.beat)%2 == 0 ? -1 : 1); 
         ctx.tex.push();
         ctx.tex.imageMode(ctx.p.CENTER);
         ctx.tex.translate(ctx.tex.width * 0.5 + xgap, ctx.tex.height * 0.9);
@@ -41,11 +42,14 @@ export const HumanBottom: SceneDefinition = {
 
     drawOverlay: (ctx) => {
         ctx.tex.clear();
-        const s = Math.min(ctx.tex.width, ctx.tex.height) * 0.15;
-        const y = map(Easing.easeInOutCubic((ctx.beat * 0.5) % 1), 0, 1, ctx.tex.height * 0.4, ctx.tex.height * 1.3);
-        const xgap = map(Math.pow(GVM.leapNoise(ctx.beat, 4, 1, Easing.easeOutQuad, 0) + 0.3, 3), 0, 1, 0, 1) * (Math.floor(ctx.beat / 4)%2 == 0 ? -1 : 1) * Math.min(ctx.tex.width, ctx.tex.height) * 1.0;
-        ctx.tex.noStroke();
-        ctx.tex.fill(ctx.colorPalette.accentColor);
-        ctx.tex.circle(ctx.tex.width * 0.41 + xgap, y, s);
+
+        if(fract(ctx.beat * 0.5) < 0.1){
+            const flashAlpha = Easing.easeOutQuad(map(fract(ctx.beat * 0.5), 0, 0.05, 1, 0));
+            ctx.tex.push();
+            ctx.tex.fill(255, 255 * flashAlpha);
+            ctx.tex.noStroke();
+            ctx.tex.rect(0, 0, ctx.tex.width, ctx.tex.height);
+            ctx.tex.pop();
+        }
     }
 };
