@@ -20,7 +20,7 @@ export const AnimationRadial: SceneDefinition = {
             ctx.tex.imageMode(ctx.p.CENTER);
             ctx.tex.translate(ctx.tex.width * 0.5, ctx.tex.height * 0.5);
             ctx.tex.rotate(angle);
-            ctx.tex.scale(1.5);
+            ctx.tex.scale(2);
             ctx.tex.image(hand, 0, 0);
             ctx.tex.pop();
         }

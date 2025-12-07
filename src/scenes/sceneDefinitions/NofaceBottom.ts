@@ -11,7 +11,7 @@ export const NofaceBottom: SceneDefinition = {
         ctx.tex.push();
         ctx.tex.imageMode(ctx.p.CENTER);
         ctx.tex.translate(ctx.tex.width * 0.5, ctx.tex.height * 1.6);
-        ctx.tex.scale(2.5);
+        ctx.tex.scale(3);
         ctx.tex.image(img, 0, 0);
         ctx.tex.pop();
     },

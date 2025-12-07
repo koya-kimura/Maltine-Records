@@ -6,27 +6,22 @@ import { CatchyFaceFront } from "./sceneDefinitions/CatchyFaceFront";
 import { AnimalMarching } from "./sceneDefinitions/AnimalMarching";
 import { AnimalSwing } from "./sceneDefinitions/AnimalSwing";
 import { AnimalMirrored } from "./sceneDefinitions/AnimalMirrored";
-
 import { HumanWithHand } from "./sceneDefinitions/HumanWithHand";
 import { HumanBottom } from "./sceneDefinitions/HumanBottom";
 import { HumanRotated } from "./sceneDefinitions/HumanRotated";
 import { HumanZigzag } from "./sceneDefinitions/HumanZigzag";
-
 import { WalkTriple } from "./sceneDefinitions/WalkTriple";
 import { HumanRising } from "./sceneDefinitions/HumanRising";
 import { DanceRandom } from "./sceneDefinitions/DanceRandom";
 import { NofaceBottom } from "./sceneDefinitions/NofaceBottom";
-
 import { DothandSpin } from "./sceneDefinitions/DothandSpin";
 import { LifeOrbit } from "./sceneDefinitions/LifeOrbit";
 import { LifeFalling } from "./sceneDefinitions/LifeFalling";
 import { WalkCircle } from "./sceneDefinitions/WalkCircle";
-
 import { LifeGather } from "./sceneDefinitions/LifeGather";
 import { LifeRotate } from "./sceneDefinitions/LifeRotate";
 import { DanceBig } from "./sceneDefinitions/DanceBig";
 import { StepCenter } from "./sceneDefinitions/StepCenter";
-
 import { AnimationRadial } from "./sceneDefinitions/AnimationRadial";
 import { HandRotate } from "./sceneDefinitions/HandRotate";
 import { RandomAnimation } from "./sceneDefinitions/RandomAnimation";

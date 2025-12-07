@@ -25,8 +25,8 @@ export const RandomAnimation: SceneDefinition = {
             if(!isShow) continue;
             ctx.tex.push();
             ctx.tex.translate(x, 0);
-            ctx.tex.translate(0, - ctx.tex.height * 0.4);
-            ctx.tex.scale(isFirst ? 3.5 : 3.0);
+            ctx.tex.translate(0, - ctx.tex.height * 0.35);
+            ctx.tex.scale(isFirst ? 3.8 : 3.3);
             ctx.tex.imageMode(ctx.p.CENTER);
             ctx.tex.image(img, 0, 0);
             ctx.tex.pop();

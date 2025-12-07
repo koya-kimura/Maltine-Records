@@ -58,11 +58,11 @@ void main(void) {
     col = texture2D(u_tex, uv);
 
     if(u_isNofaceBottom == 1) {
-        vec2 centerUV = vec2(0.5, 0.4);
+        vec2 centerUV = vec2(0.5, 0.45);
         vec2 normUV = vec2(uv.x * u_resolution.x / u_resolution.y, uv.y);
         float d = distance(normUV, vec2(u_resolution.x / u_resolution.y * centerUV.x, centerUV.y));
         
-        float radius = 0.35;
+        float radius = 0.4;
         float edge = 0.03; // エッジのぼかし幅
         float mask = 1.0 - smoothstep(radius - edge, radius, d);
         

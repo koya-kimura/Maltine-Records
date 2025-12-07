@@ -202,7 +202,7 @@ export const MIDI_BUTTON_CONFIGS: ButtonConfig[] = [
         cells: [{ page: 7, row: 0, col: 0 }],
         activeColor: LED_PALETTE.GREEN,
         inactiveColor: LED_PALETTE.YELLOW,
-        defaultValue: true,
+        defaultValue: false,
     },
 ];
 

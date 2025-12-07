@@ -11,11 +11,13 @@ export const CatchyFaceFront: SceneDefinition = {
     drawImage: (ctx) => {
         const t = ctx.beat * 0.25 + GVM.leapRamp(ctx.beat, 8, 2) * 8.0;
         const img = ctx.imageGallery.getImage("noface", Math.floor((t) % 4));
+        const scl = 1.3
         const sclX = map(UniformRandom.rand(1234, Math.floor(ctx.beat * 0.5)), 0, 1, 0.8, 1.1);
         const sclY = map(UniformRandom.rand(5678, Math.floor(ctx.beat * 0.5)), 0, 1, 0.8, 1.0);
         ctx.tex.push();
         ctx.tex.imageMode(ctx.p.CENTER);
         ctx.tex.translate(ctx.tex.width / 2, ctx.tex.height * 0.6);
+        ctx.tex.scale(scl);
         ctx.tex.scale(sclX, sclY);
         ctx.tex.image(img, 0, 0);
         ctx.tex.pop();

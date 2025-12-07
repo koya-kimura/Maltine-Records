@@ -14,7 +14,7 @@ export const RandomImage: SceneDefinition = {
 
         ctx.tex.push();
         ctx.tex.imageMode(ctx.p.CENTER);
-        ctx.tex.translate(ctx.tex.width * 0.5, ctx.tex.height * 0.5);
+        ctx.tex.translate(ctx.tex.width * 0.5, ctx.tex.height * 0.55);
         ctx.tex.scale(1.2);
         ctx.tex.image(walk, 0, 0);
         ctx.tex.pop();
@@ -27,7 +27,7 @@ export const RandomImage: SceneDefinition = {
         const s = Math.min(ctx.tex.width, ctx.tex.height) * 0.27;
         const vx = GVM.leapRamp(ctx.beat, 16, 2, Easing.easeOutBack) * ctx.tex.width;
 
-        ctx.tex.translate((ctx.tex.width * 0.51 + vx) % ctx.tex.width, ctx.tex.height * 0.15)
+        ctx.tex.translate((ctx.tex.width * 0.51 + vx) % ctx.tex.width, ctx.tex.height * 0.23)
         ctx.tex.noStroke();
         ctx.tex.fill(ctx.colorPalette.accentColor);
         ctx.tex.circle(0, 0, s);

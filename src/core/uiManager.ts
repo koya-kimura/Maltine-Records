@@ -91,16 +91,6 @@ const UIDraw03: UIDrawFunction = (p: p5, tex: p5.Graphics, _font: p5.Font, logo:
         tex.image(logo, 0, 0);
         tex.pop();
     }
-
-    // tex.push();
-    // tex.textAlign(p.RIGHT, p.BOTTOM);
-    // tex.translate(tex.width * 0.95, tex.height * 0.95);
-    // tex.textSize(tex.width * 0.015);
-    // tex.fill(255);
-    // tex.noStroke();
-    // tex.textFont(font);
-    // tex.text(DateText.getYYYYMMDD_HHMMSS_format(), 0, 0);
-    // tex.pop();
 }
 
 const UIDraw04: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo: p5.Image | undefined, _beat: number): void => {
@@ -334,10 +324,10 @@ const UIDraw07: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, _logo:
 
 const UIDRAWERS: readonly UIDrawFunction[] = [
     UINone,
-    UIDraw03,
     UIDraw02,
-    UIDraw01,
+    UIDraw03,
     UIDraw07,
+    UIDraw01,
     UIDraw06,
     UIDraw05,
     UIDraw04,

@@ -13,7 +13,7 @@ export const GoodHand: SceneDefinition = {
         ctx.tex.push();
         ctx.tex.imageMode(ctx.p.CENTER);
         ctx.tex.translate(ctx.tex.width * 0.5, ctx.tex.height * 0.25);
-        ctx.tex.scale(0.4);
+        ctx.tex.scale(0.5);
         ctx.tex.rotate(ctx.beat * 0.5);
         ctx.tex.image(flower, 0, 0);
         ctx.tex.pop();
@@ -24,8 +24,8 @@ export const GoodHand: SceneDefinition = {
             const hand = ctx.imageAnimation.getImage("hand", 3, UniformRandom.rand(Math.floor(ctx.beat * 4.0), i * 37) );
             ctx.tex.push();
             ctx.tex.imageMode(ctx.p.CENTER);
-            ctx.tex.translate(x, ctx.tex.height * 0.65);
-            ctx.tex.scale(0.9);
+            ctx.tex.translate(x, ctx.tex.height * 0.7);
+            ctx.tex.scale(1.0);
             ctx.tex.rotate(Math.PI * 0.38)
             ctx.tex.image(hand, 0, 0);
             ctx.tex.pop();
