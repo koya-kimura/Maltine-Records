@@ -17,7 +17,6 @@ const texManager = new TexManager();
 const uiManager = new UIManager();
 const effectManager = new EffectManager();
 
-let capture: p5.Element;
 let captureTexture: p5.Graphics;
 let font: p5.Font;
 let logo: p5.Image | undefined;
@@ -66,10 +65,8 @@ const sketch = (p: p5) => {
     
     uiManager.init(p);
 
-    // カメラキャプチャ用のバッファと要素の作成
+    // カメラキャプチャ用のバッファ（現在未使用のため空のテクスチャ）
     captureTexture = p.createGraphics(p.windowWidth, p.windowHeight);
-    capture = p.createCapture((p as any).VIDEO);
-    capture.hide(); // HTML要素としてのビデオは隠す
     updateLoadingProgress(80);
 
     // リソースの読み込み
@@ -120,18 +117,6 @@ const sketch = (p: p5) => {
   // 4. エフェクトマネージャーによるポストプロセスの適用（最終出力）
   p.draw = () => {
     p.clear();
-
-    //=============
-
-    // カメラ映像のアスペクト比維持とセンタリング
-    const scl = Math.max(p.width / capture.width, p.height / capture.height);
-    captureTexture.clear();
-    captureTexture.push();
-    captureTexture.translate(p.width / 2, p.height / 2);
-    captureTexture.scale(-1 * scl, 1 * scl); // 左右反転とスケール調整
-    captureTexture.imageMode(p.CENTER);
-    captureTexture.image(capture, 0, 0);
-    captureTexture.pop();
 
     //=============
 

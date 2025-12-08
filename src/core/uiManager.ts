@@ -61,11 +61,12 @@ const UIDraw02: UIDrawFunction = (p: p5, tex: p5.Graphics, font: p5.Font, logo: 
     tex.fill(255);
     tex.noStroke();
 
-    tex.textAlign(p.LEFT, p.CENTER);
-    tex.text("Gigandect", tex.width * 0.05, tex.height * 0.5);
+    tex.textAlign(p.CENTER, p.CENTER);
+    // tex.textAlign(p.LEFT, p.CENTER);
+    tex.text("Gigandect", tex.width * 0, tex.height * 0.5);
 
-    tex.textAlign(p.RIGHT, p.CENTER);
-    tex.text("Gigandect", tex.width * 0.95, tex.height * 0.5);
+    // tex.textAlign(p.RIGHT, p.CENTER);
+    tex.text("Gigandect", tex.width * 1.0, tex.height * 0.5);
 
     if (logo) {
         for (let i = 0; i < 5; i++) {

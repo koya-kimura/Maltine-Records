@@ -468,18 +468,18 @@ void main(void) {
     }
 
     // fader4: 横スクロール
-    if(getFaderValue(4) == 1.0) {
+    if(getFaderValue(5) == 1.0) {
         mainUV.x = fract(mainUV.x + u_time * 0.08);
     }
 
     // fader3: 4分割タイル
-    if(getFaderValue(3) == 1.0) {
+    if(getFaderValue(4) == 1.0) {
         colIndex = mainUV.x * 4.0;
         mainUV = tile(mainUV, 4.0);
     }
 
     // fader5: 3分割トリミング（中央のみ表示）
-    if(getFaderValue(5) == 1.0) {
+    if(getFaderValue(3) == 1.0) {
         float n = 3.0;
         colIndex *= 3.0;
         mainUV.x = fract(mainUV.x * n);

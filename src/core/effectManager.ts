@@ -6,10 +6,12 @@ import { getPalette } from "../utils/colorPalette";
 
 export class EffectManager {
     private shader: p5.Shader | null;
+    private dummyTexture: p5.Graphics | null;
 
     // constructor は空のシェーダー参照を初期化する。
     constructor() {
         this.shader = null;
+        this.dummyTexture = null;
     }
 
     /**
@@ -32,6 +34,9 @@ export class EffectManager {
         } else {
             this.shader = shaderOrPromise;
         }
+
+        // ダミーテクスチャを一度だけ作成（毎フレーム作成するとメモリリーク）
+        this.dummyTexture = p.createGraphics(1, 1);
     }
 
     /**
@@ -52,7 +57,7 @@ export class EffectManager {
      * @param colorPaletteRGBArray カラーパレットのRGB値がフラットに並んだ配列。
      */
     apply(p: p5, sourceTexture: p5.Graphics, uiTexture: p5.Graphics, captureTexture: p5.Graphics, midiManager: APCMiniMK2Manager, beat: number, keyVisual: p5.Image | undefined): void {
-        if (!this.shader) {
+        if (!this.shader || !this.dummyTexture) {
             return;
         }
 
@@ -84,7 +89,7 @@ export class EffectManager {
 
         this.shader.setUniform("u_backShadowToggle", midiManager.midiInput["backShadowToggle"]);
         this.shader.setUniform("u_vibeToggle", midiManager.midiInput["vibeToggle"]);
-        this.shader.setUniform("u_keyVisualTex", keyVisual ? keyVisual : p.createGraphics(1, 1));
+        this.shader.setUniform("u_keyVisualTex", keyVisual ? keyVisual : this.dummyTexture);
         this.shader.setUniform("u_keyVisualToggle", midiManager.midiInput["keyVisualToggle"]);
         this.shader.setUniform("u_oneColorToggle", midiManager.midiInput["oneColorToggle"]);
 
